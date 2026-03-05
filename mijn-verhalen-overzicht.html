@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mijn Verhalen — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        main { padding: 36px 0 60px; }
+        .pagina-header { text-align:center; padding: 8px 0 28px; }
+        .pagina-header h1 { font-family:'Fredoka One',cursive; font-size:clamp(1.8rem,5vw,2.6rem); color:#5B21B6; margin-bottom:8px; }
+        .pagina-header p { color:var(--tekst-zacht); font-size:1rem; }
+
+        .verhaal-grid { display:flex; flex-direction:column; gap:16px; }
+
+        .pv-kaart {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--schaduw);
+            border: 2px solid var(--rand-licht);
+            border-left: 5px solid var(--paars);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .pv-kaart:hover { box-shadow:var(--schaduw-hover); transform:translateY(-2px); }
+        .pv-kaart:nth-child(2n)   { border-left-color: var(--roze); }
+        .pv-kaart:nth-child(3n+1) { border-left-color: var(--oranje); }
+
+        .kaart-kop { display:flex; align-items:flex-start; gap:14px; margin-bottom:12px; flex-wrap:wrap; }
+        .kaart-titel { font-family:'Fredoka One',cursive; font-size:1.35rem; color:var(--tekst); flex:1; min-width:0; }
+        .status-badge {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .status-bezig { background:#FFF7ED; border:2px solid #FED7AA; color:#9A3412; }
+        .status-klaar { background:var(--groen-licht); border:2px solid #86EFAC; color:#14532D; }
+
+        .kaart-meta { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+        .meta-pill {
+            background: var(--paars-licht);
+            border: 1.5px solid #C4B5FD;
+            border-radius: 12px;
+            padding: 3px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #5B21B6;
+        }
+        .meta-pill.groen { background:var(--groen-licht); border-color:#86EFAC; color:#14532D; }
+
+        .kaart-tekst-preview {
+            font-size: 0.9rem;
+            color: var(--tekst-zacht);
+            font-style: italic;
+            margin-bottom: 14px;
+            line-height: 1.6;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .kaart-acties { display:flex; gap:8px; flex-wrap:wrap; }
+        .knop-sm { padding:8px 18px; font-size:0.85rem; }
+
+        .leeg-melding {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .leeg-melding .groot { font-size: 4rem; margin-bottom: 16px; }
+        .leeg-melding h3 { font-family:'Fredoka One',cursive; font-size:1.6rem; color:#5B21B6; margin-bottom:10px; }
+        .leeg-melding p { color:var(--tekst-zacht); margin-bottom:24px; }
+
+        /* Deel-modal */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.zichtbaar { display: flex; }
+        .modal-doos {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .modal-doos h3 { font-family:'Fredoka One',cursive; font-size:1.4rem; color:#5B21B6; margin-bottom:8px; }
+        .modal-doos p { color:var(--tekst-zacht); font-size:0.9rem; margin-bottom:18px; }
+        .modal-link-balk {
+            background: var(--paars-licht);
+            border: 2px solid #C4B5FD;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #5B21B6;
+            word-break: break-all;
+            margin-bottom: 16px;
+        }
+        .modal-acties { display:flex; gap:10px; flex-wrap:wrap; }
+        .modal-sluiten { background:none; border:2px solid #C4B5FD; color:#5B21B6; padding:8px 18px; border-radius:var(--radius-btn); font-family:'Nunito',sans-serif; font-weight:800; cursor:pointer; font-size:0.9rem; }
+        .modal-sluiten:hover { background:var(--paars-licht); }
+
+        /* Bevestig verwijder */
+        .bevestig-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .bevestig-overlay.zichtbaar { display: flex; }
+        .bevestig-doos {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            text-align: center;
+        }
+        .bevestig-doos .groot { font-size:3rem; margin-bottom:12px; }
+        .bevestig-doos h3 { font-family:'Fredoka One',cursive; font-size:1.3rem; color:#7F1D1D; margin-bottom:8px; }
+        .bevestig-doos p { color:var(--tekst-zacht); font-size:0.9rem; margin-bottom:20px; }
+        .bevestig-acties { display:flex; gap:10px; justify-content:center; }
+
+        footer { border-top:2px solid var(--rand-licht); padding:24px 20px; text-align:center; color:var(--tekst-zacht); font-size:0.85rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <p class="site-subtitle">Mijn persoonlijke verhalen</p>
+</header>
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
+    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-verhalen-overzicht.html" id="navMijnVerhaalLink" class="actief">✍️ Mijn Verhaal</a>
+    <a href="login.html" id="navLoginLink">👤 Login</a>
+</nav>
+
+<main>
+<div class="container">
+
+    <div class="pagina-header">
+        <h1>✍️ Mijn Verhalen</h1>
+        <p>Schrijf en beheer jouw eigen persoonlijke verhalen.</p>
+    </div>
+
+    <div style="text-align:right; margin-bottom:20px;">
+        <a href="mijn-verhaal.html" class="knop knop-gradient">✨ Nieuw verhaal starten</a>
+    </div>
+
+    <div id="laadMelding" class="melding-badge">⏳ Verhalen laden...</div>
+    <div id="verhaalGrid" class="verhaal-grid" style="display:none;"></div>
+
+</div>
+</main>
+
+<!-- Deel-modal -->
+<div class="modal-overlay" id="deelModal">
+    <div class="modal-doos">
+        <h3>📤 Deel dit verhaal</h3>
+        <p>Deel de link met vrienden en familie!</p>
+        <div class="modal-link-balk" id="deelUrl"></div>
+        <div id="deelKopieeMelding" class="melding-succes" style="margin-bottom:12px;"></div>
+        <div class="modal-acties">
+            <a class="knop knop-groen knop-sm" id="deelWhatsapp" target="_blank" rel="noopener">💬 WhatsApp</a>
+            <a class="knop knop-blauw knop-sm" id="deelEmail">📧 E-mail</a>
+            <button class="knop knop-paars knop-sm" onclick="kopieerDeelLink()">🔗 Kopieer</button>
+            <button class="modal-sluiten" onclick="sluitDeelModal()">Sluiten</button>
+        </div>
+    </div>
+</div>
+
+<!-- Verwijder bevestiging -->
+<div class="bevestig-overlay" id="verwijderModal">
+    <div class="bevestig-doos">
+        <div class="groot">🗑️</div>
+        <h3>Verhaal verwijderen?</h3>
+        <p id="verwijderNaam"></p>
+        <div class="bevestig-acties">
+            <button class="knop knop-rood" id="bevestigVerwijder">Ja, verwijderen</button>
+            <button class="modal-sluiten" onclick="sluitVerwijderModal()">Annuleren</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>Gemaakt met <span style="color:#E8197D;">❤️</span> voor de Depeterpost Verhalen Club</p>
+</footer>
+
+<script>
+let huidigDeelUrl = '';
+let verwijderId = null;
+let userToken = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (!userInfo) { window.location.href = 'login.html'; return; }
+    const u = JSON.parse(userInfo);
+    const link = document.getElementById('navLoginLink');
+    if (link) link.textContent = u.avatar + ' ' + u.gebruikersnaam;
+    userToken = localStorage.getItem('userToken');
+    laadVerhalen();
+});
+
+async function laadVerhalen() {
+    try {
+        const r = await fetch('/api/mijn-verhalen', {
+            headers: { 'x-user-token': userToken }
+        });
+        const verhalen = await r.json();
+        toonVerhalen(verhalen);
+    } catch {
+        document.getElementById('laadMelding').textContent = '❌ Kan verhalen niet laden. Herlaad de pagina.';
+    }
+}
+
+function toonVerhalen(verhalen) {
+    document.getElementById('laadMelding').style.display = 'none';
+    const grid = document.getElementById('verhaalGrid');
+    grid.style.display = 'flex';
+
+    if (!verhalen.length) {
+        grid.innerHTML = `
+            <div class="leeg-melding">
+                <div class="groot">📝</div>
+                <h3>Nog geen verhalen</h3>
+                <p>Je hebt nog geen persoonlijk verhaal geschreven. Begin vandaag!</p>
+                <a href="mijn-verhaal.html" class="knop knop-gradient">✨ Mijn eerste verhaal</a>
+            </div>`;
+        return;
+    }
+
+    // Nieuwste eerst
+    verhalen.sort((a, b) => new Date(b.bijgewerkt) - new Date(a.bijgewerkt));
+
+    grid.innerHTML = verhalen.map(v => {
+        const eersteDeelTekst = v.delen.find(d => d.tekst.trim())?.tekst || '';
+        const datum = new Date(v.bijgewerkt).toLocaleDateString('nl-NL', { day:'numeric', month:'long', year:'numeric' });
+        const geschrevenDelen = v.delen.filter(d => d.tekst.trim()).length;
+        const publicUrl = `${window.location.origin}/verhaal/${v.id}`;
+        return `
+        <div class="pv-kaart">
+            <div class="kaart-kop">
+                <div class="kaart-titel">${veilig(v.titel)}</div>
+                <span class="status-badge ${v.status === 'klaar' ? 'status-klaar' : 'status-bezig'}">
+                    ${v.status === 'klaar' ? '✅ Klaar' : '🟡 Bezig'}
+                </span>
+            </div>
+            <div class="kaart-meta">
+                <span class="meta-pill">📖 ${v.aantalDelen} delen</span>
+                <span class="meta-pill groen">✍️ ${geschrevenDelen} geschreven</span>
+                <span class="meta-pill">📅 ${datum}</span>
+                ${v.onderwerp ? `<span class="meta-pill">📌 ${veilig(v.onderwerp)}</span>` : ''}
+            </div>
+            ${eersteDeelTekst ? `<div class="kaart-tekst-preview">${veilig(eersteDeelTekst)}</div>` : ''}
+            <div class="kaart-acties">
+                <a href="mijn-verhaal.html?id=${v.id}" class="knop knop-paars knop-sm">✏️ Bewerken</a>
+                ${v.status === 'klaar'
+                    ? `<button class="knop knop-groen knop-sm" onclick="openDeelModal('${v.id}', '${veilig(v.titel)}', '${encodeURIComponent(publicUrl)}')">📤 Delen</button>`
+                    : ''}
+                <a href="/verhaal/${v.id}" class="knop knop-blauw knop-sm" target="_blank">👁️ Bekijken</a>
+                <button class="knop knop-rood knop-sm" onclick="openVerwijderModal('${v.id}', '${veilig(v.titel)}')">🗑️ Verwijderen</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openDeelModal(id, titel, encodedUrl) {
+    const url = decodeURIComponent(encodedUrl);
+    huidigDeelUrl = url;
+    document.getElementById('deelUrl').textContent = url;
+    document.getElementById('deelWhatsapp').href =
+        `https://wa.me/?text=${encodeURIComponent('Lees mijn verhaal "' + titel + '": ' + url)}`;
+    document.getElementById('deelEmail').href =
+        `mailto:?subject=${encodeURIComponent('Lees: ' + titel)}&body=${encodeURIComponent('Hoi!\n\nIk heb een verhaal geschreven: "' + titel + '"\n\nLees het hier: ' + url)}`;
+    document.getElementById('deelKopieeMelding').style.display = 'none';
+    document.getElementById('deelModal').classList.add('zichtbaar');
+}
+
+function sluitDeelModal() {
+    document.getElementById('deelModal').classList.remove('zichtbaar');
+}
+
+function kopieerDeelLink() {
+    navigator.clipboard.writeText(huidigDeelUrl).then(() => {
+        const m = document.getElementById('deelKopieeMelding');
+        m.textContent = '✅ Link gekopieerd!';
+        m.style.display = 'block';
+        setTimeout(() => m.style.display = 'none', 2500);
+    });
+}
+
+function openVerwijderModal(id, titel) {
+    verwijderId = id;
+    document.getElementById('verwijderNaam').textContent = `Weet je zeker dat je "${titel}" wil verwijderen? Dit kan niet ongedaan worden gemaakt.`;
+    document.getElementById('bevestigVerwijder').onclick = bevestigVerwijderen;
+    document.getElementById('verwijderModal').classList.add('zichtbaar');
+}
+
+function sluitVerwijderModal() {
+    verwijderId = null;
+    document.getElementById('verwijderModal').classList.remove('zichtbaar');
+}
+
+async function bevestigVerwijderen() {
+    if (!verwijderId) return;
+    try {
+        const r = await fetch(`/api/mijn-verhaal/${verwijderId}`, {
+            method: 'DELETE',
+            headers: { 'x-user-token': userToken }
+        });
+        const data = await r.json();
+        sluitVerwijderModal();
+        if (data.succes) laadVerhalen();
+    } catch {
+        sluitVerwijderModal();
+    }
+}
+
+// Sluit modals bij klikken buiten de doos
+document.getElementById('deelModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('deelModal')) sluitDeelModal();
+});
+document.getElementById('verwijderModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('verwijderModal')) sluitVerwijderModal();
+});
+
+function veilig(t) {
+    if (t == null) return '';
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

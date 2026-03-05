@@ -1,0 +1,37 @@
+[
+  {
+    "id": "user-1772363127937",
+    "gebruikersnaam": "Peter Post",
+    "wachtwoordHash": "22e84e4b7583448fd8b79c53d5271f694b40e053f4b595ab8398445f10e28f2b",
+    "avatar": "🐉",
+    "leeftijdsgroep": "C",
+    "punten": 0,
+    "badges": [],
+    "aangemeldOp": "2026-03-01T11:05:27.937Z",
+    "aantalInzendingen": 0,
+    "aantalWinsten": 0,
+    "aaneengeslotenDagen": 0,
+    "laasteInzending": null
+  },
+  {
+    "id": "user-1772566296056",
+    "gebruikersnaam": "Peter",
+    "wachtwoordHash": "427313921870d38c2b1952c9d3dddb48776ffc76663061fae9f649813f571761",
+    "email": "cmansjoe@gmail.com",
+    "emailGeverifieerd": false,
+    "avatar": "🐉",
+    "leeftijdsgroep": "C",
+    "punten": 60,
+    "badges": [
+      "eerste_verhaal",
+      "kampioen"
+    ],
+    "aangemeldOp": "2026-03-03T19:31:36.056Z",
+    "aantalInzendingen": 1,
+    "aantalWinsten": 1,
+    "aaneengeslotenDagen": 0,
+    "laasteInzending": "2026-03-03",
+    "regelsGeaccepteerd": true,
+    "regelsGeaccepteerdOp": "2026-03-03T19:31:36.056Z"
+  }
+]

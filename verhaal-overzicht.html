@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ons Grote Verhaal — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .verhaal-hero {
+            background: linear-gradient(135deg, #0D2B1A 0%, #1B4D2E 50%, #0A1F11 100%);
+            color: #E8F5EE;
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            margin-bottom: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(76,201,122,0.25);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .verhaal-hero::before {
+            content: '📖✨📚';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.06;
+            top: -15px; left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+        .verhaal-hero h2 {
+            font-family: 'Grandstander', cursive;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            margin-bottom: 10px;
+            position: relative;
+            background: linear-gradient(135deg, #F7C948, #F28C38);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .verhaal-hero p {
+            opacity: 0.88;
+            font-size: 0.95rem;
+            line-height: 1.65;
+            max-width: 560px;
+            margin: 0 auto 16px;
+            position: relative;
+            color: rgba(167,196,181,0.9);
+        }
+        .statistieken {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .stat-badge {
+            background: rgba(76,201,122,0.15);
+            border: 1px solid rgba(76,201,122,0.3);
+            border-radius: 50px;
+            padding: 7px 16px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #4CC97A;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Tijdlijn hoofdstukken */
+        .tijdlijn {
+            position: relative;
+            padding-left: 28px;
+        }
+        .tijdlijn::before {
+            content: '';
+            position: absolute;
+            left: 8px; top: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #4CC97A, #F7C948, #F28C38);
+            border-radius: 3px;
+        }
+
+        .hoofdstuk-kaart {
+            background: rgba(13,43,26,0.7);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            margin-bottom: 18px;
+            box-shadow: var(--schaduw);
+            border: 2px solid rgba(255,255,255,0.08);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .hoofdstuk-kaart:hover {
+            border-color: rgba(76,201,122,0.3);
+            box-shadow: var(--schaduw-hover);
+            transform: translateX(4px);
+        }
+        /* Tijdlijn bol */
+        .hoofdstuk-kaart::before {
+            content: '';
+            position: absolute;
+            left: -24px; top: 22px;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            background: #4CC97A;
+            border: 3px solid #1B4D2E;
+            box-shadow: 0 0 0 2px #4CC97A;
+        }
+        .hoofdstuk-kaart:nth-child(2n)::before  { background: #F472B6; box-shadow: 0 0 0 2px #F472B6; }
+        .hoofdstuk-kaart:nth-child(3n)::before  { background: #F7C948; box-shadow: 0 0 0 2px #F7C948; }
+        .hoofdstuk-kaart:nth-child(4n)::before  { background: #F28C38; box-shadow: 0 0 0 2px #F28C38; }
+
+        .hoofdstuk-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .hoofdstuk-nummer {
+            background: linear-gradient(135deg, #4CC97A, #F7C948);
+            color: #0D2B1A;
+            border-radius: 50%;
+            width: 38px; height: 38px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(76,201,122,0.35);
+        }
+        .hoofdstuk-auteur {
+            font-weight: 800;
+            color: #E8F5EE;
+            font-size: 0.95rem;
+        }
+        .hoofdstuk-datum {
+            color: rgba(167,196,181,0.7);
+            font-size: 0.8rem;
+        }
+        .groep-chip {
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+        .chip-A { background: rgba(242,140,56,0.2); color: #F28C38; }
+        .chip-B { background: rgba(139,92,246,0.2); color: #8B5CF6; }
+        .chip-C { background: rgba(76,201,122,0.2); color: #4CC97A; }
+
+        .hoofdstuk-tekst {
+            font-family: 'Lora', serif;
+            color: rgba(167,196,181,0.9);
+            line-height: 1.85;
+            font-size: 1rem;
+        }
+
+        /* Inklapbaar */
+        .hoofdstuk-preview { }
+        .hoofdstuk-rest    { display: none; }
+        .lees-verder {
+            background: none;
+            border: none;
+            color: #4CC97A;
+            font-family: 'Baloo 2', cursive;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 4px 0;
+            margin-top: 8px;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+        .lees-verder:hover { color: #F7C948; }
+
+        .geen-hoofdstukken {
+            text-align: center;
+            padding: 50px 20px;
+            color: rgba(167,196,181,0.7);
+        }
+        .geen-hoofdstukken .emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+
+        /* CTA onderaan */
+        .cta-blok {
+            background: linear-gradient(135deg, rgba(76,201,122,0.1), rgba(247,201,72,0.08));
+            border: 2px solid rgba(76,201,122,0.25);
+            border-radius: var(--radius);
+            padding: 28px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .cta-blok h3 {
+            font-family: 'Grandstander', cursive;
+            font-size: 1.5rem;
+            color: #F7C948;
+            margin-bottom: 8px;
+        }
+        .cta-blok p { color: rgba(167,196,181,0.8); margin-bottom: 18px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <p class="site-subtitle">Schrijf mee aan het grote avontuur!</p>
+</header>
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
+    <a href="verhaal-overzicht.html" class="actief">📚 Ons Verhaal</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-verhalen-overzicht.html" id="navMijnVerhaalLink" style="display:none">✍️ Mijn Verhaal</a>
+    <a href="login.html" id="navLoginLink">👤 Login</a>
+</nav>
+
+<main>
+<div class="container">
+
+    <section class="sectie">
+        <h2 class="sectie-titel paars">📚 Ons Grote Verhaal</h2>
+        <p style="color:var(--tekst-zacht); margin-bottom:20px;">
+            Dit verhaal wordt elke dag een beetje groter — door jullie! Hier lees je alle hoofdstukken die al geschreven zijn.
+        </p>
+
+        <div id="verhaalHeader"></div>
+
+        <div class="tijdlijn" id="hoofdstukkenContainer">
+            <div class="geen-hoofdstukken">
+                <span class="emoji">⏳</span>
+                <p>Laden...</p>
+            </div>
+        </div>
+
+        <div class="cta-blok" style="margin-top:24px;">
+            <h3>✏️ Schrijf het volgende hoofdstuk!</h3>
+            <p>Elke dag is er een nieuwe schrijfopdracht. Jouw stuk kan het volgende hoofdstuk worden!</p>
+            <a href="schrijfopdracht.html" class="knop knop-gradient">🚀 Doe mee vandaag!</a>
+        </div>
+    </section>
+
+</div>
+</main>
+
+<footer>
+    <div class="quote">"Een verhaal dat je niet schrijft, bestaat nooit."</div>
+    <div class="quote-auteur">— Depeterpost Verhalen Club</div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const u = localStorage.getItem('userInfo');
+    if (u) {
+        const user = JSON.parse(u);
+        const link = document.getElementById('navLoginLink');
+        if (link) link.textContent = user.avatar + ' ' + user.gebruikersnaam;
+        const mijnLink = document.getElementById('navMijnVerhaalLink');
+        if (mijnLink) mijnLink.style.display = '';
+    }
+    laadVerhaal();
+});
+
+async function laadVerhaal() {
+    try {
+        const r = await fetch('/api/verhaal');
+        const verhaal = await r.json();
+        toonVerhaalHeader(verhaal);
+        toonHoofdstukken(verhaal.hoofdstukken || []);
+    } catch(e) {
+        document.getElementById('hoofdstukkenContainer').innerHTML = `
+            <div class="geen-hoofdstukken">
+                <span class="emoji">❌</span>
+                <p>Kan geen verbinding maken. Is de server actief?</p>
+            </div>`;
+    }
+}
+
+function toonVerhaalHeader(verhaal) {
+    const h = (verhaal.hoofdstukken || []).length;
+    const a = [...new Set((verhaal.hoofdstukken || []).map(x => x.auteur))].length;
+    const w = (verhaal.hoofdstukken || []).reduce((t, x) => t + (x.tekst||'').split(/\s+/).length, 0);
+    document.getElementById('verhaalHeader').innerHTML = `
+        <div class="verhaal-hero">
+            <h2>📖 ${escapeHTML(verhaal.titel || 'Ons Grote Verhaal')}</h2>
+            <p>${escapeHTML(verhaal.samenvatting || 'Een doorlopend verhaal geschreven door alle kinderen samen.')}</p>
+            <div class="statistieken">
+                <span class="stat-badge">📑 ${h} hoofdstuk${h !== 1 ? 'ken' : ''}</span>
+                <span class="stat-badge">✍️ ${a} schrijver${a !== 1 ? 's' : ''}</span>
+                <span class="stat-badge">📝 ~${w} woorden</span>
+            </div>
+        </div>`;
+}
+
+function toonHoofdstukken(hoofdstukken) {
+    const container = document.getElementById('hoofdstukkenContainer');
+    if (hoofdstukken.length === 0) {
+        container.innerHTML = `
+            <div class="geen-hoofdstukken">
+                <span class="emoji">🌱</span>
+                <p><strong>Het verhaal begint hier!</strong></p>
+                <p style="margin-top:8px; font-size:0.9rem;">Nog niemand heeft een hoofdstuk geschreven. Wees de eerste!</p>
+            </div>`;
+        return;
+    }
+    container.innerHTML = hoofdstukken.map(h => maakHoofdstukKaart(h)).join('');
+}
+
+function maakHoofdstukKaart(h) {
+    const tekst = escapeHTML(h.tekst || '').replace(/\n/g, '<br>');
+    const groepenNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    const groep = h.leeftijdsgroep || 'B';
+    const woorden = (h.tekst||'').trim().split(/\s+/).length;
+    // Toon eerste 200 chars, rest inklapbaar
+    const kort = (h.tekst||'').substring(0, 300);
+    const rest = (h.tekst||'').substring(300);
+    const heeftRest = rest.length > 0;
+    const id = 'h-' + h.nummer;
+
+    return `
+        <div class="hoofdstuk-kaart">
+            <div class="hoofdstuk-meta">
+                <div class="hoofdstuk-nummer">${h.nummer}</div>
+                <span class="hoofdstuk-auteur">✍️ ${escapeHTML(h.auteur || 'Anoniem')}</span>
+                <span class="hoofdstuk-datum">📅 ${h.datum || ''}</span>
+                <span class="groep-chip chip-${groep}">${groepenNamen[groep]||groep}</span>
+                <span style="color:var(--tekst-zacht); font-size:0.78rem;">📝 ${woorden} woorden</span>
+            </div>
+            <div class="hoofdstuk-tekst">
+                <span class="hoofdstuk-preview">${escapeHTML(kort).replace(/\n/g,'<br>')}${heeftRest ? '...' : ''}</span>
+                ${heeftRest ? `<span class="hoofdstuk-rest" id="${id}">${escapeHTML(rest).replace(/\n/g,'<br>')}</span>` : ''}
+            </div>
+            ${heeftRest ? `<button class="lees-verder" onclick="toggleRest('${id}', this)">📖 Lees verder →</button>` : ''}
+        </div>`;
+}
+
+function toggleRest(id, btn) {
+    const el = document.getElementById(id);
+    const open = el.style.display === 'inline';
+    el.style.display = open ? 'none' : 'inline';
+    btn.textContent = open ? '📖 Lees verder →' : '📕 Minder tonen';
+    // Verberg de "..." als volledig getoond
+    const preview = btn.previousElementSibling.querySelector('.hoofdstuk-preview');
+}
+
+function escapeHTML(t) {
+    if (!t) return '';
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(t));
+    return d.innerHTML;
+}
+</script>
+</body>
+</html>

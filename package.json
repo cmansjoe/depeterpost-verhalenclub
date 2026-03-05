@@ -1,0 +1,16 @@
+{
+  "name": "depeterpost-verhalen-club",
+  "version": "2.0.0",
+  "description": "Depeterpost Verhalen Club — schrijfclub voor kinderen",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dagelijks": "node dagelijks.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.37.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "nodemailer": "^8.0.1"
+  }
+}

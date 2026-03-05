@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "title": "Story Title",
+    "description": "Brief description of the idea",
+    "author": "Author Name",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "tags": [
+      "tag1",
+      "tag2"
+    ],
+    "content": "Full story content here",
+    "status": "draft"
+  },
+  {
+    "id": "177213975703061",
+    "naam": "Peter",
+    "tekst": "Maak een verhaal over Foczka",
+    "status": "approved",
+    "datum": "26 februari 2026",
+    "type": "idee"
+  },
+  {
+    "id": "1772140994060419",
+    "naam": "Peter",
+    "tekst": "Voetbal",
+    "status": "approved",
+    "datum": "26 februari 2026",
+    "type": "idee"
+  }
+]

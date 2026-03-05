@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── LOGIN SCHERM ── */
+        #loginScherm { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .login-kaart {
+            background: linear-gradient(135deg, #0D2B1A, #1B4D2E);
+            border: 2px solid rgba(76,201,122,0.3); border-radius: 24px;
+            padding: 48px 40px; width: 100%; max-width: 420px; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(76,201,122,0.15);
+        }
+        .login-logo { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 0 20px rgba(76,201,122,0.7)); }
+        .login-titel { font-family: 'Grandstander', cursive; font-size: 1.8rem; color: #F7C948; margin-bottom: 4px; }
+        .login-sub { color: rgba(167,196,181,0.6); font-size: 0.85rem; margin-bottom: 32px; }
+        .login-input { width: 100%; padding: 14px 18px; background: rgba(13,43,26,0.7); border: 2px solid rgba(76,201,122,0.2); border-radius: 50px; color: white; font-size: 1rem; font-family: 'Baloo 2', sans-serif; margin-bottom: 12px; transition: border-color 0.2s; outline: none; }
+        .login-input:focus { border-color: #4CC97A; box-shadow: 0 0 0 3px rgba(76,201,122,0.2); }
+        .login-input::placeholder { color: rgba(167,196,181,0.4); }
+        .login-knop { width: 100%; padding: 14px; background: linear-gradient(135deg, #4CC97A, #34D399); border: none; border-radius: 50px; color: #0D2B1A; font-size: 1.05rem; font-weight: 900; font-family: 'Baloo 2', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+        .login-knop:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(76,201,122,0.4); }
+        .login-fout { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.4); color: #F87171; border-radius: 14px; padding: 10px 14px; font-size: 0.9rem; margin-top: 12px; display: none; }
+
+        /* ── ADMIN PANEEL ── */
+        #adminPaneel { display: none; }
+        .admin-wrapper { max-width: 960px; margin: 0 auto; padding: 30px 20px; }
+
+        .admin-topbar {
+            background: linear-gradient(135deg, #0D2B1A, #1B4D2E); border: 2px solid rgba(76,201,122,0.2);
+            border-radius: 24px; padding: 20px 28px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+        }
+        .admin-topbar h1 { font-family: 'Grandstander', cursive; font-size: 1.6rem; color: #F7C948; margin: 0; }
+        .admin-topbar p { color: rgba(167,196,181,0.6); font-size: 0.85rem; margin: 0; }
+        .uitlog-knop { padding: 8px 20px; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.35); border-radius: 50px; color: #F87171; font-weight: 700; cursor: pointer; font-family: 'Baloo 2', sans-serif; font-size: 0.9rem; transition: all 0.2s; }
+        .uitlog-knop:hover { background: rgba(248,113,113,0.3); transform: translateY(-2px); }
+
+        /* ── TABS ── */
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab-knop { padding: 10px 20px; border: 2px solid rgba(255,255,255,0.1); border-radius: 50px; cursor: pointer; font-size: 0.88rem; font-weight: 700; background: rgba(34,99,58,0.3); color: rgba(167,196,181,0.6); font-family: 'Baloo 2', sans-serif; transition: all 0.2s; }
+        .tab-knop:hover { background: rgba(76,201,122,0.15); color: #4CC97A; border-color: rgba(76,201,122,0.3); }
+        .tab-knop.actief { background: linear-gradient(135deg, #4CC97A, #34D399); color: #0D2B1A; border-color: transparent; font-weight: 900; }
+        .tab-inhoud { display: none; }
+        .tab-inhoud.actief { display: block; }
+
+        /* ── ADMIN KAARTEN ── */
+        .admin-kaart { background: rgba(34,99,58,0.4); border: 2px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 22px 26px; margin-bottom: 16px; }
+        .admin-kaart h3 { color: #F7C948; margin-bottom: 12px; font-size: 1rem; font-family: 'Grandstander', cursive; }
+        .admin-kaart p { color: rgba(167,196,181,0.7); font-size: 0.9rem; }
+
+        .resultaat-vak { background: rgba(76,201,122,0.08); border-left: 4px solid #4CC97A; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; color: #4CC97A; margin-top: 10px; display: none; white-space: pre-wrap; line-height: 1.6; }
+
+        /* ── PENDING KAARTEN ── */
+        .pending-kaart { background: rgba(34,99,58,0.4); border: 2px solid rgba(255,255,255,0.1); border-top: 3px solid #F28C38; border-radius: 24px; padding: 20px; margin-bottom: 14px; }
+        .pending-kaart.type-verhaal { border-top-color: #4CC97A; }
+        .pending-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .pending-naam { font-weight: 800; color: white; }
+        .pending-datum { font-size: 0.8rem; color: rgba(167,196,181,0.5); margin-bottom: 10px; }
+        .pending-tekst { background: rgba(13,43,26,0.5); border-radius: 12px; padding: 12px; color: rgba(167,196,181,0.85); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; border-left: 3px solid rgba(76,201,122,0.3); }
+        .type-label { font-size: 0.75rem; padding: 3px 12px; border-radius: 50px; font-weight: 700; }
+        .type-label.idee    { background: rgba(247,201,72,0.2); color: #F7C948; }
+        .type-label.verhaal { background: rgba(76,201,122,0.2); color: #4CC97A; }
+
+        .inzending-kaart { background: rgba(34,99,58,0.35); border: 2px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+        .inzending-kaart.winnaar { border-color: rgba(247,201,72,0.4); background: rgba(247,201,72,0.06); }
+
+        .teller-badge { display: inline-block; background: #F87171; color: white; font-weight: 800; font-size: 0.8rem; padding: 3px 12px; border-radius: 20px; margin-left: 6px; }
+
+        .leeg-melding { text-align: center; padding: 50px 20px; color: rgba(167,196,181,0.4); }
+        .leeg-melding .emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+
+        /* ── PROJECT KAARTEN ── */
+        .project-kaart { background: rgba(34,99,58,0.35); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
+        .project-kaart h4 { color: #F7C948; margin-bottom: 6px; }
+        .project-kaart p { color: rgba(167,196,181,0.6); font-size: 0.85rem; margin: 3px 0; }
+        .groep-badge { display: inline-block; padding: 3px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; margin-right: 6px; margin-top: 6px; }
+        .groep-A { background: rgba(242,140,56,0.2); color: #F28C38; }
+        .groep-B { background: rgba(139,92,246,0.2); color: #8B5CF6; }
+        .groep-C { background: rgba(76,201,122,0.2); color: #4CC97A; }
+
+        /* ── VIDEO KAARTEN ── */
+        .video-kaart { background: rgba(34,99,58,0.35); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; margin-bottom: 12px; display: flex; gap: 16px; align-items: flex-start; }
+        .video-kaart-info { flex: 1; }
+        .video-kaart-info h4 { color: white; margin-bottom: 4px; font-size: 0.95rem; }
+        .video-kaart-info p { color: rgba(167,196,181,0.5); font-size: 0.82rem; }
+        .video-type-badge { padding: 3px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: rgba(76,201,122,0.2); color: #4CC97A; }
+
+        /* ── FORMULIEREN ── */
+        .admin-input { width: 100%; padding: 10px 14px; background: rgba(13,43,26,0.7); border: 2px solid rgba(76,201,122,0.2); border-radius: 14px; color: white; font-family: 'Baloo 2', sans-serif; font-size: 0.9rem; margin-bottom: 10px; outline: none; transition: border-color 0.2s; }
+        .admin-input:focus { border-color: #4CC97A; }
+        .admin-input::placeholder { color: rgba(167,196,181,0.4); }
+        select.admin-input option { background: #1B4D2E; color: white; }
+
+        /* ── GROEP SELECTOR ── */
+        .groep-selector { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .groep-btn { padding: 8px 18px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; font-weight: 700; font-family: 'Baloo 2', sans-serif; font-size: 0.85rem; transition: all 0.2s; background: rgba(255,255,255,0.07); color: rgba(167,196,181,0.6); }
+        .groep-btn.actief-A { background: rgba(242,140,56,0.2); color: #F28C38; border-color: #F28C38; }
+        .groep-btn.actief-B { background: rgba(139,92,246,0.2); color: #8B5CF6; border-color: #8B5CF6; }
+        .groep-btn.actief-C { background: rgba(76,201,122,0.2); color: #4CC97A; border-color: #4CC97A; }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ -->
+<!-- LOGIN SCHERM                          -->
+<!-- ══════════════════════════════════════ -->
+<div id="loginScherm">
+    <div class="login-kaart">
+        <div class="login-logo">🔐</div>
+        <h2 class="login-titel">Admin Paneel</h2>
+        <p class="login-sub">Depeterpost Verhalen Club</p>
+
+        <input type="password" class="login-input" id="adminWachtwoord"
+               placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')adminLogin()">
+        <button class="login-knop" onclick="adminLogin()" id="loginKnop">
+            🚀 Inloggen
+        </button>
+        <div class="login-fout" id="loginFout"></div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- ADMIN PANEEL                          -->
+<!-- ══════════════════════════════════════ -->
+<div id="adminPaneel">
+<div class="admin-wrapper">
+
+    <!-- Topbar -->
+    <div class="admin-topbar">
+        <div>
+            <h1>🛡️ Admin Paneel</h1>
+            <p>Depeterpost Verhalen Club</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <a href="index.html" style="color:rgba(255,255,255,0.5); text-decoration:none; font-size:0.85rem;">🏠 Naar de site</a>
+            <button class="uitlog-knop" onclick="adminUitloggen()">🚪 Uitloggen</button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-knop actief" onclick="wissel('moderatie')">📋 Moderatie</button>
+        <button class="tab-knop" onclick="wissel('projecten')">📅 Projecten</button>
+        <button class="tab-knop" onclick="wissel('opdracht')">🎯 Opdracht</button>
+        <button class="tab-knop" onclick="wissel('inzendingen')">📝 Inzendingen</button>
+        <button class="tab-knop" onclick="wissel('dagelijks')">🌙 Dagelijks</button>
+        <button class="tab-knop" onclick="wissel('videos')">🎬 Video's</button>
+        <button class="tab-knop" onclick="wissel('ingezonden'); laadIngezonden()">📨 Ingezonden</button>
+    </div>
+
+
+    <!-- ══ TAB 1: MODERATIE ══ -->
+    <div id="tab-moderatie" class="tab-inhoud actief">
+        <div class="admin-kaart" style="padding:14px 22px;">
+            <p style="color:white; font-size:1rem;">
+                📋 In de wachtrij: <span class="teller-badge" id="pendingTeller">0</span>
+            </p>
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+            <button class="knop knop-blauw" onclick="laadPending()" style="padding:8px 16px; font-size:0.85rem;">🔄 Vernieuwen</button>
+            <button class="knop knop-paars" onclick="filterType('alle')" id="filter-alle" style="padding:8px 16px; font-size:0.85rem;">📋 Alle</button>
+            <button class="knop knop-geel" onclick="filterType('idee')" id="filter-idee" style="padding:8px 16px; font-size:0.85rem;">💡 Ideeën</button>
+            <button class="knop knop-blauw" onclick="filterType('verhaal')" id="filter-verhaal" style="padding:8px 16px; font-size:0.85rem;">📖 Verhalen</button>
+        </div>
+        <div id="pendingLijst">
+            <div class="leeg-melding"><span class="emoji">⏳</span><p>Laden...</p></div>
+        </div>
+    </div>
+
+
+    <!-- ══ TAB 2: PROJECTEN ══ -->
+    <div id="tab-projecten" class="tab-inhoud">
+
+        <div class="admin-kaart">
+            <h3>➕ Nieuw project aanmaken</h3>
+            <input class="admin-input" id="projectNaam" placeholder="Projectnaam (bijv. 'Avonturen in het Woud')">
+            <input class="admin-input" id="projectBeschrijving" placeholder="Korte beschrijving (optioneel)">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                <div style="flex:1; min-width:150px;">
+                    <label style="color:rgba(255,255,255,0.6); font-size:0.8rem; display:block; margin-bottom:4px;">Looptijd (dagen)</label>
+                    <input class="admin-input" id="projectDagen" type="number" value="10" min="1" max="365" style="margin-bottom:0;">
+                </div>
+            </div>
+            <label style="color:rgba(255,255,255,0.6); font-size:0.8rem; display:block; margin-bottom:8px;">Leeftijdsgroepen</label>
+            <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+                <label style="display:flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); cursor:pointer;">
+                    <input type="checkbox" id="groepA" checked style="accent-color:#FF9800;"> 
+                    <span style="color:#FF9800; font-weight:700;">🟠 6-8 jaar</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); cursor:pointer;">
+                    <input type="checkbox" id="groepB" checked style="accent-color:#2196F3;">
+                    <span style="color:#2196F3; font-weight:700;">🔵 9-11 jaar</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); cursor:pointer;">
+                    <input type="checkbox" id="groepC" checked style="accent-color:#4CAF50;">
+                    <span style="color:#4CAF50; font-weight:700;">🟢 12+ jaar</span>
+                </label>
+            </div>
+            <button class="knop knop-groen" onclick="maakProject()" id="projectKnop">✅ Project aanmaken</button>
+            <div class="resultaat-vak" id="projectResultaat"></div>
+        </div>
+
+        <div class="admin-kaart">
+            <h3>📋 Actieve projecten</h3>
+            <div id="projectenLijst"><p style="color:rgba(255,255,255,0.4);">Laden...</p></div>
+        </div>
+    </div>
+
+
+    <!-- ══ TAB 3: OPDRACHT ══ -->
+    <div id="tab-opdracht" class="tab-inhoud">
+
+        <div class="admin-kaart">
+            <h3>📅 Huidige opdracht</h3>
+            <div class="groep-selector">
+                <button class="groep-btn" onclick="selecteerGroep('A', this)">🟠 6-8 jaar</button>
+                <button class="groep-btn actief-B" onclick="selecteerGroep('B', this)">🔵 9-11 jaar</button>
+                <button class="groep-btn" onclick="selecteerGroep('C', this)">🟢 12+ jaar</button>
+            </div>
+            <button class="knop knop-blauw" onclick="laadHuidigeOpdracht()" style="font-size:0.85rem; padding:8px 16px;">🔄 Bekijk opdracht</button>
+            <div id="huidigeOpdrachtResultaat" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="admin-kaart">
+            <h3>🤖 Nieuwe opdracht genereren</h3>
+            <p style="margin-bottom:14px;">Claude maakt een opdracht die aansluit op het verhaal tot nu toe.</p>
+            <div class="groep-selector" id="genereerGroepSelector">
+                <button class="groep-btn" onclick="selecteerGenereerGroep('A', this)">🟠 6-8 jaar</button>
+                <button class="groep-btn actief-B" onclick="selecteerGenereerGroep('B', this)">🔵 9-11 jaar</button>
+                <button class="groep-btn" onclick="selecteerGenereerGroep('C', this)">🟢 12+ jaar</button>
+            </div>
+            <button class="knop knop-paars" onclick="genereerOpdracht()" id="genereerKnop">🎯 Genereer Opdracht</button>
+            <div class="resultaat-vak" id="opdrachtResultaat"></div>
+        </div>
+    </div>
+
+
+    <!-- ══ TAB 4: INZENDINGEN ══ -->
+    <div id="tab-inzendingen" class="tab-inhoud">
+        <div class="admin-kaart">
+            <h3>📝 Inzendingen van vandaag</h3>
+            <div class="groep-selector" id="inzendingGroepSelector">
+                <button class="groep-btn actief-A" onclick="selecteerInzendingGroep('alle', this)">📋 Alle</button>
+                <button class="groep-btn" onclick="selecteerInzendingGroep('A', this)">🟠 6-8 jaar</button>
+                <button class="groep-btn" onclick="selecteerInzendingGroep('B', this)">🔵 9-11 jaar</button>
+                <button class="groep-btn" onclick="selecteerInzendingGroep('C', this)">🟢 12+ jaar</button>
+            </div>
+            <button class="knop knop-blauw" onclick="laadInzendingen()" style="font-size:0.85rem; padding:8px 16px;">🔄 Laden</button>
+            <div id="inzendingenContainer" style="margin-top:14px;"></div>
+        </div>
+    </div>
+
+
+    <!-- ══ TAB 5: DAGELIJKS ══ -->
+    <div id="tab-dagelijks" class="tab-inhoud">
+
+        <div class="admin-kaart">
+            <h3>🏆 Stap 1 — Winnaar kiezen</h3>
+            <p style="margin-bottom:12px;">Claude beoordeelt alle inzendingen en kiest de beste.</p>
+            <div class="groep-selector">
+                <button class="groep-btn actief-B" onclick="selecteerWinnaarGroep('B', this)" id="winnaarGroepB">🔵 9-11 jaar</button>
+                <button class="groep-btn" onclick="selecteerWinnaarGroep('A', this)">🟠 6-8 jaar</button>
+                <button class="groep-btn" onclick="selecteerWinnaarGroep('C', this)">🟢 12+ jaar</button>
+            </div>
+            <button class="knop knop-geel" onclick="kiesWinnaar()" id="winnaarKnop">🏆 Kies Winnaar</button>
+            <div class="resultaat-vak" id="winnaarResultaat"></div>
+        </div>
+
+        <div class="admin-kaart">
+            <h3>✏️ Stap 2 — Tekst corrigeren</h3>
+            <p style="margin-bottom:12px;">Claude corrigeert lichte spelfouten zonder de stijl te veranderen.</p>
+            <input class="admin-input" id="corrigeerInzendingId" placeholder="Inzending ID (wordt automatisch ingevuld na stap 1)">
+            <button class="knop knop-blauw" onclick="corrigeerWinnaar()" id="corrigeerKnop">✏️ Corrigeer Tekst</button>
+            <div class="resultaat-vak" id="corrigeerResultaat"></div>
+        </div>
+
+        <div class="admin-kaart">
+            <h3>📖 Stap 3 — Verhaal bijwerken</h3>
+            <p style="margin-bottom:12px;">Voeg het winnende (gecorrigeerde) hoofdstuk toe aan het grote verhaal.</p>
+            <input class="admin-input" id="updateInzendingId" placeholder="Inzending ID (wordt automatisch ingevuld)">
+            <button class="knop knop-groen" onclick="updateVerhaal()" id="updateKnop">📖 Verhaal Bijwerken</button>
+            <div class="resultaat-vak" id="updateResultaat"></div>
+        </div>
+
+        <div class="admin-kaart">
+            <h3>🎯 Stap 4 — Opdracht voor morgen</h3>
+            <p style="margin-bottom:12px;">Genereer de opdrachten voor alle leeftijdsgroepen voor morgen.</p>
+            <button class="knop knop-paars" onclick="genereerAlleOpdrachten()" id="genereerKnop2">🎯 Genereer Alle Opdrachten</button>
+            <div class="resultaat-vak" id="opdrachtResultaat2"></div>
+        </div>
+    </div>
+
+
+    <!-- ══ TAB 6: VIDEO'S ══ -->
+    <div id="tab-videos" class="tab-inhoud">
+
+        <div class="admin-kaart">
+            <h3>➕ Video toevoegen</h3>
+
+            <label style="color:rgba(255,255,255,0.6); font-size:0.8rem; display:block; margin-bottom:6px;">Type video</label>
+            <select class="admin-input" id="videoType" onchange="wisselVideoType(this.value)">
+                <option value="youtube">🎬 YouTube video</option>
+                <option value="lokaal">💾 Lokaal videobestand</option>
+            </select>
+
+            <input class="admin-input" id="videoTitel" placeholder="Titel (bijv. 'Aflevering 3 — De Draak Ontwaakt')">
+            <input class="admin-input" id="videoBeschrijving" placeholder="Korte beschrijving (optioneel)">
+
+            <!-- YouTube velden -->
+            <div id="youtubeVelden">
+                <input class="admin-input" id="youtubeId" placeholder="YouTube Video ID (bijv. dQw4w9WgXcQ)">
+                <p style="color:rgba(255,255,255,0.35); font-size:0.8rem; margin-bottom:10px;">
+                    💡 Haal het ID uit de YouTube URL: youtube.com/watch?v=<strong style="color:#74C0FC;">dQw4w9WgXcQ</strong>
+                </p>
+            </div>
+
+            <!-- Lokaal bestand velden -->
+            <div id="lokaalVelden" style="display:none;">
+                <input class="admin-input" id="lokaalPad" placeholder="Bestandsnaam (bijv. videos/aflevering3.mp4)">
+                <p style="color:rgba(255,255,255,0.35); font-size:0.8rem; margin-bottom:10px;">
+                    💡 Zet het videobestand in de map <strong style="color:#74C0FC;">videos/</strong> naast server.js
+                </p>
+            </div>
+
+            <button class="knop knop-roze" onclick="voegVideoToe()" id="videoKnop">➕ Video toevoegen</button>
+            <div class="resultaat-vak" id="videoResultaat"></div>
+        </div>
+
+        <div class="admin-kaart">
+            <h3>🎬 Alle video's <span id="videoTeller" style="font-size:0.8rem; opacity:0.5;"></span></h3>
+            <div id="videosLijst"><p style="color:rgba(255,255,255,0.4);">Laden...</p></div>
+        </div>
+    </div>
+
+
+    <!-- ══ TAB: INGEZONDEN VERHALEN ══ -->
+    <div id="tab-ingezonden" class="tab-inhoud">
+        <div class="admin-kaart">
+            <h3>📨 Ingezonden Verhalen <span id="ingezondenTeller" style="font-size:0.8rem; opacity:0.5;"></span></h3>
+            <button class="knop knop-blauw" onclick="laadIngezonden()" style="padding:8px 16px; font-size:0.85rem; margin-bottom:14px;">🔄 Vernieuwen</button>
+            <div id="ingezondenLijst"><p style="color:rgba(255,255,255,0.4);">Klik op de tab om te laden.</p></div>
+        </div>
+    </div>
+
+</div><!-- /admin-wrapper -->
+</div><!-- /adminPaneel -->
+
+
+<script>
+// ══════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════
+let adminToken = localStorage.getItem('adminToken');
+let huidigGroep = 'B';
+let huidigGenereerGroep = 'B';
+let huidigWinnaarGroep = 'B';
+let huidigInzendingFilter = 'alle';
+let allePending = [];
+let huidigFilter = 'alle';
+
+// Check of al ingelogd
+if (adminToken) controleerToken();
+
+async function controleerToken() {
+    try {
+        const r = await fetch('/api/admin/pending', { headers: { 'x-admin-token': adminToken } });
+        if (r.ok) toonAdminPaneel();
+        else { adminToken = null; localStorage.removeItem('adminToken'); }
+    } catch(e) { adminToken = null; localStorage.removeItem('adminToken'); }
+}
+
+async function adminLogin() {
+    const ww = document.getElementById('adminWachtwoord').value;
+    const knop = document.getElementById('loginKnop');
+    const fout = document.getElementById('loginFout');
+    fout.style.display = 'none';
+    knop.textContent = '⏳ Inloggen...';
+    knop.disabled = true;
+
+    try {
+        const r = await fetch('/api/auth/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wachtwoord: ww })
+        });
+        const data = await r.json();
+        if (data.succes) {
+            adminToken = data.token;
+            localStorage.setItem('adminToken', adminToken);
+            toonAdminPaneel();
+        } else {
+            fout.textContent = '❌ ' + data.bericht;
+            fout.style.display = 'block';
+            knop.textContent = '🚀 Inloggen';
+            knop.disabled = false;
+        }
+    } catch(e) {
+        fout.textContent = '❌ Kan geen verbinding maken. Is de server actief?';
+        fout.style.display = 'block';
+        knop.textContent = '🚀 Inloggen';
+        knop.disabled = false;
+    }
+}
+
+function toonAdminPaneel() {
+    document.getElementById('loginScherm').style.display = 'none';
+    document.getElementById('adminPaneel').style.display = 'block';
+    laadPending();
+    laadProjecten();
+    laadVideos();
+}
+
+async function adminUitloggen() {
+    await fetch('/api/auth/admin/logout', { method: 'POST', headers: { 'x-admin-token': adminToken } });
+    localStorage.removeItem('adminToken');
+    adminToken = null;
+    location.reload();
+}
+
+function adminFetch(url, opties = {}) {
+    opties.headers = opties.headers || {};
+    opties.headers['x-admin-token'] = adminToken;
+    return fetch(url, opties);
+}
+
+// ══════════════════════════════════════
+// TABS
+// ══════════════════════════════════════
+function wissel(tab) {
+    document.querySelectorAll('.tab-inhoud').forEach(t => t.classList.remove('actief'));
+    document.querySelectorAll('.tab-knop').forEach(t => t.classList.remove('actief'));
+    document.getElementById('tab-' + tab).classList.add('actief');
+    event.target.classList.add('actief');
+}
+
+// ══════════════════════════════════════
+// GROEP SELECTORS
+// ══════════════════════════════════════
+function selecteerGroep(groep, btn) {
+    huidigGroep = groep;
+    btn.parentElement.querySelectorAll('.groep-btn').forEach(b => b.className = 'groep-btn');
+    btn.classList.add('actief-' + groep);
+}
+function selecteerGenereerGroep(groep, btn) {
+    huidigGenereerGroep = groep;
+    btn.parentElement.querySelectorAll('.groep-btn').forEach(b => b.className = 'groep-btn');
+    btn.classList.add('actief-' + groep);
+}
+function selecteerWinnaarGroep(groep, btn) {
+    huidigWinnaarGroep = groep;
+    btn.parentElement.querySelectorAll('.groep-btn').forEach(b => b.className = 'groep-btn');
+    btn.classList.add('actief-' + groep);
+}
+function selecteerInzendingGroep(groep, btn) {
+    huidigInzendingFilter = groep;
+    btn.parentElement.querySelectorAll('.groep-btn').forEach(b => b.className = 'groep-btn');
+    btn.classList.add('actief-' + (groep === 'alle' ? 'A' : groep));
+}
+
+// ══════════════════════════════════════
+// MODERATIE
+// ══════════════════════════════════════
+async function laadPending() {
+    const lijst = document.getElementById('pendingLijst');
+    lijst.innerHTML = '<div class="leeg-melding"><span class="emoji">⏳</span><p>Laden...</p></div>';
+    try {
+        const r = await adminFetch('/api/admin/pending');
+        allePending = await r.json();
+        document.getElementById('pendingTeller').textContent = allePending.length;
+        toonGefilterd();
+    } catch(e) {
+        lijst.innerHTML = '<div class="leeg-melding"><span class="emoji">❌</span><p>Geen verbinding</p></div>';
+    }
+}
+
+function filterType(type) {
+    huidigFilter = type;
+    toonGefilterd();
+}
+
+function toonGefilterd() {
+    const gefilterd = huidigFilter === 'alle' ? allePending : allePending.filter(i => i.type === huidigFilter);
+    toonLijst(gefilterd);
+}
+
+function toonLijst(inzendingen) {
+    const lijst = document.getElementById('pendingLijst');
+    if (inzendingen.length === 0) {
+        lijst.innerHTML = '<div class="leeg-melding"><span class="emoji">🎉</span><p>Wachtrij is leeg!</p></div>';
+        return;
+    }
+    lijst.innerHTML = inzendingen.map(i => `
+        <div class="pending-kaart ${i.type === 'verhaal' ? 'type-verhaal' : ''}" id="kaart-${i.id}">
+            <div class="pending-meta">
+                <span class="pending-naam">${i.type === 'verhaal' ? '📖' : '💡'} ${escapeHTML(i.naam)}</span>
+                <span class="type-label ${i.type}">${i.type.toUpperCase()}</span>
+            </div>
+            <p class="pending-datum">📅 ${i.datum}</p>
+            ${i.verhaalTitel ? `<p style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-bottom:6px;">📌 Versie van: ${escapeHTML(i.verhaalTitel)}</p>` : ''}
+            <div class="pending-tekst">${escapeHTML(i.tekst).replace(/\n/g,'<br>')}</div>
+            <div class="actie-knoppen">
+                <button class="knop knop-groen" onclick="keurGoed('${i.id}')" id="goedkeur-${i.id}" style="font-size:0.85rem; padding:8px 16px;">✅ Goedkeuren</button>
+                <button class="knop knop-rood" onclick="weiger('${i.id}')" id="weiger-${i.id}" style="font-size:0.85rem; padding:8px 16px;">🗑️ Weigeren</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function keurGoed(id) {
+    const knop = document.getElementById(`goedkeur-${id}`);
+    knop.disabled = true; knop.textContent = '⏳';
+    const r = await adminFetch(`/api/admin/approve/${id}`, { method: 'POST' });
+    const data = await r.json();
+    if (data.succes) {
+        verwijderKaart(id);
+        allePending = allePending.filter(i => i.id !== id);
+        document.getElementById('pendingTeller').textContent = allePending.length;
+    } else { alert('Fout: ' + data.bericht); knop.disabled = false; knop.textContent = '✅ Goedkeuren'; }
+}
+
+async function weiger(id) {
+    if (!confirm('Weet je zeker dat je dit wilt weigeren?')) return;
+    const r = await adminFetch(`/api/admin/reject/${id}`, { method: 'POST' });
+    const data = await r.json();
+    if (data.succes) {
+        verwijderKaart(id);
+        allePending = allePending.filter(i => i.id !== id);
+        document.getElementById('pendingTeller').textContent = allePending.length;
+    }
+}
+
+function verwijderKaart(id) {
+    const kaart = document.getElementById(`kaart-${id}`);
+    if (kaart) {
+        kaart.style.transition = 'opacity 0.3s, transform 0.3s';
+        kaart.style.opacity = '0'; kaart.style.transform = 'scale(0.95)';
+        setTimeout(() => { kaart.remove(); if (!document.querySelector('.pending-kaart')) toonGefilterd(); }, 300);
+    }
+}
+
+// ══════════════════════════════════════
+// PROJECTEN
+// ══════════════════════════════════════
+async function laadProjecten() {
+    const container = document.getElementById('projectenLijst');
+    const r = await adminFetch('/api/projecten/alle');
+    const projecten = await r.json();
+
+    if (projecten.length === 0) {
+        container.innerHTML = '<p style="color:rgba(255,255,255,0.4); text-align:center; padding:20px;">Nog geen projecten aangemaakt.</p>';
+        return;
+    }
+
+    container.innerHTML = projecten.map(p => `
+        <div class="project-kaart">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+                <h4>${escapeHTML(p.naam)} ${p.actief ? '🟢' : '🔴'}</h4>
+                ${p.actief ? `<button class="knop knop-rood" onclick="archiveerProject('${p.id}')" style="padding:5px 12px; font-size:0.78rem;">📦 Archiveer</button>` : '<span style="color:rgba(255,255,255,0.3); font-size:0.8rem;">Gearchiveerd</span>'}
+            </div>
+            <p>📅 ${p.startDatum} → ${p.eindDatum} (${p.aantalDagen} dagen)</p>
+            <p>${escapeHTML(p.beschrijving || '')}</p>
+            <div>
+                ${(p.leeftijdsgroepen || []).map(g => `<span class="groep-badge groep-${g}">${{A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'}[g]}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function maakProject() {
+    const naam = document.getElementById('projectNaam').value.trim();
+    if (!naam) { alert('Vul een projectnaam in.'); return; }
+    const knop = document.getElementById('projectKnop');
+    const resultaat = document.getElementById('projectResultaat');
+    knop.disabled = true; knop.textContent = '⏳ Aanmaken...';
+
+    const groepen = [];
+    if (document.getElementById('groepA').checked) groepen.push('A');
+    if (document.getElementById('groepB').checked) groepen.push('B');
+    if (document.getElementById('groepC').checked) groepen.push('C');
+
+    const r = await adminFetch('/api/admin/project/nieuw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            naam,
+            beschrijving: document.getElementById('projectBeschrijving').value.trim(),
+            aantalDagen: parseInt(document.getElementById('projectDagen').value) || 10,
+            leeftijdsgroepen: groepen
+        })
+    });
+    const data = await r.json();
+    resultaat.style.display = 'block';
+    if (data.succes) {
+        resultaat.textContent = `✅ Project "${data.project.naam}" aangemaakt!\nLooptijd: ${data.project.startDatum} → ${data.project.eindDatum}`;
+        resultaat.style.color = '#51CF66';
+        document.getElementById('projectNaam').value = '';
+        document.getElementById('projectBeschrijving').value = '';
+        laadProjecten();
+    } else {
+        resultaat.textContent = '❌ ' + data.bericht;
+        resultaat.style.color = '#FF6B6B';
+    }
+    knop.disabled = false; knop.textContent = '✅ Project aanmaken';
+}
+
+async function archiveerProject(id) {
+    if (!confirm('Project archiveren?')) return;
+    await adminFetch(`/api/admin/project/${id}/archiveer`, { method: 'POST' });
+    laadProjecten();
+}
+
+// ══════════════════════════════════════
+// OPDRACHT
+// ══════════════════════════════════════
+async function laadHuidigeOpdracht() {
+    const container = document.getElementById('huidigeOpdrachtResultaat');
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.5);">Laden...</p>';
+    const r = await fetch(`/api/opdracht/vandaag?groep=${huidigGroep}`);
+    const data = await r.json();
+    if (data.succes) {
+        const o = data.opdracht;
+        container.innerHTML = `
+            <div style="background:rgba(255,217,61,0.08); border:1px solid rgba(255,217,61,0.25); border-radius:12px; padding:16px; margin-top:10px;">
+                <p style="color:#FFD93D; font-weight:700; margin-bottom:10px;">📋 Opdracht voor ${({A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'})[o.leeftijdsgroep] || 'vandaag'}</p>
+                <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Personage:</strong> ${escapeHTML(o.personage)}</p>
+                <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Omgeving:</strong> ${escapeHTML(o.omgeving)}</p>
+                <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Gebeurtenis:</strong> ${escapeHTML(o.gebeurtenis)}</p>
+                <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Opdracht:</strong> ${escapeHTML(o.opdrachttekst)}</p>
+                ${o.aansluitingsTip ? `<p style="color:rgba(255,255,255,0.5); font-size:0.85rem; margin-top:8px;">💡 ${escapeHTML(o.aansluitingsTip)}</p>` : ''}
+            </div>`;
+    } else {
+        container.innerHTML = `<p style="color:rgba(255,82,82,0.8); margin-top:10px;">❌ ${data.bericht}</p>`;
+    }
+}
+
+async function genereerOpdracht() {
+    const knop = document.getElementById('genereerKnop');
+    const resultaat = document.getElementById('opdrachtResultaat');
+    knop.disabled = true; knop.textContent = '⏳ Genereren...';
+    resultaat.style.display = 'block';
+    resultaat.textContent = 'Claude genereert een passende opdracht...';
+
+    const r = await adminFetch('/api/admin/genereer-opdracht', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leeftijdsgroep: huidigGenereerGroep })
+    });
+    const data = await r.json();
+    if (data.succes) {
+        const o = data.opdracht;
+        resultaat.textContent = `✅ Opdracht aangemaakt voor ${({A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'})[o.leeftijdsgroep]}!\n\nPersonage: ${o.personage}\nOmgeving: ${o.omgeving}\nGebeurtenis: ${o.gebeurtenis}\nOpdracht: ${o.opdrachttekst}\n\n💡 Aansluiting: ${o.aansluitingsTip || ''}`;
+        resultaat.style.color = '#51CF66';
+    } else {
+        resultaat.textContent = '❌ ' + data.bericht;
+        resultaat.style.color = '#FF6B6B';
+    }
+    knop.disabled = false; knop.textContent = '🎯 Genereer Opdracht';
+}
+
+async function genereerAlleOpdrachten() {
+    const knop = document.getElementById('genereerKnop2');
+    const resultaat = document.getElementById('opdrachtResultaat2');
+    knop.disabled = true; knop.textContent = '⏳ Bezig...';
+    resultaat.style.display = 'block';
+    resultaat.textContent = 'Opdrachten genereren voor alle groepen...\n';
+
+    for (const groep of ['A', 'B', 'C']) {
+        resultaat.textContent += `\n⏳ Groep ${groep} (${({A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'})[groep]})...`;
+        const r = await adminFetch('/api/admin/genereer-opdracht', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ leeftijdsgroep: groep })
+        });
+        const data = await r.json();
+        resultaat.textContent += data.succes ? ' ✅' : ' ❌ ' + data.bericht;
+    }
+    resultaat.textContent += '\n\n🎉 Alle opdrachten klaar!';
+    resultaat.style.color = '#51CF66';
+    knop.disabled = false; knop.textContent = '🎯 Genereer Alle Opdrachten';
+}
+
+// ══════════════════════════════════════
+// INZENDINGEN
+// ══════════════════════════════════════
+async function laadInzendingen() {
+    const container = document.getElementById('inzendingenContainer');
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Laden...</p>';
+    const r = await adminFetch('/api/admin/inzendingen/vandaag');
+    let inzendingen = await r.json();
+
+    if (huidigInzendingFilter !== 'alle') {
+        inzendingen = inzendingen.filter(i => i.leeftijdsgroep === huidigInzendingFilter);
+    }
+
+    if (inzendingen.length === 0) {
+        container.innerHTML = '<p style="color:rgba(255,255,255,0.4); text-align:center; padding:20px;">Geen inzendingen gevonden.</p>';
+        return;
+    }
+
+    container.innerHTML = inzendingen.map(inz => `
+        <div class="inzending-kaart ${inz.winnaar ? 'winnaar' : ''}">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+                <strong style="color:white;">✍️ ${escapeHTML(inz.naam)}</strong>
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    <span class="groep-badge groep-${inz.leeftijdsgroep || 'B'}" style="font-size:0.72rem;">${{A:'6-8jr',B:'9-11jr',C:'12+jr'}[inz.leeftijdsgroep] || '?'}</span>
+                    ${inz.winnaar ? '<span style="background:rgba(255,217,61,0.2);color:#FFD93D;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;">🏆 Winnaar</span>' : ''}
+                    <span style="font-size:0.75rem;color:rgba(255,255,255,0.35);">ID: ${inz.id}</span>
+                </div>
+            </div>
+            <p style="color:rgba(255,255,255,0.65); font-size:0.9rem; line-height:1.6; margin-bottom:8px;">${escapeHTML(inz.tekst).replace(/\n/g,'<br>')}</p>
+            <div style="margin-top:8px; text-align:right;">
+                <button class="knop knop-blauw" onclick="gebruikId('${inz.id}')" style="padding:5px 12px; font-size:0.78rem;">📋 Gebruik ID</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function gebruikId(id) {
+    document.getElementById('corrigeerInzendingId').value = id;
+    document.getElementById('updateInzendingId').value = id;
+    wissel('dagelijks');
+    document.querySelectorAll('.tab-knop').forEach((b, i) => { if(i === 4) b.classList.add('actief'); else b.classList.remove('actief'); });
+}
+
+// ══════════════════════════════════════
+// DAGELIJKS
+// ══════════════════════════════════════
+async function kiesWinnaar() {
+    const knop = document.getElementById('winnaarKnop');
+    const resultaat = document.getElementById('winnaarResultaat');
+    knop.disabled = true; knop.textContent = '⏳ Kiezen...';
+    resultaat.style.display = 'block';
+    resultaat.textContent = 'Claude beoordeelt alle inzendingen...';
+
+    const r = await adminFetch('/api/admin/kies-winnaar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leeftijdsgroep: huidigWinnaarGroep })
+    });
+    const data = await r.json();
+    if (data.succes) {
+        resultaat.textContent = `🏆 Winnaar: ${data.winnaar.naam} (ID: ${data.winnaar.id})\n\n${data.reden}`;
+        resultaat.style.color = '#51CF66';
+        document.getElementById('corrigeerInzendingId').value = data.winnaar.id;
+        document.getElementById('updateInzendingId').value = data.winnaar.id;
+    } else {
+        resultaat.textContent = '❌ ' + data.bericht;
+        resultaat.style.color = '#FF6B6B';
+    }
+    knop.disabled = false; knop.textContent = '🏆 Kies Winnaar';
+}
+
+async function corrigeerWinnaar() {
+    const id = document.getElementById('corrigeerInzendingId').value.trim();
+    if (!id) { alert('Vul een inzending ID in.'); return; }
+    const knop = document.getElementById('corrigeerKnop');
+    const resultaat = document.getElementById('corrigeerResultaat');
+    knop.disabled = true; knop.textContent = '⏳ Corrigeren...';
+    resultaat.style.display = 'block';
+    resultaat.textContent = 'Claude corrigeert de tekst...';
+
+    const r = await adminFetch('/api/admin/corrigeer-winnaar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inzendingId: id })
+    });
+    const data = await r.json();
+    if (data.succes) {
+        resultaat.textContent = `✅ Gecorrigeerd!\n\nWijzigingen: ${data.wijzigingen}\n\n${data.gecorrigeerdeTekst}`;
+        resultaat.style.color = '#51CF66';
+    } else {
+        resultaat.textContent = '❌ ' + data.bericht;
+        resultaat.style.color = '#FF6B6B';
+    }
+    knop.disabled = false; knop.textContent = '✏️ Corrigeer Tekst';
+}
+
+async function updateVerhaal() {
+    const id = document.getElementById('updateInzendingId').value.trim();
+    if (!id) { alert('Vul een inzending ID in.'); return; }
+    const knop = document.getElementById('updateKnop');
+    const resultaat = document.getElementById('updateResultaat');
+    knop.disabled = true; knop.textContent = '⏳ Bijwerken...';
+    resultaat.style.display = 'block';
+    resultaat.textContent = 'Verhaal wordt bijgewerkt...';
+
+    const r = await adminFetch('/api/admin/update-verhaal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inzendingId: id })
+    });
+    const data = await r.json();
+    if (data.succes) {
+        resultaat.textContent = `✅ Hoofdstuk ${data.hoofdstuk.nummer} toegevoegd!`;
+        resultaat.style.color = '#51CF66';
+    } else {
+        resultaat.textContent = '❌ ' + data.bericht;
+        resultaat.style.color = '#FF6B6B';
+    }
+    knop.disabled = false; knop.textContent = '📖 Verhaal Bijwerken';
+}
+
+// ══════════════════════════════════════
+// VIDEO'S
+// ══════════════════════════════════════
+async function laadVideos() {
+    const container = document.getElementById('videosLijst');
+    const r = await fetch('/api/videos');
+    const videos = await r.json();
+    document.getElementById('videoTeller').textContent = `(${videos.length})`;
+
+    if (videos.length === 0) {
+        container.innerHTML = '<p style="color:rgba(255,255,255,0.4); text-align:center; padding:20px;">Nog geen video\'s toegevoegd.</p>';
+        return;
+    }
+
+    container.innerHTML = videos.map(v => `
+        <div class="video-kaart">
+            <div style="width:80px; height:50px; background:rgba(255,255,255,0.06); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">
+                ${v.type === 'youtube' ? '🎬' : '💾'}
+            </div>
+            <div class="video-kaart-info">
+                <h4>${escapeHTML(v.titel)}</h4>
+                <p>${escapeHTML(v.beschrijving || '')} <span class="video-type-badge">${v.type}</span></p>
+                <p style="font-size:0.75rem; color:rgba(255,255,255,0.3);">Volgorde: ${v.volgorde} · ${v.datum}</p>
+            </div>
+            <button onclick="verwijderVideo('${v.id}')" style="background:rgba(255,82,82,0.15); border:1px solid rgba(255,82,82,0.3); color:#ff8a8a; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:0.8rem; flex-shrink:0;">🗑️</button>
+        </div>
+    `).join('');
+}
+
+function wisselVideoType(type) {
+    document.getElementById('youtubeVelden').style.display = type === 'youtube' ? 'block' : 'none';
+    document.getElementById('lokaalVelden').style.display = type === 'lokaal' ? 'block' : 'none';
+}
+
+async function voegVideoToe() {
+    const type = document.getElementById('videoType').value;
+    const titel = document.getElementById('videoTitel').value.trim();
+    if (!titel) { alert('Vul een titel in.'); return; }
+
+    const knop = document.getElementById('videoKnop');
+    const resultaat = document.getElementById('videoResultaat');
+    knop.disabled = true; knop.textContent = '⏳ Toevoegen...';
+
+    const body = {
+        titel,
+        beschrijving: document.getElementById('videoBeschrijving').value.trim(),
+        type,
+        youtubeId: type === 'youtube' ? document.getElementById('youtubeId').value.trim() : null,
+        bronUrl: type === 'lokaal' ? document.getElementById('lokaalPad').value.trim() : null
+    };
+
+    const r = await adminFetch('/api/admin/video/toevoegen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    resultaat.style.display = 'block';
+    if (data.succes) {
+        resultaat.textContent = `✅ Video "${data.video.titel}" toegevoegd!`;
+        resultaat.style.color = '#51CF66';
+        document.getElementById('videoTitel').value = '';
+        document.getElementById('videoBeschrijving').value = '';
+        document.getElementById('youtubeId').value = '';
+        document.getElementById('lokaalPad').value = '';
+        laadVideos();
+    } else {
+        resultaat.textContent = '❌ ' + data.bericht;
+        resultaat.style.color = '#FF6B6B';
+    }
+    knop.disabled = false; knop.textContent = '➕ Video toevoegen';
+}
+
+async function verwijderVideo(id) {
+    if (!confirm('Video verwijderen?')) return;
+    await adminFetch(`/api/admin/video/${id}`, { method: 'DELETE' });
+    laadVideos();
+}
+
+// ══════════════════════════════════════
+// INGEZONDEN VERHALEN
+// ══════════════════════════════════════
+async function laadIngezonden() {
+    const lijst = document.getElementById('ingezondenLijst');
+    lijst.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Laden...</p>';
+    try {
+        const r = await adminFetch('/api/ingezonden-verhalen');
+        const verhalen = await r.json();
+        document.getElementById('ingezondenTeller').textContent = `(${verhalen.length})`;
+        if (!verhalen.length) {
+            lijst.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Nog geen ingezonden verhalen.</p>';
+            return;
+        }
+        lijst.innerHTML = verhalen.map(v => `
+            <div class="pending-kaart" id="ingezonden-${v.id}">
+                <div class="pending-meta">
+                    <span class="pending-type-badge" style="background:rgba(78,205,196,0.15); color:#4ECDC4; border-color:rgba(78,205,196,0.3);">📨 Ingezonden</span>
+                    <span>✍️ ${escapeHTML(v.naam)}</span>
+                    <span>📅 ${v.datum}</span>
+                </div>
+                <div class="pending-content">
+                    <strong style="color:white; font-size:1rem;">${escapeHTML(v.titel || '')}</strong>
+                    <p>${escapeHTML(v.tekst).substring(0, 250)}${v.tekst.length > 250 ? '...' : ''}</p>
+                </div>
+                <div style="margin-top:10px;">
+                    <button class="knop knop-rood" onclick="verwijderIngezonden('${v.id}')" style="font-size:0.85rem; padding:8px 16px;">🗑️ Verwijderen</button>
+                </div>
+            </div>`).join('');
+    } catch {
+        lijst.innerHTML = '<p style="color:#ff8a8a;">Fout bij laden.</p>';
+    }
+}
+
+async function verwijderIngezonden(id) {
+    if (!confirm('Dit verhaal van de site verwijderen?')) return;
+    const r = await adminFetch(`/api/admin/ingezonden-verhaal/${id}`, { method: 'DELETE' });
+    const data = await r.json();
+    if (data.succes) {
+        const el = document.getElementById(`ingezonden-${id}`);
+        if (el) {
+            el.style.transition = 'opacity 0.3s, transform 0.3s';
+            el.style.opacity = '0'; el.style.transform = 'scale(0.95)';
+            setTimeout(() => { el.remove(); laadIngezonden(); }, 300);
+        }
+    }
+}
+
+// ══════════════════════════════════════
+// HULP
+// ══════════════════════════════════════
+function escapeHTML(t) {
+    if (!t) return '';
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(t));
+    return d.innerHTML;
+}
+</script>
+</body>
+</html>

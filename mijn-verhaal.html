@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mijn Verhaal — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        main { padding: 36px 0 60px; }
+
+        /* ── SETUP FASE ── */
+        .keuze-groep { display:flex; gap:12px; flex-wrap:wrap; margin-top:6px; }
+        .keuze-kaart {
+            flex:1; min-width:180px;
+            border: 2px solid rgba(76,201,122,0.3);
+            border-radius: 16px; padding: 16px 18px; cursor: pointer;
+            background: rgba(13,43,26,0.5);
+            transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+        }
+        .keuze-kaart:hover { border-color: var(--groen); background: rgba(76,201,122,0.12); }
+        .keuze-kaart.geselecteerd { border-color: var(--groen); background: rgba(76,201,122,0.15); box-shadow: 0 0 0 3px rgba(76,201,122,0.2); }
+        .keuze-kaart input[type="radio"] { margin-top:3px; accent-color: var(--groen); width:18px; height:18px; flex-shrink:0; }
+        .keuze-kaart-tekst strong { display:block; font-weight:800; color:var(--tekst); margin-bottom:3px; }
+        .keuze-kaart-tekst span { font-size:0.85rem; color:var(--tekst-zacht); }
+        #aiGenereerSectie { display:none; }
+        #zelfInvoerSectie { display:none; }
+        .ai-resultaat {
+            background: rgba(247,201,72,0.1); border: 2px solid rgba(247,201,72,0.3);
+            border-radius: 16px; padding: 16px 20px; margin-top: 12px; display: none;
+        }
+        .ai-resultaat .label { font-size:0.78rem; font-weight:800; color:var(--geel); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+        .ai-resultaat p { font-weight:700; color:var(--tekst); margin-bottom:12px; }
+        .ai-resultaat p:last-child { margin-bottom:0; }
+
+        /* ── EDITOR FASE ── */
+        #editorSectie { display:none; }
+
+        .verhaal-info-balk {
+            background: linear-gradient(135deg, rgba(13,43,26,0.8), rgba(10,31,17,0.9));
+            border: 2px solid rgba(76,201,122,0.25); border-radius: var(--radius);
+            padding: 18px 22px; margin-bottom: 20px;
+        }
+        .verhaal-info-titel {
+            font-family: 'Grandstander', cursive; font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--geel), var(--oranje));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 10px;
+        }
+        .info-chips { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .info-chip {
+            background: rgba(76,201,122,0.12); border: 1px solid rgba(76,201,122,0.3);
+            border-radius: 50px; padding: 4px 13px; font-size: 0.82rem; font-weight: 700; color: var(--groen);
+        }
+        .voortgang-balk-wrapper { margin-top: 12px; }
+        .voortgang-label { font-size:0.78rem; color:var(--tekst-zacht); margin-bottom:5px; font-weight:700; }
+        .voortgang-balk {
+            height: 8px; background: rgba(255,255,255,0.1); border-radius: 50px; overflow: hidden;
+        }
+        .voortgang-vulling {
+            height: 100%; background: linear-gradient(90deg, var(--groen), var(--geel));
+            border-radius: 50px; transition: width 0.5s ease;
+        }
+
+        /* ── VOLTOOIDE DELEN ── */
+        .voltooid-deel {
+            background: rgba(76,201,122,0.06); border: 1px solid rgba(76,201,122,0.2);
+            border-radius: 16px; margin-bottom: 10px; overflow: hidden;
+        }
+        .voltooid-deel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 18px; cursor: pointer; user-select: none;
+        }
+        .voltooid-deel-header:hover { background: rgba(76,201,122,0.08); }
+        .voltooid-deel-titel { font-weight:800; color: var(--groen); font-size:0.9rem; }
+        .voltooid-deel-chevron { color: var(--tekst-zacht); font-size:0.8rem; transition:transform 0.2s; }
+        .voltooid-deel-tekst {
+            display: none; padding: 0 18px 14px;
+            font-family: 'Lora', serif; font-size: 0.9rem; color: var(--tekst-zacht);
+            line-height: 1.75; white-space: pre-wrap;
+        }
+
+        /* ── OPDRACHT KAART ── */
+        .opdracht-kaart {
+            background: linear-gradient(135deg, rgba(247,201,72,0.12), rgba(242,140,56,0.08));
+            border: 2px solid rgba(247,201,72,0.4); border-radius: var(--radius);
+            padding: 20px 22px; margin-bottom: 18px; position: relative;
+        }
+        .opdracht-label {
+            font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--geel); margin-bottom: 8px;
+        }
+        .opdracht-tekst {
+            font-family: 'Baloo 2', cursive; font-size: 1.05rem; color: var(--tekst);
+            line-height: 1.7; font-weight: 700; margin-bottom: 10px;
+        }
+        .hint-knop {
+            background: none; border: none; color: rgba(247,201,72,0.8); font-family: 'Baloo 2',cursive;
+            font-size: 0.83rem; font-weight: 700; cursor: pointer; padding: 0;
+            transition: color 0.2s;
+        }
+        .hint-knop:hover { color: var(--geel); }
+        .hint-tekst {
+            margin-top: 10px; font-size: 0.88rem; color: rgba(247,201,72,0.85); font-style: italic;
+            line-height: 1.6; display: none;
+        }
+
+        /* ── EDITOR ── */
+        .editor-wrapper { position:relative; }
+        #deelTekst {
+            width: 100%; min-height: 240px; font-size: 1rem; line-height: 1.8;
+            font-family: 'Lora', serif; resize: vertical;
+        }
+        .editor-voettekst {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 10px; margin-top: 10px;
+        }
+        .woord-teller { font-size:0.85rem; color:var(--tekst-zacht); font-weight:700; }
+
+        /* ── AI SUGGESTIE ── */
+        .ai-suggestie-box {
+            background: rgba(247,201,72,0.08); border: 2px dashed rgba(247,201,72,0.4);
+            border-radius: 16px; padding: 18px 20px; margin-top: 14px; display: none;
+        }
+        .ai-suggestie-box .ai-label { font-size:0.8rem; font-weight:800; color:var(--geel); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .ai-suggestie-tekst { font-family:'Lora',serif; font-size:0.95rem; line-height:1.8; color:var(--tekst); white-space:pre-wrap; margin-bottom:12px; }
+        .ai-suggestie-acties { display:flex; gap:8px; flex-wrap:wrap; }
+
+        /* ── BOLLETJES (Green Dots) ── */
+        .bolletjes-sectie {
+            background: rgba(34,99,58,0.4); border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 18px; margin: 18px 0;
+        }
+        .bolletjes-titel {
+            color: var(--tekst-zacht); font-size: 0.82rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+        }
+        .bolletje-rij {
+            display: flex; align-items: center; gap: 12px; padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .bolletje-rij:last-child { border-bottom: none; }
+        .bolletje-rij.groen-rij { background: rgba(76,201,122,0.06); border-radius: 8px; padding: 10px 8px; }
+        .bolletje {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);
+            flex-shrink: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); position: relative;
+        }
+        .bolletje.groen { background: #4CC97A; border-color: #2f9e44; box-shadow: 0 0 12px rgba(76,201,122,0.5); }
+        .bolletje.groen::after {
+            content: '✓'; position: absolute; inset: 0; display: flex;
+            align-items: center; justify-content: center; color: #0D2B1A; font-size: 0.75rem; font-weight: 900;
+        }
+        .bolletje-label { color: rgba(167,196,181,0.85); font-size: 0.9rem; }
+        .bolletje3-status { font-size:0.78rem; color:var(--tekst-zacht); margin-top:4px; display:none; }
+
+        /* ── SUBMIT KNOP ── */
+        .volgende-deel-knop {
+            width: 100%; padding: 16px; border-radius: 50px; font-size: 1.05rem;
+            font-family: 'Baloo 2', cursive; font-weight: 800;
+            background: linear-gradient(135deg, var(--groen), var(--mint));
+            color: #0D2B1A; border: none; cursor: pointer;
+            transition: all 0.3s ease; margin-top: 4px;
+        }
+        .volgende-deel-knop:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(76,201,122,0.4); }
+        .volgende-deel-knop:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+        .volgende-deel-knop.laatste { background: linear-gradient(135deg, var(--geel), var(--oranje)); color: #1A0A00; }
+
+        /* ── GENEREER SCHERM ── */
+        #genereerScherm {
+            display: none; text-align: center; padding: 40px 20px;
+        }
+        .genereer-spinner { font-size: 3rem; animation: spin 1.5s linear infinite; margin-bottom: 16px; }
+        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        .genereer-tekst { font-family:'Grandstander',cursive; font-size:1.2rem; color:var(--geel); }
+        .genereer-subtekst { color:var(--tekst-zacht); font-size:0.9rem; margin-top:8px; }
+
+        /* ── VIERING OVERLAY ── */
+        #vieringOverlay {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            background: rgba(10,31,17,0.92); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center; flex-direction: column;
+            text-align: center;
+        }
+        #vieringOverlay.actief { display: flex; }
+        .viering-emoji { font-size: 5rem; animation: vierBounce 0.6s ease; margin-bottom: 16px; }
+        @keyframes vierBounce { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.3)} 100%{transform:scale(1);opacity:1} }
+        .viering-titel {
+            font-family: 'Grandstander', cursive; font-size: clamp(2rem, 6vw, 3rem);
+            background: linear-gradient(135deg, var(--groen), var(--geel));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            animation: fadeUp 0.5s 0.3s both ease;
+        }
+        .viering-sub { color: var(--tekst-zacht); font-size: 1rem; margin-top: 8px; animation: fadeUp 0.5s 0.5s both ease; }
+        @keyframes fadeUp { 0%{opacity:0;transform:translateY(20px)} 100%{opacity:1;transform:translateY(0)} }
+
+        /* ── VOLTOOIINGSSCHERM ── */
+        #voltooiingsScherm { display: none; }
+        .voltooiings-hero {
+            background: linear-gradient(135deg, rgba(76,201,122,0.15), rgba(247,201,72,0.1));
+            border: 2px solid rgba(76,201,122,0.4); border-radius: var(--radius);
+            padding: 32px; text-align: center; margin-bottom: 24px;
+        }
+        .voltooiings-emoji { font-size: 4rem; display: block; margin-bottom: 12px; animation: vierBounce 0.7s ease; }
+        .voltooiings-titel-label { font-size:0.8rem; color:var(--tekst-zacht); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        #verhaalTitelInput {
+            font-family:'Grandstander',cursive; font-size:1.6rem; text-align:center;
+            background:transparent; border:none; border-bottom: 2px solid rgba(247,201,72,0.4);
+            color: var(--geel); width:100%; padding:4px 8px; outline:none;
+            transition: border-color 0.2s;
+        }
+        #verhaalTitelInput:focus { border-color: var(--geel); }
+        .compleet-verhaal-sectie { margin-top: 24px; }
+        .compleet-deel {
+            background: rgba(13,43,26,0.6); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 20px 24px; margin-bottom: 14px;
+        }
+        .compleet-deel-nr {
+            font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:1px;
+            color:var(--groen); margin-bottom:8px;
+        }
+        .compleet-deel-tekst { font-family:'Lora',serif; color:var(--tekst); line-height:1.85; white-space:pre-wrap; }
+        .share-knoppen-voltooiing { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+
+        /* ── FADE IN ── */
+        .fade-in { animation: fadeInNew 0.6s ease both; }
+        @keyframes fadeInNew { 0%{opacity:0;transform:translateY(16px)} 100%{opacity:1;transform:translateY(0)} }
+
+        .knop-sm { padding: 8px 18px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <p class="site-subtitle">Schrijf jouw eigen verhaal</p>
+</header>
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
+    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-verhalen-overzicht.html" id="navMijnVerhaalLink" class="actief">✍️ Mijn Verhaal</a>
+    <a href="login.html" id="navLoginLink">👤 Login</a>
+</nav>
+
+<main>
+<div class="container">
+
+<!-- ══ FASE 1: SETUP ══ -->
+<div id="setupSectie">
+    <section class="sectie">
+        <h2 class="sectie-titel groen">📖 Nieuw verhaal starten</h2>
+        <div class="formulier">
+            <div>
+                <label for="setupTitel">Verhaaltitel</label>
+                <input type="text" id="setupTitel" placeholder="Bijv. Het avontuur van Fien en de draak..." maxlength="80">
+            </div>
+            <div>
+                <label for="setupAantalDelen">Aantal delen (2–10)</label>
+                <select id="setupAantalDelen">
+                    <option value="2">2 delen</option>
+                    <option value="3">3 delen</option>
+                    <option value="4">4 delen</option>
+                    <option value="5" selected>5 delen</option>
+                    <option value="6">6 delen</option>
+                    <option value="7">7 delen</option>
+                    <option value="8">8 delen</option>
+                    <option value="9">9 delen</option>
+                    <option value="10">10 delen</option>
+                </select>
+            </div>
+            <div>
+                <label>Onderwerp en personages</label>
+                <div class="keuze-groep">
+                    <label class="keuze-kaart geselecteerd" id="kaartZelf">
+                        <input type="radio" name="onderwerpKeuze" value="zelf" checked onchange="wisselKeuze('zelf')">
+                        <div class="keuze-kaart-tekst">
+                            <strong>✏️ Zelf kiezen</strong>
+                            <span>Ik bedenk zelf het onderwerp en de personages.</span>
+                        </div>
+                    </label>
+                    <label class="keuze-kaart" id="kaartAi">
+                        <input type="radio" name="onderwerpKeuze" value="ai" onchange="wisselKeuze('ai')">
+                        <div class="keuze-kaart-tekst">
+                            <strong>✨ AI verrassing</strong>
+                            <span>Laat de AI een leuk onderwerp en personages bedenken!</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div id="zelfInvoerSectie">
+                <div style="margin-bottom:12px;">
+                    <label for="setupOnderwerp">Onderwerp / thema</label>
+                    <input type="text" id="setupOnderwerp" placeholder="Bijv. Een reis naar een geheim eiland...">
+                </div>
+                <div>
+                    <label for="setupPersonages">Hoofdpersonages</label>
+                    <input type="text" id="setupPersonages" placeholder="Bijv. Mila (10 jaar), haar hond Spot, de mysterieuze kapitein...">
+                </div>
+            </div>
+            <div id="aiGenereerSectie">
+                <button class="knop knop-gradient" id="genereerBtn" onclick="genereerOnderwerp()">✨ Genereer onderwerp en personages</button>
+                <div class="ai-resultaat" id="aiResultaat">
+                    <div class="label">Onderwerp</div>
+                    <p id="aiOnderwerp"></p>
+                    <div class="label">Personages</div>
+                    <p id="aiPersonages"></p>
+                    <button class="knop knop-sm" style="background:rgba(247,201,72,0.15);color:var(--geel);border:1px solid rgba(247,201,72,0.3);" onclick="genereerOnderwerp()">🔄 Opnieuw genereren</button>
+                </div>
+            </div>
+            <div id="setupFout" class="melding-fout" style="display:none;"></div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                <button class="knop knop-gradient" id="startBtn" onclick="startVerhaal()">🚀 Start met schrijven!</button>
+                <a href="mijn-verhalen-overzicht.html" class="knop" style="background:rgba(255,255,255,0.08);color:var(--tekst-zacht);">← Terug</a>
+            </div>
+            <p style="font-size:0.82rem;color:var(--tekst-zacht);margin-top:8px;">⏳ Het aanmaken duurt even — de AI bedenkt meteen jouw eerste schrijfopdracht!</p>
+        </div>
+    </section>
+</div>
+
+<!-- ══ FASE 2: EDITOR ══ -->
+<div id="editorSectie">
+    <!-- Info balk -->
+    <div class="verhaal-info-balk">
+        <div class="verhaal-info-titel" id="editorTitel"></div>
+        <div class="info-chips" id="editorChips"></div>
+        <div class="voortgang-balk-wrapper">
+            <div class="voortgang-label" id="voortgangLabel">Deel 1 van 5</div>
+            <div class="voortgang-balk">
+                <div class="voortgang-vulling" id="voortgangVulling" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voltooide delen (read-only previews) -->
+    <div id="voltooideDelenContainer"></div>
+
+    <!-- Huidig deel editor -->
+    <section class="sectie" id="huidigDeelEditor">
+        <!-- Huidige opdracht -->
+        <div class="opdracht-kaart fade-in" id="opdrachtKaart">
+            <div class="opdracht-label" id="opdrachtLabel">📜 Opdracht voor deel 1</div>
+            <div class="opdracht-tekst" id="opdrachtTekst">Laden...</div>
+            <button class="hint-knop" id="hintKnop" onclick="toonHint()" style="display:none;">💡 Toon tip</button>
+            <div class="hint-tekst" id="hintTekst"></div>
+        </div>
+
+        <!-- Schrijfgebied -->
+        <label style="display:block;margin-bottom:8px;font-weight:700;" id="deelLabel">✍️ Schrijf hier deel <span id="huidigDeelNr">1</span>:</label>
+        <div class="editor-wrapper">
+            <textarea id="deelTekst" placeholder="Begin hier met schrijven..."></textarea>
+        </div>
+        <div class="editor-voettekst">
+            <span class="woord-teller" id="woordTeller">0 woorden</span>
+            <button class="knop knop-sm" id="aiHulpBtn" onclick="vraagAiHulp()"
+                    style="background:rgba(247,201,72,0.15);color:var(--geel);border:1px solid rgba(247,201,72,0.3);">
+                ✨ Schrijfhulp
+            </button>
+        </div>
+
+        <!-- AI suggestie -->
+        <div class="ai-suggestie-box" id="aiSuggestieBox">
+            <div class="ai-label">✨ AI-suggestie voor dit deel</div>
+            <div class="ai-suggestie-tekst" id="aiSuggestieTekst"></div>
+            <div class="ai-suggestie-acties">
+                <button class="knop knop-groen knop-sm" onclick="gebruikSuggestie()">✅ Gebruik deze tekst</button>
+                <button class="knop knop-sm" style="background:rgba(255,255,255,0.08);color:var(--tekst-zacht);" onclick="sluitSuggestie()">✕ Sluiten</button>
+            </div>
+        </div>
+
+        <!-- Groene bolletjes -->
+        <div class="bolletjes-sectie">
+            <div class="bolletjes-titel">🎯 Verdien je 3 groene bollen voordat je verder kunt:</div>
+            <div class="bolletje-rij groen-rij">
+                <div class="bolletje" id="bolletje1"></div>
+                <span class="bolletje-label">Minimaal 50 woorden geschreven</span>
+            </div>
+            <div class="bolletje-rij">
+                <div class="bolletje" id="bolletje2"></div>
+                <span class="bolletje-label">Minstens één personage vermeld</span>
+            </div>
+            <div class="bolletje-rij">
+                <div class="bolletje" id="bolletje3"></div>
+                <span class="bolletje-label" id="bolletje3Label">Sluit aan op het vorige deel</span>
+                <span class="bolletje3-status" id="bolletje3Status">⏳ Wordt gecontroleerd...</span>
+            </div>
+        </div>
+
+        <!-- Verder knop -->
+        <button class="volgende-deel-knop" id="volgendDeelKnop" disabled onclick="voltooiHuidigDeel()">
+            Volgende deel →
+        </button>
+        <div id="editorFout" class="melding-fout" style="display:none;margin-top:12px;"></div>
+    </section>
+
+    <!-- AI genereert scherm -->
+    <section class="sectie" id="genereerScherm">
+        <div class="genereer-spinner">🌟</div>
+        <div class="genereer-tekst">De AI bedenkt jouw volgende opdracht...</div>
+        <div class="genereer-subtekst">Even geduld, dit duurt maar een paar seconden!</div>
+    </section>
+</div>
+
+<!-- ══ FASE 3: VOLTOOIING ══ -->
+<div id="voltooiingsScherm">
+    <div class="voltooiings-hero sectie">
+        <span class="voltooiings-emoji">🎉</span>
+        <p style="color:var(--groen);font-weight:800;font-size:1.1rem;margin-bottom:12px;">Jouw verhaal is klaar!</p>
+        <div class="voltooiings-titel-label">Geef je verhaal een titel:</div>
+        <input type="text" id="verhaalTitelInput" maxlength="80" oninput="slaaTitelOp()">
+        <div class="share-knoppen-voltooiing" style="justify-content:center;margin-top:20px;">
+            <a class="knop knop-groen knop-sm" id="shareWhatsapp" target="_blank" rel="noopener">💬 WhatsApp</a>
+            <a class="knop knop-sm" id="shareEmail" style="background:rgba(56,189,248,0.2);color:var(--blauw);border:1px solid rgba(56,189,248,0.3);">📧 E-mail</a>
+            <button class="knop knop-sm" style="background:rgba(139,92,246,0.2);color:var(--paars);border:1px solid rgba(139,92,246,0.3);" onclick="kopieerLink()">🔗 Kopieer link</button>
+        </div>
+        <div id="kopieerMelding" class="melding-succes" style="display:none;margin-top:10px;text-align:center;"></div>
+    </div>
+
+    <div class="compleet-verhaal-sectie sectie">
+        <h3 style="font-family:'Grandstander',cursive;color:var(--geel);font-size:1.3rem;margin-bottom:20px;">📖 Jouw complete verhaal</h3>
+        <div id="completeDelenContainer"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:8px;">
+        <a href="mijn-verhalen-overzicht.html" class="knop" style="background:rgba(255,255,255,0.08);color:var(--tekst-zacht);">← Mijn verhalen</a>
+    </div>
+</div>
+
+</div>
+</main>
+
+<!-- VIERING OVERLAY -->
+<div id="vieringOverlay">
+    <div class="viering-emoji">🎉</div>
+    <div class="viering-titel" id="vieringTitel">Deel 1 voltooid!</div>
+    <div class="viering-sub" id="vieringSub">Geweldig geschreven!</div>
+</div>
+
+<footer>
+    <div class="quote">"Elk groot verhaal begint met één eerste woord."</div>
+    <div class="quote-auteur">— Depeterpost Verhalen Club</div>
+</footer>
+
+<script>
+let userToken  = null;
+let verhaalId  = null;
+let verhaalData = null;
+let huidigDeelNr = 1;
+let aiOnderwerpWaarde = '';
+let aiPersonagesWaarde = '';
+let dot3Timer = null;
+let dot3Bezig = false;
+let bollen = [false, false, false];
+
+// ══ INIT ══
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (!userInfo) { window.location.href = 'login.html'; return; }
+    const u = JSON.parse(userInfo);
+    const link = document.getElementById('navLoginLink');
+    if (link) link.textContent = u.avatar + ' ' + u.gebruikersnaam;
+    userToken = localStorage.getItem('userToken');
+
+    const params = new URLSearchParams(window.location.search);
+    verhaalId = params.get('id');
+    if (verhaalId) {
+        laadBestaandVerhaal(verhaalId);
+    } else {
+        document.getElementById('setupSectie').style.display = 'block';
+        document.getElementById('zelfInvoerSectie').style.display = 'block';
+    }
+});
+
+// ══ SETUP ══
+
+function wisselKeuze(keuze) {
+    document.getElementById('kaartZelf').classList.toggle('geselecteerd', keuze === 'zelf');
+    document.getElementById('kaartAi').classList.toggle('geselecteerd', keuze === 'ai');
+    document.getElementById('zelfInvoerSectie').style.display = keuze === 'zelf' ? 'block' : 'none';
+    document.getElementById('aiGenereerSectie').style.display = keuze === 'ai' ? 'block' : 'none';
+}
+
+async function genereerOnderwerp() {
+    const btn = document.getElementById('genereerBtn');
+    btn.disabled = true; btn.textContent = '⏳ Even nadenken...';
+    try {
+        const r = await fetch('/api/mijn-verhaal/genereer-onderwerp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken }
+        });
+        const data = await r.json();
+        if (data.succes) {
+            aiOnderwerpWaarde = data.onderwerp;
+            aiPersonagesWaarde = data.personages;
+            document.getElementById('aiOnderwerp').textContent = data.onderwerp;
+            document.getElementById('aiPersonages').textContent = data.personages;
+            document.getElementById('aiResultaat').style.display = 'block';
+        } else { toonSetupFout(data.bericht || 'Genereren mislukt.'); }
+    } catch { toonSetupFout('Verbindingsfout. Probeer opnieuw.'); }
+    btn.disabled = false; btn.textContent = '✨ Genereer onderwerp en personages';
+}
+
+async function startVerhaal() {
+    const titel = document.getElementById('setupTitel').value.trim();
+    if (!titel) { toonSetupFout('Vul een titel in voor je verhaal.'); return; }
+    const keuze = document.querySelector('input[name="onderwerpKeuze"]:checked').value;
+    let onderwerp = '', personages = '';
+    if (keuze === 'zelf') {
+        onderwerp = document.getElementById('setupOnderwerp').value.trim();
+        personages = document.getElementById('setupPersonages').value.trim();
+    } else {
+        if (!aiOnderwerpWaarde) { toonSetupFout('Genereer eerst een onderwerp via de AI.'); return; }
+        onderwerp = aiOnderwerpWaarde; personages = aiPersonagesWaarde;
+    }
+    const btn = document.getElementById('startBtn');
+    btn.disabled = true; btn.textContent = '⏳ Aanmaken & opdracht bedenken...';
+    try {
+        const r = await fetch('/api/mijn-verhaal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            body: JSON.stringify({
+                titel, aantalDelen: parseInt(document.getElementById('setupAantalDelen').value),
+                onderwerpKeuze: keuze, onderwerp, personages
+            })
+        });
+        const data = await r.json();
+        if (data.succes) {
+            verhaalId = data.verhaal.id;
+            verhaalData = data.verhaal;
+            history.replaceState({}, '', `mijn-verhaal.html?id=${verhaalId}`);
+            document.getElementById('setupSectie').style.display = 'none';
+            toonEditor(verhaalData);
+        } else { toonSetupFout(data.bericht || 'Aanmaken mislukt.'); btn.disabled = false; btn.textContent = '🚀 Start met schrijven!'; }
+    } catch { toonSetupFout('Verbindingsfout. Probeer opnieuw.'); btn.disabled = false; btn.textContent = '🚀 Start met schrijven!'; }
+}
+
+function toonSetupFout(bericht) {
+    const el = document.getElementById('setupFout');
+    el.textContent = bericht; el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 4000);
+}
+
+// ══ EDITOR LADEN ══
+
+async function laadBestaandVerhaal(id) {
+    try {
+        const r = await fetch(`/api/verhaal/${id}`);
+        if (!r.ok) { window.location.href = 'mijn-verhalen-overzicht.html'; return; }
+        verhaalData = await r.json();
+        verhaalId = id;
+        if (verhaalData.status === 'klaar') { toonVoltooiingsScherm(); return; }
+        toonEditor(verhaalData);
+    } catch { window.location.href = 'mijn-verhalen-overzicht.html'; }
+}
+
+function toonEditor(v) {
+    document.title = `${v.titel} — Mijn Verhaal`;
+    document.getElementById('editorSectie').style.display = 'block';
+    document.getElementById('editorTitel').textContent = v.titel;
+
+    // Bepaal huidig deel
+    huidigDeelNr = v.huidigDeelNummer || berekenHuidigDeel(v);
+
+    // Chips
+    const chips = document.getElementById('editorChips');
+    chips.innerHTML = [
+        `<span class="info-chip">📖 ${v.aantalDelen} delen</span>`,
+        v.onderwerp ? `<span class="info-chip">📌 ${veilig(v.onderwerp)}</span>` : '',
+        v.personages ? `<span class="info-chip" style="border-color:rgba(244,114,182,0.3);color:var(--roze);">👥 ${veilig(v.personages)}</span>` : ''
+    ].join('');
+
+    werkVoortgangBij();
+    toonVoltooideDelenPreview();
+    laadHuidigDeel();
+}
+
+function berekenHuidigDeel(v) {
+    // Terugval voor oude verhalen zonder huidigDeelNummer
+    for (const d of v.delen) {
+        if (!d.voltooid && !d.tekst?.trim()) return d.nummer;
+    }
+    return v.delen.length;
+}
+
+function werkVoortgangBij() {
+    const voltooide = verhaalData.delen.filter(d => d.voltooid).length;
+    const totaal = verhaalData.aantalDelen;
+    const pct = Math.round((huidigDeelNr - 1) / totaal * 100);
+    document.getElementById('voortgangLabel').textContent = `Deel ${huidigDeelNr} van ${totaal}`;
+    document.getElementById('voortgangVulling').style.width = pct + '%';
+}
+
+function toonVoltooideDelenPreview() {
+    const container = document.getElementById('voltooideDelenContainer');
+    const voltooid = verhaalData.delen.filter(d => d.voltooid && d.nummer < huidigDeelNr);
+    container.innerHTML = voltooid.map(d => `
+        <div class="voltooid-deel">
+            <div class="voltooid-deel-header" onclick="toggleVoltooidDeel(this)">
+                <span class="voltooid-deel-titel">✅ Deel ${d.nummer} — voltooid</span>
+                <span class="voltooid-deel-chevron">▼</span>
+            </div>
+            <div class="voltooid-deel-tekst">${veilig(d.tekst)}</div>
+        </div>`).join('');
+}
+
+function toggleVoltooidDeel(header) {
+    const tekst = header.nextElementSibling;
+    const chevron = header.querySelector('.voltooid-deel-chevron');
+    const open = tekst.style.display === 'block';
+    tekst.style.display = open ? 'none' : 'block';
+    chevron.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+function laadHuidigDeel() {
+    const deel = verhaalData.delen.find(d => d.nummer === huidigDeelNr);
+    if (!deel) return;
+
+    // Opdracht
+    document.getElementById('opdrachtLabel').textContent = `📜 Opdracht voor deel ${huidigDeelNr}`;
+    document.getElementById('opdrachtTekst').textContent = deel.opdracht || 'Schrijf verder aan jouw verhaal! Laat de actie doorgaan en verrast de lezer.';
+    document.getElementById('huidigDeelNr').textContent = huidigDeelNr;
+
+    // Hint
+    if (deel.hint) {
+        document.getElementById('hintTekst').textContent = deel.hint;
+        document.getElementById('hintKnop').style.display = 'inline';
+    } else {
+        document.getElementById('hintKnop').style.display = 'none';
+    }
+
+    // Dot 3 label aanpassen voor deel 1
+    document.getElementById('bolletje3Label').textContent =
+        huidigDeelNr === 1 ? 'Je hebt begonnen met het verhaal' : 'Sluit aan op het vorige deel';
+
+    // Textarea
+    document.getElementById('deelTekst').value = deel.tekst || '';
+    werkWoordTellerBij();
+    resetBollen();
+
+    // Knop tekst
+    const isLaatste = huidigDeelNr === verhaalData.aantalDelen;
+    const knop = document.getElementById('volgendDeelKnop');
+    knop.textContent = isLaatste ? '✨ Verhaal afronden!' : 'Volgende deel →';
+    knop.className = 'volgende-deel-knop' + (isLaatste ? ' laatste' : '');
+
+    // Start dot-checks als er al tekst is
+    if (deel.tekst?.trim()) checkBollen();
+}
+
+function toonHint() {
+    const hint = document.getElementById('hintTekst');
+    const knop = document.getElementById('hintKnop');
+    hint.style.display = 'block';
+    knop.style.display = 'none';
+}
+
+// ══ BOLLETJES ══
+
+function resetBollen() {
+    bollen = [false, false, false];
+    ['bolletje1','bolletje2','bolletje3'].forEach(id => {
+        document.getElementById(id).className = 'bolletje';
+    });
+    document.getElementById('bolletje3Status').style.display = 'none';
+    document.getElementById('volgendDeelKnop').disabled = true;
+}
+
+function setBolletje(nr, groen) {
+    bollen[nr - 1] = groen;
+    document.getElementById('bolletje' + nr).className = 'bolletje' + (groen ? ' groen' : '');
+    werkVolgendKnopBij();
+}
+
+function werkVolgendKnopBij() {
+    document.getElementById('volgendDeelKnop').disabled = !(bollen[0] && bollen[1] && bollen[2]);
+}
+
+function checkBollen() {
+    const tekst = document.getElementById('deelTekst').value;
+    const woorden = tekst.trim() ? tekst.trim().split(/\s+/).length : 0;
+
+    // Dot 1: ≥50 woorden
+    setBolletje(1, woorden >= 50);
+
+    // Dot 2: personage vermeld
+    setBolletje(2, checkPersonageVermeld(tekst));
+
+    // Dot 3: aansluit op vorig deel (AI check, debounced)
+    if (huidigDeelNr === 1) {
+        // Eerste deel: altijd groen als er tekst is
+        setBolletje(3, woorden >= 10);
+    } else if (woorden >= 30) {
+        // Trigger debounced AI check voor dot 3
+        clearTimeout(dot3Timer);
+        if (!dot3Bezig) {
+            document.getElementById('bolletje3Status').style.display = 'inline';
+            document.getElementById('bolletje3Status').textContent = '⏳ Wordt gecontroleerd...';
+        }
+        dot3Timer = setTimeout(checkDot3, 2500);
+    }
+}
+
+function checkPersonageVermeld(tekst) {
+    if (!verhaalData?.personages) return true; // geen personages gedefinieerd = altijd ok
+    const namen = verhaalData.personages
+        .split(/[,;\/]/)
+        .map(p => p.trim().split(/[\s(]/)[0].toLowerCase())
+        .filter(n => n.length > 2);
+    if (namen.length === 0) return true;
+    const tekstLower = tekst.toLowerCase();
+    return namen.some(n => tekstLower.includes(n));
+}
+
+async function checkDot3() {
+    if (dot3Bezig) return;
+    dot3Bezig = true;
+    const tekst = document.getElementById('deelTekst').value;
+    try {
+        const r = await fetch(`/api/mijn-verhaal/${verhaalId}/check-deel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            body: JSON.stringify({ deelNummer: huidigDeelNr, tekst })
+        });
+        const data = await r.json();
+        setBolletje(3, data.verbindt !== false);
+        document.getElementById('bolletje3Status').style.display = 'none';
+    } catch {
+        setBolletje(3, true); // bij fout: niet blokkeren
+        document.getElementById('bolletje3Status').style.display = 'none';
+    }
+    dot3Bezig = false;
+}
+
+document.getElementById('deelTekst').addEventListener('input', () => {
+    werkWoordTellerBij();
+    checkBollen();
+    sluitSuggestie();
+});
+
+function werkWoordTellerBij() {
+    const tekst = document.getElementById('deelTekst').value.trim();
+    const w = tekst ? tekst.split(/\s+/).length : 0;
+    document.getElementById('woordTeller').textContent = `${w} woord${w !== 1 ? 'en' : ''}`;
+}
+
+// ══ AI HULP ══
+
+async function vraagAiHulp() {
+    const btn = document.getElementById('aiHulpBtn');
+    btn.disabled = true; btn.textContent = '⏳ Even nadenken...';
+    sluitSuggestie();
+    try {
+        const r = await fetch(`/api/mijn-verhaal/${verhaalId}/ai-suggest`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            body: JSON.stringify({ deelNummer: huidigDeelNr })
+        });
+        const data = await r.json();
+        if (data.succes) {
+            document.getElementById('aiSuggestieTekst').textContent = data.suggestie;
+            document.getElementById('aiSuggestieBox').style.display = 'block';
+            document.getElementById('aiSuggestieBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else { toonEditorFout(data.bericht || 'AI-hulp mislukt.'); }
+    } catch { toonEditorFout('Verbindingsfout. Probeer opnieuw.'); }
+    btn.disabled = false; btn.textContent = '✨ Schrijfhulp';
+}
+
+function gebruikSuggestie() {
+    const suggestie = document.getElementById('aiSuggestieTekst').textContent;
+    const ta = document.getElementById('deelTekst');
+    ta.value = ta.value ? ta.value + '\n\n' + suggestie : suggestie;
+    werkWoordTellerBij(); checkBollen(); sluitSuggestie();
+}
+
+function sluitSuggestie() { document.getElementById('aiSuggestieBox').style.display = 'none'; }
+
+// ══ DEEL VOLTOOIEN ══
+
+async function voltooiHuidigDeel() {
+    const tekst = document.getElementById('deelTekst').value;
+    const btn = document.getElementById('volgendDeelKnop');
+    btn.disabled = true;
+
+    // Sla huidig deel op als voltooid
+    const updatedDelen = verhaalData.delen.map(d => ({
+        ...d,
+        tekst: d.nummer === huidigDeelNr ? tekst : d.tekst,
+        voltooid: d.nummer === huidigDeelNr ? true : d.voltooid
+    }));
+
+    try {
+        const r = await fetch(`/api/mijn-verhaal/${verhaalId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            body: JSON.stringify({ delen: updatedDelen })
+        });
+        const data = await r.json();
+        if (data.succes) verhaalData = data.verhaal;
+    } catch { /* continue anyway */ }
+
+    const isLaatste = huidigDeelNr === verhaalData.aantalDelen;
+
+    // Toon viering
+    toonViering(huidigDeelNr, isLaatste);
+
+    if (isLaatste) {
+        // Markeer verhaal als klaar
+        try {
+            const r = await fetch(`/api/mijn-verhaal/${verhaalId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+                body: JSON.stringify({ status: 'klaar' })
+            });
+            const d = await r.json();
+            if (d.succes) verhaalData = d.verhaal;
+        } catch {}
+
+        setTimeout(() => {
+            verbergViering();
+            toonVoltooiingsScherm();
+        }, 2800);
+    } else {
+        // Genereer volgende opdracht
+        const volgendNr = huidigDeelNr + 1;
+        setTimeout(async () => {
+            verbergViering();
+            toonGenereerScherm();
+            await laadVolgendeOpdracht(volgendNr);
+        }, 2200);
+    }
+}
+
+function toonViering(deelNr, isLaatste) {
+    document.getElementById('vieringTitel').textContent = `Deel ${deelNr} voltooid!`;
+    document.getElementById('vieringSub').textContent = isLaatste
+        ? '🌟 Je hebt het hele verhaal geschreven!' : 'Geweldig geschreven! 🎊';
+    document.getElementById('vieringOverlay').classList.add('actief');
+}
+
+function verbergViering() {
+    document.getElementById('vieringOverlay').classList.remove('actief');
+}
+
+function toonGenereerScherm() {
+    document.getElementById('huidigDeelEditor').style.display = 'none';
+    document.getElementById('voltooideDelenContainer').style.display = 'none';
+    document.getElementById('genereerScherm').style.display = 'block';
+}
+
+function verbergGenereerScherm() {
+    document.getElementById('genereerScherm').style.display = 'none';
+    document.getElementById('huidigDeelEditor').style.display = 'block';
+    document.getElementById('voltooideDelenContainer').style.display = 'block';
+}
+
+async function laadVolgendeOpdracht(volgendNr) {
+    try {
+        const r = await fetch(`/api/mijn-verhaal/${verhaalId}/volgende-opdracht`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            body: JSON.stringify({ volgendDeelNummer: volgendNr })
+        });
+        const data = await r.json();
+        if (data.succes) {
+            // Update lokale data
+            if (verhaalData.delen[volgendNr - 1]) {
+                verhaalData.delen[volgendNr - 1].opdracht = data.opdracht;
+                verhaalData.delen[volgendNr - 1].hint = data.hint || '';
+            }
+            verhaalData.huidigDeelNummer = volgendNr;
+            huidigDeelNr = volgendNr;
+
+            verbergGenereerScherm();
+            werkVoortgangBij();
+            toonVoltooideDelenPreview();
+            resetBollen();
+            dot3Bezig = false;
+
+            // Fade in nieuwe opdracht
+            const kaart = document.getElementById('opdrachtKaart');
+            kaart.classList.remove('fade-in');
+            void kaart.offsetWidth; // reflow
+            kaart.classList.add('fade-in');
+
+            laadHuidigDeel();
+            document.getElementById('deelTekst').value = '';
+            document.getElementById('deelTekst').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            verbergGenereerScherm();
+            huidigDeelNr = volgendNr;
+            verhaalData.huidigDeelNummer = volgendNr;
+            werkVoortgangBij();
+            toonVoltooideDelenPreview();
+            laadHuidigDeel();
+            document.getElementById('deelTekst').value = '';
+        }
+    } catch {
+        verbergGenereerScherm();
+        huidigDeelNr = volgendNr;
+        laadHuidigDeel();
+    }
+}
+
+// ══ VOLTOOIING ══
+
+function toonVoltooiingsScherm() {
+    document.getElementById('editorSectie').style.display = 'none';
+    document.getElementById('voltooiingsScherm').style.display = 'block';
+
+    document.getElementById('verhaalTitelInput').value = verhaalData.titel || '';
+    werkShareLinks();
+    toonCompleteVerhaal();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toonCompleteVerhaal() {
+    const container = document.getElementById('completeDelenContainer');
+    container.innerHTML = verhaalData.delen
+        .filter(d => d.tekst?.trim())
+        .map(d => `
+            <div class="compleet-deel">
+                <div class="compleet-deel-nr">📜 Deel ${d.nummer}</div>
+                <div class="compleet-deel-tekst">${veilig(d.tekst)}</div>
+            </div>`).join('');
+}
+
+function werkShareLinks() {
+    const url = `${window.location.origin}/verhaal/${verhaalId}`;
+    const titel = verhaalData.titel || 'mijn verhaal';
+    document.getElementById('shareWhatsapp').href =
+        `https://wa.me/?text=${encodeURIComponent('Lees mijn verhaal "' + titel + '": ' + url)}`;
+    document.getElementById('shareEmail').href =
+        `mailto:?subject=${encodeURIComponent('Lees: ' + titel)}&body=${encodeURIComponent('Hoi!\n\nIk heb een verhaal geschreven: "' + titel + '"\n\nLees het hier: ' + url)}`;
+}
+
+async function slaaTitelOp() {
+    clearTimeout(window.titelTimer);
+    window.titelTimer = setTimeout(async () => {
+        const nieuweT = document.getElementById('verhaalTitelInput').value.trim();
+        if (!nieuweT || nieuweT === verhaalData.titel) return;
+        try {
+            const r = await fetch(`/api/mijn-verhaal/${verhaalId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+                body: JSON.stringify({ titel: nieuweT })
+            });
+            const d = await r.json();
+            if (d.succes) { verhaalData = d.verhaal; werkShareLinks(); }
+        } catch {}
+    }, 1000);
+}
+
+function kopieerLink() {
+    const url = `${window.location.origin}/verhaal/${verhaalId}`;
+    navigator.clipboard.writeText(url).then(() => {
+        const m = document.getElementById('kopieerMelding');
+        m.textContent = '✅ Link gekopieerd!'; m.style.display = 'block';
+        setTimeout(() => m.style.display = 'none', 2500);
+    });
+}
+
+function toonEditorFout(bericht) {
+    const el = document.getElementById('editorFout');
+    el.textContent = bericht; el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 4000);
+}
+
+function veilig(t) {
+    if (t == null) return '';
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

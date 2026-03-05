@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verhalen — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        main { padding: 32px 0 60px; position:relative; z-index:1; }
+        .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+        /* ── PAGE HEADER ── */
+        .pagina-header { text-align: center; padding: 36px 20px 28px; }
+        .pagina-header h1 { font-family: 'Grandstander', cursive; font-size: clamp(2rem, 6vw, 3rem); color: #F7C948; margin-bottom: 8px; }
+        .pagina-header p { color: rgba(167,196,181,0.7); font-size: 1rem; }
+
+        /* ── FILTER BALK ── */
+        .filter-balk {
+            background: rgba(34,99,58,0.5); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 24px; padding: 16px 20px; margin-bottom: 28px;
+            display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+        }
+        .zoek-input {
+            flex: 1; min-width: 180px; padding: 10px 16px;
+            background: rgba(13,43,26,0.6); border: 2px solid rgba(76,201,122,0.2);
+            border-radius: 50px; color: white; font-family: 'Baloo 2', sans-serif;
+            font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+        }
+        .zoek-input:focus { border-color: #4CC97A; }
+        .zoek-input::placeholder { color: rgba(167,196,181,0.4); }
+        .filter-groep-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn {
+            padding: 8px 18px; border-radius: 50px;
+            border: 2px solid rgba(255,255,255,0.1); background: transparent;
+            color: rgba(167,196,181,0.6); font-family: 'Baloo 2', sans-serif;
+            font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: rgba(76,201,122,0.4); color: #4CC97A; }
+        .filter-btn.actief-alle { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); color: white; }
+        .filter-btn.actief-A { background: rgba(242,140,56,0.15); border-color: #F28C38; color: #F28C38; }
+        .filter-btn.actief-B { background: rgba(139,92,246,0.15); border-color: #8B5CF6; color: #8B5CF6; }
+        .filter-btn.actief-C { background: rgba(76,201,122,0.15); border-color: #4CC97A; color: #4CC97A; }
+
+        /* ── TIJDLIJN ── */
+        .tijdlijn { position: relative; padding-left: 32px; }
+        .tijdlijn::before {
+            content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+            width: 2px; background: linear-gradient(to bottom, #4CC97A, #8B5CF6, #F472B6); border-radius: 2px;
+        }
+
+        /* ── VERHAAL KAART ── */
+        .verhaal-kaart {
+            background: rgba(34,99,58,0.45); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 24px; padding: 24px; margin-bottom: 20px;
+            position: relative; transition: border-color 0.3s, transform 0.2s;
+        }
+        .verhaal-kaart::before {
+            content: ''; position: absolute; left: -27px; top: 28px;
+            width: 14px; height: 14px; border-radius: 50%;
+            background: #4CC97A; border: 3px solid #1B4D2E;
+            box-shadow: 0 0 10px rgba(76,201,122,0.5);
+        }
+        .verhaal-kaart:hover { border-color: rgba(76,201,122,0.35); transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+        .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+        .kaart-auteur-blok { display: flex; align-items: center; gap: 10px; }
+        .auteur-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4CC97A, #8B5CF6); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+        .auteur-naam { color: white; font-weight: 800; font-size: 0.95rem; }
+        .auteur-datum { color: rgba(167,196,181,0.5); font-size: 0.78rem; }
+        .kaart-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .groep-badge { padding: 3px 12px; border-radius: 50px; font-size: 0.72rem; font-weight: 700; }
+        .gb-A { background: rgba(242,140,56,0.2); color: #F28C38; }
+        .gb-B { background: rgba(139,92,246,0.2); color: #8B5CF6; }
+        .gb-C { background: rgba(76,201,122,0.2); color: #4CC97A; }
+        .winnaar-badge-klein { background: rgba(247,201,72,0.18); border: 1px solid rgba(247,201,72,0.4); color: #F7C948; padding: 3px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700; }
+
+        .verhaal-tekst-preview { font-family: 'Lora', serif; color: rgba(167,196,181,0.85); font-size: 0.95rem; line-height: 1.8; margin-bottom: 14px; }
+        .verhaal-tekst-volledig { font-family: 'Lora', serif; color: rgba(167,196,181,0.9); font-size: 0.95rem; line-height: 1.8; margin-bottom: 14px; display: none; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .lees-meer-knop {
+            background: rgba(76,201,122,0.1); border: 1px solid rgba(76,201,122,0.2);
+            border-radius: 50px; padding: 6px 16px; color: #4CC97A;
+            font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 0.8rem;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .lees-meer-knop:hover { background: rgba(76,201,122,0.2); }
+
+        .versies-toggle { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .versies-label { color: rgba(167,196,181,0.5); font-size: 0.8rem; font-weight: 700; }
+        .versies-knop { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.25); border-radius: 50px; padding: 5px 14px; color: #8B5CF6; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+        .versies-knop:hover { background: rgba(139,92,246,0.3); }
+
+        .versies-container { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .versie-kaart { background: rgba(13,43,26,0.4); border-left: 3px solid #8B5CF6; border-radius: 0 10px 10px 0; padding: 12px 16px; margin-bottom: 10px; }
+        .versie-meta { color: rgba(167,196,181,0.5); font-size: 0.78rem; margin-bottom: 6px; }
+        .versie-tekst { color: rgba(167,196,181,0.8); font-size: 0.88rem; font-family: 'Lora', serif; line-height: 1.7; }
+
+        .versie-formulier { background: rgba(139,92,246,0.08); border: 2px dashed rgba(139,92,246,0.25); border-radius: 14px; padding: 18px; margin-top: 12px; display: none; }
+        .versie-formulier h4 { color: #8B5CF6; font-size: 0.9rem; margin-bottom: 12px; }
+        .versie-input { width: 100%; padding: 10px 14px; background: rgba(13,43,26,0.6); border: 2px solid rgba(76,201,122,0.2); border-radius: 14px; color: white; font-family: 'Baloo 2', sans-serif; font-size: 0.88rem; outline: none; margin-bottom: 8px; transition: border-color 0.2s; }
+        .versie-input:focus { border-color: #4CC97A; }
+        .versie-input::placeholder { color: rgba(167,196,181,0.4); }
+        .versie-textarea { width: 100%; min-height: 100px; padding: 10px 14px; background: rgba(13,43,26,0.6); border: 2px solid rgba(76,201,122,0.2); border-radius: 14px; color: white; font-family: 'Baloo 2', sans-serif; font-size: 0.88rem; resize: vertical; outline: none; margin-bottom: 8px; }
+        .versie-textarea:focus { border-color: #4CC97A; }
+        .versie-verzend-knop { width: 100%; padding: 11px; background: linear-gradient(135deg, #4CC97A, #34D399); border: none; border-radius: 50px; color: #0D2B1A; font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+        .versie-verzend-knop:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(76,201,122,0.4); }
+
+        .geen-verhalen { text-align: center; padding: 60px 20px; color: rgba(167,196,181,0.4); }
+        .geen-verhalen span { font-size: 4rem; display: block; margin-bottom: 16px; }
+
+        .woordenaantal-badge { display: inline-block; background: rgba(255,255,255,0.07); border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; color: rgba(167,196,181,0.5); font-weight: 700; }
+
+        .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(76,201,122,0.3); border-top-color:#4CC97A; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:4px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .instuur-knop-wrapper { margin-top: 18px; }
+        .ingezonden-badge { display: inline-block; background: rgba(76,201,122,0.15); border: 1.5px solid #4CC97A; color: #4CC97A; border-radius: 50px; padding: 2px 10px; font-size: 0.75rem; font-weight: 800; margin-left: 6px; vertical-align: middle; }
+
+        /* ── MODALS ── */
+        .instuur-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+        .instuur-overlay.zichtbaar { display: flex; }
+        .instuur-doos { background: #1B4D2E; border: 2px solid rgba(76,201,122,0.25); border-radius: 24px; padding: 28px; max-width: 520px; width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,0.6); }
+        .instuur-doos h2 { font-family: 'Grandstander', cursive; font-size: 1.6rem; color: #4CC97A; margin-bottom: 6px; }
+        .instuur-doos p.sub { color: rgba(167,196,181,0.7); font-size: 0.88rem; margin-bottom: 20px; }
+        .instuur-veld { margin-bottom: 14px; }
+        .instuur-veld label { display: block; font-size: 0.85rem; font-weight: 800; color: rgba(167,196,181,0.8); margin-bottom: 5px; }
+        .instuur-input { width: 100%; padding: 11px 14px; background: rgba(13,43,26,0.7); border: 2px solid rgba(76,201,122,0.2); border-radius: 14px; color: white; font-family: 'Baloo 2', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+        .instuur-input::placeholder { color: rgba(167,196,181,0.4); }
+        .instuur-input:focus { border-color: #4CC97A; }
+        .instuur-textarea { min-height: 160px; resize: vertical; }
+        .instuur-acties { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+        .instuur-melding { border-radius: 14px; padding: 12px 16px; font-size: 0.9rem; font-weight: 700; margin-top: 14px; display: none; }
+        .instuur-melding.succes { background: rgba(76,201,122,0.12); border: 2px solid rgba(76,201,122,0.3); color: #4CC97A; }
+        .instuur-melding.fout   { background: rgba(248,113,113,0.1); border: 2px solid rgba(248,113,113,0.3); color: #F87171; }
+        .instuur-sluiten { background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.12); color: rgba(167,196,181,0.7); padding: 10px 22px; border-radius: 50px; font-family: 'Baloo 2', sans-serif; font-weight: 800; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .instuur-sluiten:hover { background: rgba(255,255,255,0.12); color: white; }
+
+        .kaart-verhaal-titel { font-family: 'Grandstander', cursive; font-size: 1.15rem; color: #F7C948; margin-bottom: 10px; line-height: 1.3; }
+
+        .lees-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 400; align-items: flex-start; justify-content: center; padding: 24px 20px; overflow-y: auto; }
+        .lees-modal-overlay.zichtbaar { display: flex; }
+        .lees-modal-doos { background: #1B4D2E; border: 2px solid rgba(76,201,122,0.2); border-radius: 24px; padding: 40px 44px; max-width: 700px; width: 100%; margin: auto; position: relative; box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
+        @media (max-width: 600px) { .lees-modal-doos { padding: 28px 22px; } }
+        .lees-modal-sluiten { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; width: 38px; height: 38px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; color: white; }
+        .lees-modal-sluiten:hover { background: rgba(248,113,113,0.3); }
+        .lees-modal-titel { font-family: 'Grandstander', cursive; font-size: clamp(1.5rem, 4vw, 2.1rem); color: #F7C948; margin-bottom: 12px; padding-right: 44px; line-height: 1.25; }
+        .lees-modal-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 2px solid rgba(76,201,122,0.15); }
+        .lees-modal-auteur { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: white; font-size: 0.95rem; }
+        .lees-modal-datum { color: rgba(167,196,181,0.6); font-size: 0.85rem; }
+        .lees-modal-tekst { font-family: 'Lora', serif; font-size: 1.07rem; line-height: 2; color: rgba(167,196,181,0.9); white-space: pre-wrap; }
+        .lees-modal-badges { margin-top: 28px; padding-top: 18px; border-top: 2px solid rgba(76,201,122,0.15); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .lees-modal-badges .groep-badge, .lees-modal-badges .winnaar-badge-klein, .lees-modal-badges .ingezonden-badge { padding: 5px 14px; font-size: 0.82rem; }
+        .lees-modal-woorden { color: rgba(167,196,181,0.5); font-size: 0.85rem; margin-left: auto; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <p class="site-subtitle">Lees en schrijf mee!</p>
+</header>
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="verhalen.html" class="actief">📖 Verhalen</a>
+    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
+    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-verhalen-overzicht.html" id="navMijnVerhaalLink" style="display:none">✍️ Mijn Verhaal</a>
+    <a href="login.html" id="navLoginLink">👤 Login</a>
+</nav>
+
+<main>
+<div class="container">
+
+    <div class="pagina-header">
+        <h1>📖 Verhalen</h1>
+        <p>Lees de verhalen van andere schrijvers, reageer met jouw eigen versie!</p>
+        <div class="instuur-knop-wrapper">
+            <button class="knop knop-gradient" onclick="openInstuurModal()">📨 Stuur jouw verhaal in</button>
+        </div>
+    </div>
+
+    <!-- Filter balk -->
+    <div class="filter-balk">
+        <input class="zoek-input" id="zoekInput" placeholder="🔍 Zoek op naam of woord..." oninput="filterVerhalen()">
+        <div class="filter-groep-btns">
+            <button class="filter-btn actief-alle" onclick="setFilter('alle', this)">📋 Alle</button>
+            <button class="filter-btn" onclick="setFilter('A', this)">🟠 6-8 jr</button>
+            <button class="filter-btn" onclick="setFilter('B', this)">🔵 9-11 jr</button>
+            <button class="filter-btn" onclick="setFilter('C', this)">🟢 12+</button>
+        </div>
+    </div>
+
+    <!-- Verhalen lijst -->
+    <div class="tijdlijn" id="verhalenContainer">
+        <div class="geen-verhalen"><span>⏳</span><p>Laden...</p></div>
+    </div>
+
+</div>
+</main>
+
+<!-- Lees-modal -->
+<div class="lees-modal-overlay" id="leesModal">
+    <div class="lees-modal-doos">
+        <button class="lees-modal-sluiten" onclick="sluitLeesModal()">✕</button>
+        <div class="lees-modal-titel" id="leesModalTitel"></div>
+        <div class="lees-modal-meta">
+            <span class="lees-modal-auteur" id="leesModalAuteur"></span>
+            <span class="lees-modal-datum" id="leesModalDatum"></span>
+        </div>
+        <div class="lees-modal-tekst" id="leesModalTekst"></div>
+        <div class="lees-modal-badges" id="leesModalBadges"></div>
+    </div>
+</div>
+
+<!-- Instuur-modal -->
+<div class="instuur-overlay" id="instuurModal">
+    <div class="instuur-doos">
+        <h2>📨 Stuur jouw verhaal in</h2>
+        <p class="sub">Jouw verhaal wordt eerst door de AI gekeurd en daarna direct zichtbaar voor iedereen!</p>
+
+        <div class="instuur-veld">
+            <label for="instuurNaam">👤 Jouw naam</label>
+            <input class="instuur-input" id="instuurNaam" type="text" placeholder="Bijv. Mila of Daan..." maxlength="60">
+        </div>
+        <div class="instuur-veld">
+            <label for="instuurTitel">📖 Titel van je verhaal</label>
+            <input class="instuur-input" id="instuurTitel" type="text" placeholder="Bijv. De draak en de regenboog..." maxlength="100">
+        </div>
+        <div class="instuur-veld">
+            <label for="instuurTekst">✍️ Jouw verhaal</label>
+            <textarea class="instuur-input instuur-textarea" id="instuurTekst" placeholder="Schrijf hier jouw verhaal..."></textarea>
+        </div>
+
+        <div class="instuur-melding" id="instuurMelding"></div>
+
+        <div class="instuur-acties">
+            <button class="knop knop-gradient" id="instuurVerzendBtn" onclick="verstuurIngezonden()">🚀 Verstuur verhaal</button>
+            <button class="instuur-sluiten" onclick="sluitInstuurModal()">Annuleren</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="quote">"Lezen is dromen met open ogen."</div>
+    <div class="quote-auteur">— Depeterpost Verhalen Club</div>
+</footer>
+
+<script>
+let alleVerhalen = [];
+let huidigFilter = 'alle';
+let verhaalData = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const u = localStorage.getItem('userInfo');
+    if (u) {
+        const user = JSON.parse(u);
+        const link = document.getElementById('navLoginLink');
+        if (link) link.textContent = user.avatar + ' ' + user.gebruikersnaam;
+        const mijnLink = document.getElementById('navMijnVerhaalLink');
+        if (mijnLink) mijnLink.style.display = '';
+    }
+    laadVerhalen();
+});
+
+async function laadVerhalen() {
+    let verhalen = [], ingezonden = [];
+    try { verhalen  = await fetch('/api/verhalen').then(r => r.json()); } catch(e) {}
+    try { ingezonden = await fetch('/api/ingezonden-verhalen').then(r => r.json()); } catch(e) {}
+    if (!Array.isArray(verhalen))   verhalen   = [];
+    if (!Array.isArray(ingezonden)) ingezonden = [];
+    alleVerhalen = [...verhalen, ...ingezonden.map(v => ({ ...v, type: 'ingezonden' }))];
+    toonVerhalen(alleVerhalen);
+}
+
+function setFilter(filter, btn) {
+    huidigFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn');
+    btn.classList.add('actief-' + filter);
+    filterVerhalen();
+}
+
+function filterVerhalen() {
+    const zoek = document.getElementById('zoekInput').value.toLowerCase().trim();
+    let gefilterd = alleVerhalen;
+    if (huidigFilter !== 'alle') {
+        gefilterd = gefilterd.filter(v => v.type === 'ingezonden' || (v.leeftijdsgroep || v.verhaalId || '').includes(huidigFilter));
+    }
+    if (zoek) {
+        gefilterd = gefilterd.filter(v =>
+            (v.naam||'').toLowerCase().includes(zoek) ||
+            (v.tekst||'').toLowerCase().includes(zoek)
+        );
+    }
+    toonVerhalen(gefilterd);
+}
+
+function toonVerhalen(verhalen) {
+    const container = document.getElementById('verhalenContainer');
+    if (verhalen.length === 0) {
+        container.innerHTML = '<div class="geen-verhalen"><span>📭</span><p>Geen verhalen gevonden.</p></div>';
+        return;
+    }
+    verhaalData = {}; // reset bij elke render
+    // Groepeer per basisverhaal
+    const groepen = {};
+    verhalen.forEach(v => {
+        const key = v.verhaalId || 'algemeen';
+        if (!groepen[key]) groepen[key] = { titel: v.verhaalTitel || 'Verhalen', versies: [] };
+        groepen[key].versies.push(v);
+    });
+
+    container.innerHTML = Object.entries(groepen).map(([id, groep]) => {
+        return groep.versies.map((v, i) => maakVerhaalKaart(v, i)).join('');
+    }).join('');
+}
+
+function maakVerhaalKaart(v, idx) {
+    const groepNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    const groep = v.leeftijdsgroep || 'B';
+    const avatarEmoji = ['🦁','🐉','🦋','🚀','⭐','🦊','🌈','🐺','🦅','🐬','🦄','🐼'][Math.abs(hashStr(v.naam||'')) % 12];
+    const woorden = (v.tekst||'').trim().split(/\s+/).length;
+    const preview = (v.tekst||'').substring(0, 200);
+    const heeftMeer = (v.tekst||'').length > 200;
+    const cardId = 'verhaal-' + (v.id || idx);
+    const titel = v.titel || v.verhaalTitel || '';
+
+    // Sla op voor lees-modal
+    verhaalData[cardId] = v;
+
+    return `
+        <div class="verhaal-kaart" id="${cardId}" data-naam="${escapeAttr(v.naam||'')}" data-tekst="${escapeAttr(v.tekst||'')}" data-groep="${groep}">
+            ${titel ? `<div class="kaart-verhaal-titel">📖 ${escapeHTML(titel)}</div>` : ''}
+            <div class="kaart-header">
+                <div class="kaart-auteur-blok">
+                    <div class="auteur-avatar">${avatarEmoji}</div>
+                    <div>
+                        <div class="auteur-naam">${escapeHTML(v.naam || 'Anoniem')}</div>
+                        <div class="auteur-datum">📅 ${v.datum || ''}</div>
+                    </div>
+                </div>
+                <div class="kaart-badges">
+                    <span class="groep-badge gb-${groep}">${groepNamen[groep]||groep}</span>
+                    <span class="woordenaantal-badge">${woorden} woorden</span>
+                    ${v.winnaar ? '<span class="winnaar-badge-klein">🏆 Winnaar</span>' : ''}
+                    ${v.type === 'ingezonden' ? '<span class="ingezonden-badge">📨 Ingezonden</span>' : ''}
+                </div>
+            </div>
+
+            <div class="verhaal-tekst-preview">
+                ${escapeHTML(preview).replace(/\n/g,'<br>')}${heeftMeer ? '...' : ''}
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                <button class="lees-meer-knop" onclick="openLeesModal('${cardId}')">📖 Lees volledig verhaal</button>
+            </div>
+
+            <div class="versies-toggle">
+                <span class="versies-label">✍️ Schrijf jouw versie van dit verhaal</span>
+                <button class="versies-knop" onclick="toggleVersieFormulier('form-${cardId}')">✏️ Schrijf versie</button>
+            </div>
+
+            <div class="versie-formulier" id="form-${cardId}">
+                <h4>✍️ Jouw versie van dit verhaal</h4>
+                <input class="versie-input" id="vNaam-${cardId}" placeholder="👤 Jouw naam...">
+                <textarea class="versie-textarea" id="vTekst-${cardId}" placeholder="Schrijf hier jouw versie..."></textarea>
+                <button class="versie-verzend-knop" onclick="verstuurVersie('${cardId}', '${escapeAttr(v.verhaalId||v.id||'')}', '${escapeAttr(v.verhaalTitel||v.naam||'')}')">
+                    🚀 Verstuur Versie
+                </button>
+                <div style="background:rgba(81,207,102,0.1);border:1px solid rgba(81,207,102,0.2);color:#69db7c;border-radius:8px;padding:8px 12px;font-size:0.85rem;margin-top:8px;display:none;" id="vSucces-${cardId}">
+                    🎉 Versie ontvangen! Wordt beoordeeld.
+                </div>
+                <div style="background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.2);color:#ff8a8a;border-radius:8px;padding:8px 12px;font-size:0.85rem;margin-top:8px;display:none;" id="vFout-${cardId}">
+                    ❌ Er ging iets mis.
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function openLeesModal(cardId) {
+    const v = verhaalData[cardId];
+    if (!v) return;
+    const groepNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    const groep = v.leeftijdsgroep || 'B';
+    const avatarEmoji = ['🦁','🐉','🦋','🚀','⭐','🦊','🌈','🐺','🦅','🐬','🦄','🐼'][Math.abs(hashStr(v.naam||'')) % 12];
+    const titel = v.titel || v.verhaalTitel || ('Verhaal van ' + (v.naam || 'Anoniem'));
+    const woorden = (v.tekst||'').trim().split(/\s+/).length;
+
+    document.getElementById('leesModalTitel').textContent = titel;
+    document.getElementById('leesModalAuteur').innerHTML = avatarEmoji + ' ' + escapeHTML(v.naam || 'Anoniem');
+    document.getElementById('leesModalDatum').textContent = v.datum ? '📅 ' + v.datum : '';
+    document.getElementById('leesModalTekst').textContent = v.tekst || '';
+    document.getElementById('leesModalBadges').innerHTML =
+        `<span class="groep-badge gb-${groep}">${groepNamen[groep]||groep}</span>` +
+        (v.winnaar ? '<span class="winnaar-badge-klein">🏆 Winnaar</span>' : '') +
+        (v.type === 'ingezonden' ? '<span class="ingezonden-badge" style="margin-left:0;">📨 Ingezonden</span>' : '') +
+        `<span class="lees-modal-woorden">${woorden} woorden</span>`;
+
+    document.getElementById('leesModal').classList.add('zichtbaar');
+    document.body.style.overflow = 'hidden';
+}
+
+function sluitLeesModal() {
+    document.getElementById('leesModal').classList.remove('zichtbaar');
+    document.body.style.overflow = '';
+}
+
+function toggleVersieFormulier(formId) {
+    const form = document.getElementById(formId);
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    if (form.style.display === 'block') {
+        setTimeout(() => form.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    }
+}
+
+async function verstuurVersie(cardId, verhaalId, verhaalTitel) {
+    const naam  = document.getElementById('vNaam-' + cardId).value.trim();
+    const tekst = document.getElementById('vTekst-' + cardId).value.trim();
+    const succes = document.getElementById('vSucces-' + cardId);
+    const fout   = document.getElementById('vFout-' + cardId);
+    succes.style.display = 'none'; fout.style.display = 'none';
+    if (!naam || !tekst) { fout.style.display = 'block'; fout.textContent = '❌ Vul naam en tekst in.'; return; }
+
+    try {
+        const r = await fetch('/api/verhaal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ naam, tekst, verhaalId, verhaalTitel })
+        });
+        const data = await r.json();
+        if (data.succes) {
+            succes.style.display = 'block';
+            document.getElementById('vNaam-' + cardId).value = '';
+            document.getElementById('vTekst-' + cardId).value = '';
+        } else {
+            fout.style.display = 'block';
+            fout.textContent = '❌ ' + (data.bericht || 'Fout');
+        }
+    } catch(e) {
+        fout.style.display = 'block';
+        fout.textContent = '❌ Geen verbinding.';
+    }
+}
+
+// ── Instuur-modal ──
+function openInstuurModal() {
+    document.getElementById('instuurModal').classList.add('zichtbaar');
+    document.getElementById('instuurMelding').style.display = 'none';
+    document.getElementById('instuurVerzendBtn').disabled = false;
+    document.getElementById('instuurVerzendBtn').textContent = '🚀 Verstuur verhaal';
+}
+
+function sluitInstuurModal() {
+    document.getElementById('instuurModal').classList.remove('zichtbaar');
+}
+
+async function verstuurIngezonden() {
+    const naam  = document.getElementById('instuurNaam').value.trim();
+    const titel = document.getElementById('instuurTitel').value.trim();
+    const tekst = document.getElementById('instuurTekst').value.trim();
+    const melding = document.getElementById('instuurMelding');
+    const btn = document.getElementById('instuurVerzendBtn');
+
+    melding.style.display = 'none';
+    if (!naam)  { toonInstuurMelding('fout', '❌ Vul je naam in.'); return; }
+    if (!titel) { toonInstuurMelding('fout', '❌ Vul een titel in.'); return; }
+    if (tekst.length < 20) { toonInstuurMelding('fout', '❌ Je verhaal is te kort.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Verhaal wordt beoordeeld...';
+
+    try {
+        const r = await fetch('/api/verhaal-insturen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ naam, titel, tekst })
+        });
+        const data = await r.json();
+        if (data.succes) {
+            toonInstuurMelding('succes', '🎉 ' + data.bericht);
+            document.getElementById('instuurNaam').value = '';
+            document.getElementById('instuurTitel').value = '';
+            document.getElementById('instuurTekst').value = '';
+            btn.textContent = '✅ Verstuurd!';
+            setTimeout(() => { sluitInstuurModal(); laadVerhalen(); }, 2500);
+        } else {
+            toonInstuurMelding('fout', '❌ ' + data.bericht);
+            btn.disabled = false;
+            btn.textContent = '🚀 Verstuur verhaal';
+        }
+    } catch {
+        toonInstuurMelding('fout', '❌ Geen verbinding met de server.');
+        btn.disabled = false;
+        btn.textContent = '🚀 Verstuur verhaal';
+    }
+}
+
+function toonInstuurMelding(type, tekst) {
+    const el = document.getElementById('instuurMelding');
+    el.className = 'instuur-melding ' + type;
+    el.textContent = tekst;
+    el.style.display = 'block';
+}
+
+document.addEventListener('click', e => {
+    if (e.target === document.getElementById('instuurModal')) sluitInstuurModal();
+    if (e.target === document.getElementById('leesModal')) sluitLeesModal();
+});
+
+function hashStr(s) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+}
+
+function escapeHTML(t) {
+    if (!t) return '';
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(t));
+    return d.innerHTML;
+}
+function escapeAttr(t) {
+    return (t||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>

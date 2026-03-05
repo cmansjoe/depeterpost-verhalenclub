@@ -1,0 +1,19 @@
+[
+  {
+    "id": "project-1772373367456",
+    "naam": "Het magische eiland",
+    "beschrijving": "Drie vrienden belanden op een magische eiland waar gekke dieren wonen en rare dingen gebeuren.",
+    "startDatum": "2026-03-01",
+    "eindDatum": "2026-03-04",
+    "aantalDagen": 3,
+    "leeftijdsgroepen": [
+      "C"
+    ],
+    "actief": false,
+    "gearchiveerd": true,
+    "aangemaakt": "2026-03-01T13:56:07.456Z",
+    "verhalen": {
+      "C": "verhaal-project-1772373367456-C"
+    }
+  }
+]

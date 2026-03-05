@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verhaal lezen — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        main { padding: 36px 0 60px; }
+        .verhaal-header {
+            text-align: center;
+            padding: 32px 20px 20px;
+        }
+        .verhaal-titel {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            color: #5B21B6;
+            margin-bottom: 10px;
+        }
+        .auteur-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--paars-licht);
+            border: 2px solid #C4B5FD;
+            border-radius: 30px;
+            padding: 6px 18px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #5B21B6;
+        }
+        .deel-blok {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 20px;
+            border: 2px solid var(--rand-licht);
+            box-shadow: var(--schaduw);
+        }
+        .deel-blok:nth-child(2n)   { border-left: 5px solid var(--roze); }
+        .deel-blok:nth-child(2n+1) { border-left: 5px solid var(--paars); }
+        .deel-nummer {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.85rem;
+            color: var(--tekst-zacht);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .deel-tekst {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: var(--tekst);
+            white-space: pre-wrap;
+        }
+        .deel-leeg {
+            color: #9CA3AF;
+            font-style: italic;
+        }
+        .meta-balk {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 12px 0 28px;
+        }
+        .meta-chip {
+            background: var(--geel-licht);
+            border: 2px solid #D97706;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #78350F;
+        }
+        .deel-chips-balk {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            border: 2px solid var(--rand-licht);
+            box-shadow: var(--schaduw);
+        }
+        .deel-chips-balk h3 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            color: var(--tekst-zacht);
+            margin-bottom: 10px;
+        }
+        .info-rij { display: flex; gap: 10px; flex-wrap: wrap; }
+        .info-chip {
+            background: var(--paars-licht);
+            border: 2px solid #C4B5FD;
+            border-radius: 12px;
+            padding: 6px 14px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #5B21B6;
+        }
+        .deel-chips-balk .info-chip.groen {
+            background: var(--groen-licht);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .deel-chips-balk .info-chip.roze {
+            background: var(--roze-licht);
+            border-color: #F9A8D4;
+            color: #9D174D;
+        }
+        .share-sectie {
+            background: linear-gradient(135deg, var(--paars-licht), var(--roze-licht));
+            border: 2px solid #C4B5FD;
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .share-sectie h3 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.3rem;
+            color: #5B21B6;
+            margin-bottom: 16px;
+        }
+        .share-knoppen { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .niet-gevonden {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .niet-gevonden .groot { font-size: 4rem; margin-bottom: 16px; }
+        .niet-gevonden h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: #5B21B6; margin-bottom: 10px; }
+        .niet-gevonden p { color: var(--tekst-zacht); margin-bottom: 24px; }
+        footer { border-top: 2px solid var(--rand-licht); padding: 24px 20px; text-align: center; color: var(--tekst-zacht); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <p class="site-subtitle">Lees een persoonlijk verhaal</p>
+</header>
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
+    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-verhalen-overzicht.html" id="navMijnVerhaalLink" style="display:none">✍️ Mijn Verhaal</a>
+    <a href="login.html" id="navLoginLink">👤 Login</a>
+</nav>
+
+<main>
+<div class="container" id="inhoud">
+    <div class="niet-gevonden">
+        <div class="groot">⏳</div>
+        <h2>Verhaal laden...</h2>
+        <p>Even geduld.</p>
+    </div>
+</div>
+</main>
+
+<footer>
+    <p>Gemaakt met <span style="color:#E8197D;">❤️</span> voor de Depeterpost Verhalen Club</p>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const u = localStorage.getItem('userInfo');
+    if (u) {
+        const user = JSON.parse(u);
+        const link = document.getElementById('navLoginLink');
+        if (link) link.textContent = user.avatar + ' ' + user.gebruikersnaam;
+        const mijnLink = document.getElementById('navMijnVerhaalLink');
+        if (mijnLink) mijnLink.style.display = '';
+    }
+
+    const id = window.location.pathname.split('/').filter(Boolean).pop();
+    if (!id) { toonFout('Geen verhaal-ID gevonden in de URL.'); return; }
+    laadVerhaal(id);
+});
+
+async function laadVerhaal(id) {
+    try {
+        const r = await fetch(`/api/verhaal/${id}`);
+        if (!r.ok) { toonFout('Dit verhaal bestaat niet of is niet openbaar.'); return; }
+        const v = await r.json();
+        if (!v || !v.id) { toonFout('Dit verhaal bestaat niet of is niet openbaar.'); return; }
+        toonVerhaal(v);
+    } catch {
+        toonFout('Er ging iets mis bij het laden. Probeer het opnieuw.');
+    }
+}
+
+function toonVerhaal(v) {
+    document.title = `${v.titel} — Depeterpost Verhalen Club`;
+    const url = window.location.href;
+    const geschrevenDelen = v.delen.filter(d => d.tekst.trim()).length;
+
+    document.getElementById('inhoud').innerHTML = `
+        <div class="verhaal-header">
+            <div class="verhaal-titel">${veilig(v.titel)}</div>
+            <div style="margin-top:12px;">
+                <span class="auteur-chip">${veilig(v.auteurAvatar)} ${veilig(v.auteursnaam)}</span>
+            </div>
+        </div>
+
+        <div class="meta-balk">
+            <span class="meta-chip">📖 ${v.aantalDelen} delen</span>
+            <span class="meta-chip">✍️ ${geschrevenDelen} geschreven</span>
+            ${v.status === 'klaar' ? '<span class="meta-chip" style="background:var(--groen-licht);border-color:#86EFAC;color:#14532D;">✅ Voltooid</span>' : '<span class="meta-chip" style="background:#FFF7ED;border-color:#FED7AA;color:#9A3412;">🟡 In bewerking</span>'}
+        </div>
+
+        ${(v.onderwerp || v.personages) ? `
+        <div class="deel-chips-balk">
+            <h3>Over dit verhaal</h3>
+            <div class="info-rij">
+                ${v.onderwerp ? `<span class="info-chip groen">📌 ${veilig(v.onderwerp)}</span>` : ''}
+                ${v.personages ? `<span class="info-chip roze">👥 ${veilig(v.personages)}</span>` : ''}
+            </div>
+        </div>` : ''}
+
+        ${v.delen.map(d => `
+        <div class="deel-blok">
+            <div class="deel-nummer">Deel ${d.nummer}</div>
+            ${d.tekst.trim()
+                ? `<div class="deel-tekst">${veilig(d.tekst)}</div>`
+                : `<div class="deel-tekst deel-leeg">Dit deel is nog niet geschreven.</div>`}
+        </div>`).join('')}
+
+        <div class="share-sectie">
+            <h3>📤 Deel dit verhaal</h3>
+            <div class="share-knoppen">
+                <a class="knop knop-groen"
+                   href="https://wa.me/?text=${encodeURIComponent('Lees het verhaal "' + v.titel + '" van ' + v.auteursnaam + ': ' + url)}"
+                   target="_blank" rel="noopener">💬 WhatsApp</a>
+                <a class="knop knop-blauw"
+                   href="mailto:?subject=${encodeURIComponent('Lees: ' + v.titel)}&body=${encodeURIComponent('Hoi!\n\nIk wil je dit mooie verhaal laten lezen: "' + v.titel + '" van ' + v.auteursnaam + '\n\n' + url)}"
+                >📧 E-mail</a>
+                <button class="knop knop-paars" onclick="kopieerLink('${url}')">🔗 Kopieer link</button>
+            </div>
+            <div id="kopieeMelding" style="display:none;margin-top:12px;" class="melding-succes">✅ Link gekopieerd!</div>
+        </div>
+    `;
+}
+
+function toonFout(bericht) {
+    document.getElementById('inhoud').innerHTML = `
+        <div class="niet-gevonden">
+            <div class="groot">😕</div>
+            <h2>Verhaal niet gevonden</h2>
+            <p>${veilig(bericht)}</p>
+            <a href="index.html" class="knop knop-paars">🏠 Naar de homepage</a>
+        </div>`;
+}
+
+function kopieerLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        const m = document.getElementById('kopieeMelding');
+        if (m) { m.style.display = 'block'; setTimeout(() => m.style.display = 'none', 2500); }
+    });
+}
+
+function veilig(t) {
+    if (t == null) return '';
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

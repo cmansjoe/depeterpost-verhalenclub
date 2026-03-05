@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inloggen — Depeterpost Verhalen Club</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@700;900&family=Baloo+2:wght@400;700;800&family=Lora:ital,wght@0,400;1,400&display=swap');
+
+:root {
+  --groen:       #4CC97A;
+  --groen-donker:#1B4D2E;
+  --geel:        #F7C948;
+  --oranje:      #F28C38;
+  --paars:       #8B5CF6;
+  --roze:        #F472B6;
+  --mint:        #34D399;
+  --rood:        #F87171;
+  --tekst:       #F0FDF4;
+  --tekst-zacht: #A7C4B5;
+  --radius-btn:  50px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Baloo 2', sans-serif;
+            color: var(--tekst);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #1B4D2E;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 5% 10%, rgba(76,201,122,0.18) 0%, transparent 40%),
+                radial-gradient(ellipse at 95% 90%, rgba(247,201,72,0.10) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-kaart {
+            background: linear-gradient(145deg, #0E3520, #0A2416);
+            border-radius: 28px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(76,201,122,0.3);
+            border: 2px solid rgba(76,201,122,0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-logo { text-align: center; margin-bottom: 24px; }
+        .login-logo .emoji {
+            font-size: 3rem; display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        .login-logo h1 {
+            font-family: 'Grandstander', cursive;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #F7C948, #F28C38);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 8px;
+        }
+        .login-logo p { font-size: 0.88rem; color: var(--tekst-zacht); margin-top: 4px; }
+
+        .tabs { display:flex; background:rgba(0,0,0,0.3); border-radius:50px; padding:4px; margin-bottom:24px; gap:4px; }
+        .tab {
+            flex:1; padding:10px; border:none; background:transparent;
+            border-radius:50px; font-family:'Baloo 2',cursive; font-weight:800;
+            font-size:0.9rem; cursor:pointer; color:var(--tekst-zacht); transition:all 0.2s ease;
+        }
+        .tab.actief {
+            background: linear-gradient(135deg, var(--groen), #34D399);
+            color: #0D2B1A;
+            box-shadow: 0 2px 12px rgba(76,201,122,0.3);
+        }
+
+        .login-form { display:none; }
+        .login-form.actief { display:block; }
+
+        .veld { margin-bottom: 14px; }
+        .veld label { font-weight: 700; font-size: 0.88rem; color: var(--tekst); display: block; margin-bottom: 5px; }
+        .veld input {
+            width: 100%; padding: 12px 16px;
+            border: 2px solid rgba(76,201,122,0.25);
+            border-radius: 14px;
+            font-family: 'Baloo 2', cursive; font-size: 0.95rem;
+            color: var(--tekst); background: rgba(13,43,26,0.6); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .veld input:focus {
+            border-color: var(--groen);
+            box-shadow: 0 0 0 3px rgba(76,201,122,0.2);
+        }
+        .veld input::placeholder { color: rgba(167,196,181,0.5); }
+
+        .avatar-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-top:6px; }
+        .avatar-optie {
+            font-size:1.5rem; padding:8px 4px; text-align:center; border-radius:10px;
+            cursor:pointer; border:2px solid transparent; background:rgba(76,201,122,0.08);
+            transition:all 0.15s ease; line-height:1;
+        }
+        .avatar-optie:hover { background:rgba(76,201,122,0.2); transform:scale(1.15); }
+        .avatar-optie.gekozen {
+            border-color: var(--groen);
+            background: rgba(76,201,122,0.2);
+            box-shadow: 0 0 0 2px rgba(76,201,122,0.3);
+        }
+
+        .groep-knoppen { display:flex; gap:8px; margin-top:6px; }
+        .groep-knop {
+            flex:1; padding:10px 8px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius:14px; background:rgba(13,43,26,0.6); cursor:pointer;
+            text-align:center; transition:all 0.2s ease; font-family:'Baloo 2',cursive;
+            color: var(--tekst);
+        }
+        .groep-knop .groep-emoji { font-size:1.2rem; display:block; }
+        .groep-knop .groep-naam  { font-size:0.72rem; font-weight:800; color:var(--tekst-zacht); margin-top:2px; display:block; }
+        .groep-knop .groep-leeft { font-size:0.65rem; color:var(--tekst-zacht); }
+        .groep-knop.gekozen-A { border-color: #F28C38; background: rgba(242,140,56,0.15); }
+        .groep-knop.gekozen-B { border-color: var(--paars); background: rgba(139,92,246,0.15); }
+        .groep-knop.gekozen-C { border-color: var(--groen); background: rgba(76,201,122,0.15); }
+
+        .regels-vak {
+            background: rgba(76,201,122,0.08);
+            border: 2px solid rgba(76,201,122,0.2);
+            border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .regels-vak input[type="checkbox"] {
+            width: 20px; height: 20px; margin-top: 2px;
+            cursor: pointer; accent-color: var(--groen); flex-shrink: 0;
+        }
+        .regels-vak label { font-size:0.85rem; color:var(--tekst); font-weight:600; cursor:pointer; margin:0; }
+        .regels-vak a { color: var(--groen); font-weight: 700; }
+
+        .vergeten-link { text-align:right; margin-top:-8px; margin-bottom:14px; }
+        .vergeten-link button {
+            background: none; border: none; color: var(--groen);
+            font-family: 'Baloo 2', cursive; font-size: 0.82rem; font-weight: 700; cursor: pointer; padding: 0;
+        }
+        .vergeten-link button:hover { text-decoration: underline; }
+
+        .melding {
+            padding: 12px 16px; border-radius: 12px; font-size: 0.88rem;
+            font-weight: 700; margin-bottom: 14px; display: none; animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { 0%{opacity:0;transform:scale(0.95)} 100%{opacity:1;transform:scale(1)} }
+        .melding.succes { background: rgba(76,201,122,0.15); color: #A7C4B5; border: 2px solid rgba(76,201,122,0.4); }
+        .melding.fout   { background: rgba(248,113,113,0.15); color: #FCA5A5; border: 2px solid rgba(248,113,113,0.4); }
+        .melding.info   { background: rgba(139,92,246,0.15); color: #C4B5FD; border: 2px solid rgba(139,92,246,0.4); }
+
+        .verificatie-scherm { display:none; text-align:center; }
+        .code-vakjes { display:flex; gap:8px; justify-content:center; margin:20px 0; }
+        .code-vakjes input {
+            width: 48px; height: 56px;
+            border: 2px solid rgba(76,201,122,0.3);
+            border-radius: 12px;
+            font-size: 1.4rem; font-weight: 900; text-align: center; color: var(--groen);
+            background: rgba(13,43,26,0.7); outline: none; transition: border-color 0.2s;
+        }
+        .code-vakjes input:focus {
+            border-color: var(--groen);
+            box-shadow: 0 0 0 3px rgba(76,201,122,0.2);
+        }
+
+        .reset-scherm { display:none; }
+
+        .succes-scherm { display:none; text-align:center; padding:20px 0; }
+        .succes-scherm .groot-emoji { font-size:4rem; display:block; animation:bounce 0.6s ease; }
+        @keyframes bounce { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
+
+        .knop-vol {
+            width: 100%; padding: 14px; border-radius: 50px;
+            background: linear-gradient(135deg, var(--groen), #34D399);
+            color: #0D2B1A; font-family: 'Baloo 2', cursive; font-weight: 800;
+            font-size: 1rem; border: none; cursor: pointer; transition: all 0.2s ease;
+            position: relative; overflow: hidden;
+        }
+        .knop-vol:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(76,201,122,0.4); }
+        .knop-vol:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .link-knop {
+            background: none; border: none; color: var(--groen);
+            font-family: 'Baloo 2', cursive; font-weight: 700; cursor: pointer; font-size: 0.85rem;
+        }
+        .link-knop:hover { text-decoration: underline; }
+
+        :root { --rood: #F87171; }
+
+        @media (max-width:480px) {
+            .login-kaart { padding:28px 20px; }
+            .avatar-grid { grid-template-columns:repeat(5,1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-kaart">
+
+    <div class="login-logo">
+        <span class="emoji">📬</span>
+        <h1>Depeterpost Verhalen Club</h1>
+        <p>Schrijf mee aan het grote avontuur!</p>
+    </div>
+
+    <div class="tabs" id="loginTabs">
+        <button class="tab actief" onclick="toonTab('inloggen')">🔑 Inloggen</button>
+        <button class="tab" onclick="toonTab('registreren')">✨ Nieuw account</button>
+    </div>
+
+    <!-- ══ INLOGGEN ══ -->
+    <div class="login-form actief" id="formInloggen">
+        <div id="inlogMelding" class="melding"></div>
+        <div class="veld">
+            <label>👤 Gebruikersnaam of e-mail</label>
+            <input type="text" id="inlogNaam" placeholder="Jouw naam of e-mailadres" autocomplete="username">
+        </div>
+        <div class="veld">
+            <label>🔒 Wachtwoord</label>
+            <input type="password" id="inlogWw" placeholder="Jouw wachtwoord" autocomplete="current-password">
+        </div>
+        <div class="vergeten-link">
+            <button onclick="toonWachtwoordVergeten()">Wachtwoord vergeten?</button>
+        </div>
+        <button class="knop-vol" id="inlogKnop" onclick="doeInloggen()">🚀 Inloggen</button>
+        <p style="text-align:center;margin-top:16px;font-size:0.85rem;color:var(--tekst-zacht);">
+            Nog geen account? <button class="link-knop" onclick="toonTab('registreren')">Maak er een aan →</button>
+        </p>
+    </div>
+
+    <!-- ══ REGISTREREN ══ -->
+    <div class="login-form" id="formRegistreren">
+        <div id="regMelding" class="melding"></div>
+        <div class="veld">
+            <label>👤 Gebruikersnaam <span style="color:var(--rood)">*</span></label>
+            <input type="text" id="regNaam" placeholder="Kies een leuke naam" maxlength="30" autocomplete="username">
+        </div>
+        <div class="veld">
+            <label>📧 E-mailadres <span style="color:var(--rood)">*</span></label>
+            <input type="email" id="regEmail" placeholder="jouw@email.nl" autocomplete="email">
+            <p style="font-size:0.76rem;color:var(--tekst-zacht);margin-top:4px;">Voor bevestiging en wachtwoord vergeten</p>
+        </div>
+        <div class="veld">
+            <label>🔒 Wachtwoord <span style="color:var(--rood)">*</span></label>
+            <input type="password" id="regWw" placeholder="Minstens 6 tekens" autocomplete="new-password">
+        </div>
+        <div class="veld">
+            <label>🎨 Kies je avatar</label>
+            <div class="avatar-grid">
+                <div class="avatar-optie" onclick="kiesAvatar(this,'👧')">👧</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'👩')">👩</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🧒')">🧒</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'👸')">👸</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🧕')">🧕</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🧜')">🧜</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'👦')">👦</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'👨')">👨</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🤴')">🤴</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🧙')">🧙</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🦸')">🦸</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🧚')">🧚</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🦁')">🦁</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🦊')">🦊</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🐼')">🐼</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🦄')">🦄</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🐉')">🐉</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🌟')">🌟</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🌈')">🌈</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🎨')">🎨</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'📚')">📚</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'✏️')">✏️</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🚀')">🚀</div>
+                <div class="avatar-optie" onclick="kiesAvatar(this,'🌺')">🌺</div>
+            </div>
+        </div>
+        <div class="veld">
+            <label>🎯 Welke groep zit je in?</label>
+            <div class="groep-knoppen">
+                <button type="button" class="groep-knop" id="groepA" onclick="kiesGroep('A')">
+                    <span class="groep-emoji">🌱</span>
+                    <span class="groep-naam">Groep A</span>
+                    <span class="groep-leeft">6–8 jaar</span>
+                </button>
+                <button type="button" class="groep-knop" id="groepB" onclick="kiesGroep('B')">
+                    <span class="groep-emoji">⭐</span>
+                    <span class="groep-naam">Groep B</span>
+                    <span class="groep-leeft">9–11 jaar</span>
+                </button>
+                <button type="button" class="groep-knop" id="groepC" onclick="kiesGroep('C')">
+                    <span class="groep-emoji">🚀</span>
+                    <span class="groep-naam">Groep C</span>
+                    <span class="groep-leeft">12+ jaar</span>
+                </button>
+            </div>
+        </div>
+        <div class="regels-vak">
+            <input type="checkbox" id="regelsCheck">
+            <label for="regelsCheck">
+                Ik ga akkoord met de <a href="regels.html" target="_blank">gebruiksregels</a> van de Depeterpost Verhalen Club ✅
+            </label>
+        </div>
+        <button class="knop-vol" id="regKnop" onclick="doeRegistreren()">🎉 Account aanmaken!</button>
+        <p style="text-align:center;margin-top:16px;font-size:0.85rem;color:var(--tekst-zacht);">
+            Al een account? <button class="link-knop" onclick="toonTab('inloggen')">← Inloggen</button>
+        </p>
+    </div>
+
+    <!-- ══ E-MAIL VERIFICATIE ══ -->
+    <div class="verificatie-scherm" id="verificatieScherm">
+        <div style="font-size:2.5rem;margin-bottom:12px;">📧</div>
+        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;">Bevestig je e-mail!</h2>
+        <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:4px;">We stuurden een 6-cijferige code naar:</p>
+        <p style="font-weight:800;color:var(--tekst);margin-bottom:4px;" id="verEmailToon"></p>
+        <p style="color:var(--tekst-zacht);font-size:0.82rem;margin-bottom:20px;">Kijk ook in je spam-map!</p>
+        <div id="verMelding" class="melding"></div>
+        <div class="code-vakjes">
+            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,0)" onkeydown="vorigeVakje(event,0)" inputmode="numeric">
+            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,1)" onkeydown="vorigeVakje(event,1)" inputmode="numeric">
+            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,2)" onkeydown="vorigeVakje(event,2)" inputmode="numeric">
+            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,3)" onkeydown="vorigeVakje(event,3)" inputmode="numeric">
+            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,4)" onkeydown="vorigeVakje(event,4)" inputmode="numeric">
+            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,5)" onkeydown="vorigeVakje(event,5)" inputmode="numeric">
+        </div>
+        <button class="knop-vol" id="verKnop" onclick="verifieerCode()">✅ Bevestigen</button>
+        <p style="margin-top:14px;font-size:0.82rem;color:var(--tekst-zacht);">
+            Geen code ontvangen? <button class="link-knop" onclick="stuurOpnieuw()">Stuur opnieuw</button>
+        </p>
+        <p style="margin-top:8px;">
+            <button onclick="slaVerOver()" style="background:none;border:none;color:var(--tekst-zacht);font-family:'Baloo 2',cursive;font-size:0.8rem;cursor:pointer;text-decoration:underline;">Overslaan, doe ik later</button>
+        </p>
+    </div>
+
+    <!-- ══ WACHTWOORD VERGETEN ══ -->
+    <div class="reset-scherm" id="vergetenScherm">
+        <button class="link-knop" onclick="toonTab('inloggen')" style="margin-bottom:16px;display:block;">← Terug naar inloggen</button>
+        <div style="font-size:2rem;margin-bottom:8px;">🔑</div>
+        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;">Wachtwoord vergeten?</h2>
+        <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;">Vul je e-mailadres in. We sturen een link om een nieuw wachtwoord in te stellen.</p>
+        <div id="vergetenMelding" class="melding"></div>
+        <div class="veld">
+            <label>📧 Je e-mailadres</label>
+            <input type="email" id="vergetenEmail" placeholder="jouw@email.nl">
+        </div>
+        <button class="knop-vol" id="vergetenKnop" onclick="stuurResetMail()">📨 Stuur reset-e-mail</button>
+    </div>
+
+    <!-- ══ NIEUW WACHTWOORD ══ -->
+    <div class="reset-scherm" id="nieuwWwScherm">
+        <div style="font-size:2rem;margin-bottom:8px;">🔓</div>
+        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;">Nieuw wachtwoord</h2>
+        <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;">Kies een nieuw wachtwoord van minstens 6 tekens.</p>
+        <div id="nieuwWwMelding" class="melding"></div>
+        <div class="veld">
+            <label>🔒 Nieuw wachtwoord</label>
+            <input type="password" id="nieuwWw1" placeholder="Minstens 6 tekens">
+        </div>
+        <div class="veld">
+            <label>🔒 Herhaal wachtwoord</label>
+            <input type="password" id="nieuwWw2" placeholder="Zelfde wachtwoord opnieuw">
+        </div>
+        <button class="knop-vol" id="nieuwWwKnop" onclick="stelWachtwoordIn()">✅ Wachtwoord opslaan</button>
+    </div>
+
+    <!-- ══ SUCCES ══ -->
+    <div class="succes-scherm" id="succesScherm">
+        <span class="groot-emoji" id="succesEmoji">🎉</span>
+        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin:12px 0 8px;" id="succesTitel">Welkom!</h2>
+        <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;" id="succesTekst">Je bent ingelogd!</p>
+        <a href="index.html" class="knop-vol" style="display:block;text-decoration:none;text-align:center;">🏠 Naar de club!</a>
+    </div>
+
+</div>
+
+<script>
+let huidigGebruikerId = null;
+let huidigEmail       = null;
+let resetToken        = null;
+let gekozenAvatar     = '🦁';
+let gekozenGroep      = 'B';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    resetToken = params.get('reset');
+    if (resetToken) { checkResetToken(resetToken); return; }
+    if (localStorage.getItem('userToken')) { window.location.href = 'index.html'; return; }
+    // Standaard selecties
+    const eersteAvatar = document.querySelector('.avatar-optie');
+    if (eersteAvatar) kiesAvatar(eersteAvatar, '👧');
+    kiesGroep('B');
+});
+
+async function checkResetToken(token) {
+    verbergAlles();
+    document.getElementById('loginTabs').style.display = 'none';
+    document.getElementById('nieuwWwScherm').style.display = 'block';
+    const r = await fetch(`/api/auth/check-reset/${token}`);
+    const data = await r.json();
+    if (!data.geldig) {
+        toonMelding('nieuwWwMelding', 'fout', '❌ Deze resetlink is verlopen of ongeldig. Vraag een nieuwe aan.');
+        document.getElementById('nieuwWwKnop').disabled = true;
+    }
+}
+
+function toonTab(tab) {
+    verbergAlles();
+    document.getElementById('loginTabs').style.display = 'flex';
+    const tabs = document.querySelectorAll('.tab');
+    tabs[0].classList.toggle('actief', tab === 'inloggen');
+    tabs[1].classList.toggle('actief', tab === 'registreren');
+    document.getElementById(tab === 'inloggen' ? 'formInloggen' : 'formRegistreren').classList.add('actief');
+}
+
+function verbergAlles() {
+    document.querySelectorAll('.login-form').forEach(f => f.classList.remove('actief'));
+    ['verificatieScherm','vergetenScherm','nieuwWwScherm','succesScherm'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+    });
+}
+
+function toonWachtwoordVergeten() {
+    verbergAlles();
+    document.getElementById('loginTabs').style.display = 'none';
+    document.getElementById('vergetenScherm').style.display = 'block';
+}
+
+function kiesAvatar(el, avatar) {
+    document.querySelectorAll('.avatar-optie').forEach(a => a.classList.remove('gekozen'));
+    el.classList.add('gekozen');
+    gekozenAvatar = avatar;
+}
+
+function kiesGroep(groep) {
+    gekozenGroep = groep;
+    ['A','B','C'].forEach(g => {
+        const btn = document.getElementById('groep' + g);
+        btn.className = 'groep-knop' + (g === groep ? ` gekozen-${g}` : '');
+    });
+}
+
+async function doeInloggen() {
+    const naam = document.getElementById('inlogNaam').value.trim();
+    const ww   = document.getElementById('inlogWw').value;
+    if (!naam || !ww) { toonMelding('inlogMelding','fout','⚠️ Vul je naam en wachtwoord in.'); return; }
+    const knop = setKnopLaden('inlogKnop', true, '⏳ Bezig...');
+    try {
+        const data = await postAPI('/api/auth/login', { gebruikersnaam: naam, wachtwoord: ww });
+        if (!data.succes) {
+            toonMelding('inlogMelding','fout','❌ ' + data.bericht);
+        } else {
+            slaSessionOp(data);
+            if (data.verificatieVereist) {
+                huidigGebruikerId = data.gebruiker.id;
+                huidigEmail = data.gebruiker.email;
+                toonVerificatie();
+            } else {
+                toonSucces('👋', 'Welkom terug!', `Hallo ${data.gebruiker.gebruikersnaam}! Je bent ingelogd.`);
+            }
+        }
+    } catch(e) { toonMelding('inlogMelding','fout','❌ Kan geen verbinding maken.'); }
+    setKnopLaden('inlogKnop', false, '🚀 Inloggen');
+}
+
+async function doeRegistreren() {
+    const naam  = document.getElementById('regNaam').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const ww    = document.getElementById('regWw').value;
+    if (!naam || !email || !ww) { toonMelding('regMelding','fout','⚠️ Vul alle velden in.'); return; }
+    if (!document.getElementById('regelsCheck').checked) {
+        toonMelding('regMelding','fout','⚠️ Je moet de gebruiksregels accepteren om mee te doen.'); return;
+    }
+    const knop = setKnopLaden('regKnop', true, '⏳ Account aanmaken...');
+    try {
+        const data = await postAPI('/api/auth/registreer', {
+            gebruikersnaam: naam, email, wachtwoord: ww,
+            avatar: gekozenAvatar, leeftijdsgroep: gekozenGroep, regelsGeaccepteerd: true
+        });
+        if (!data.succes) {
+            toonMelding('regMelding','fout','❌ ' + data.bericht);
+        } else {
+            slaSessionOp(data);
+            huidigGebruikerId = data.gebruiker.id;
+            huidigEmail = data.gebruiker.email;
+            toonVerificatie();
+        }
+    } catch(e) { toonMelding('regMelding','fout','❌ Kan geen verbinding maken.'); }
+    setKnopLaden('regKnop', false, '🎉 Account aanmaken!');
+}
+
+function toonVerificatie() {
+    verbergAlles();
+    document.getElementById('loginTabs').style.display = 'none';
+    document.getElementById('verEmailToon').textContent = huidigEmail || '';
+    document.getElementById('verificatieScherm').style.display = 'block';
+    document.querySelector('.code-input').focus();
+}
+
+function volgendeVakje(input, idx) {
+    input.value = input.value.replace(/\D/g,'');
+    if (input.value && idx < 5) document.querySelectorAll('.code-input')[idx+1].focus();
+    if (leesCode().length === 6) verifieerCode();
+}
+
+function vorigeVakje(e, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+        document.querySelectorAll('.code-input')[idx-1].focus();
+    }
+}
+
+function leesCode() {
+    return [...document.querySelectorAll('.code-input')].map(i => i.value).join('');
+}
+
+async function verifieerCode() {
+    const code = leesCode();
+    if (code.length !== 6) { toonMelding('verMelding','fout','⚠️ Vul alle 6 cijfers in.'); return; }
+    setKnopLaden('verKnop', true, '⏳ Controleren...');
+    try {
+        const data = await postAPI('/api/auth/verifieer-email', { code, gebruikerId: huidigGebruikerId });
+        if (!data.succes) {
+            toonMelding('verMelding','fout','❌ ' + data.bericht);
+            document.querySelectorAll('.code-input').forEach(i => { i.value=''; i.style.borderColor='rgba(248,113,113,0.5)'; });
+            document.querySelector('.code-input').focus();
+        } else {
+            toonSucces('🎉','E-mail bevestigd!','Super! Je kunt nu meedoen aan de Verhalen Club!');
+        }
+    } catch(e) { toonMelding('verMelding','fout','❌ Kan geen verbinding maken.'); }
+    setKnopLaden('verKnop', false, '✅ Bevestigen');
+}
+
+async function stuurOpnieuw() {
+    if (!huidigGebruikerId) return;
+    toonMelding('verMelding','info','⏳ Nieuwe code versturen...');
+    try {
+        const data = await postAPI('/api/auth/stuur-verificatie-opnieuw', { gebruikerId: huidigGebruikerId });
+        toonMelding('verMelding', data.succes ? 'succes' : 'fout',
+            data.succes ? '✅ Nieuwe code verstuurd!' : '❌ ' + data.bericht);
+    } catch(e) { toonMelding('verMelding','fout','❌ Kan geen verbinding maken.'); }
+}
+
+function slaVerOver() {
+    toonSucces('✨','Je bent erbij!','Je kunt je e-mail later nog bevestigen.');
+}
+
+async function stuurResetMail() {
+    const email = document.getElementById('vergetenEmail').value.trim();
+    if (!email) { toonMelding('vergetenMelding','fout','⚠️ Vul je e-mailadres in.'); return; }
+    setKnopLaden('vergetenKnop', true, '⏳ Sturen...');
+    try {
+        await postAPI('/api/auth/wachtwoord-vergeten', { email });
+        toonMelding('vergetenMelding','succes','📨 Als dit e-mailadres bekend is, ontvang je een e-mail. Kijk ook in je spam!');
+    } catch(e) { toonMelding('vergetenMelding','fout','❌ Kan geen verbinding maken.'); }
+    setKnopLaden('vergetenKnop', false, '📨 Stuur reset-e-mail');
+}
+
+async function stelWachtwoordIn() {
+    const ww1 = document.getElementById('nieuwWw1').value;
+    const ww2 = document.getElementById('nieuwWw2').value;
+    if (!ww1 || !ww2)  { toonMelding('nieuwWwMelding','fout','⚠️ Vul beide velden in.'); return; }
+    if (ww1 !== ww2)   { toonMelding('nieuwWwMelding','fout','⚠️ De wachtwoorden zijn niet gelijk.'); return; }
+    if (ww1.length < 6){ toonMelding('nieuwWwMelding','fout','⚠️ Wachtwoord moet minstens 6 tekens zijn.'); return; }
+    setKnopLaden('nieuwWwKnop', true, '⏳ Opslaan...');
+    try {
+        const data = await postAPI('/api/auth/reset-wachtwoord', { token: resetToken, nieuwWachtwoord: ww1 });
+        if (!data.succes) {
+            toonMelding('nieuwWwMelding','fout','❌ ' + data.bericht);
+        } else {
+            toonSucces('🔓','Wachtwoord gewijzigd!','Je kunt nu inloggen met je nieuwe wachtwoord.');
+        }
+    } catch(e) { toonMelding('nieuwWwMelding','fout','❌ Kan geen verbinding maken.'); }
+    setKnopLaden('nieuwWwKnop', false, '✅ Wachtwoord opslaan');
+}
+
+function toonSucces(emoji, titel, tekst) {
+    verbergAlles();
+    document.getElementById('loginTabs').style.display = 'none';
+    document.getElementById('succesEmoji').textContent = emoji;
+    document.getElementById('succesTitel').textContent = titel;
+    document.getElementById('succesTekst').textContent = tekst;
+    document.getElementById('succesScherm').style.display = 'block';
+    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+}
+
+function slaSessionOp(data) {
+    if (data.token) localStorage.setItem('userToken', data.token);
+    if (data.gebruiker) localStorage.setItem('userInfo', JSON.stringify({
+        id: data.gebruiker.id,
+        gebruikersnaam: data.gebruiker.gebruikersnaam,
+        avatar: data.gebruiker.avatar,
+        leeftijdsgroep: data.gebruiker.leeftijdsgroep,
+        emailGeverifieerd: data.gebruiker.emailGeverifieerd
+    }));
+}
+
+function toonMelding(id, type, tekst) {
+    const el = document.getElementById(id);
+    el.className = `melding ${type}`;
+    el.textContent = tekst;
+    el.style.display = 'block';
+    if (type !== 'fout') setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function setKnopLaden(id, laden, tekst) {
+    const el = document.getElementById(id);
+    if (el) { el.disabled = laden; el.textContent = tekst; }
+}
+
+async function postAPI(url, body) {
+    const r = await fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    return r.json();
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('formInloggen').classList.contains('actief')) doeInloggen();
+    else if (document.getElementById('formRegistreren').classList.contains('actief')) doeRegistreren();
+    else if (document.getElementById('vergetenScherm').style.display === 'block') stuurResetMail();
+    else if (document.getElementById('nieuwWwScherm').style.display === 'block') stelWachtwoordIn();
+});
+</script>
+</body>
+</html>

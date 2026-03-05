@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video's — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        main { padding: 0 0 60px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+        /* ── FEATURED VIDEO ── */
+        .featured-sectie { background: #000; position: relative; overflow: hidden; }
+        .featured-video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+        .featured-video-wrapper iframe, .featured-video-wrapper video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .featured-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(13,43,26,0.95), transparent); padding: 32px 32px 24px; pointer-events: none; }
+        .featured-tag { display: inline-block; background: rgba(76,201,122,0.2); border: 1px solid rgba(76,201,122,0.4); color: #4CC97A; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 4px 14px; border-radius: 50px; margin-bottom: 8px; }
+        .featured-titel { font-family: 'Grandstander', cursive; font-size: clamp(1.4rem, 4vw, 2rem); color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .featured-beschrijving { color: rgba(167,196,181,0.7); font-size: 0.9rem; margin-top: 4px; }
+
+        /* ── VIDEO GRID ── */
+        .video-sectie { padding: 36px 0 0; }
+        .sectie-kop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .sectie-kop h2 { font-family: 'Grandstander', cursive; font-size: 1.6rem; color: #F7C948; }
+        .video-teller { color: rgba(167,196,181,0.45); font-size: 0.85rem; }
+
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+
+        .video-kaart {
+            background: rgba(34,99,58,0.45); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 24px; overflow: hidden; cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .video-kaart:hover { border-color: rgba(76,201,122,0.35); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+        .video-kaart.actief { border-color: #4CC97A; box-shadow: 0 0 0 2px rgba(76,201,122,0.4); }
+
+        .video-thumbnail { aspect-ratio: 16/9; background: #0D2B1A; position: relative; overflow: hidden; }
+        .video-thumbnail img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .video-kaart:hover .video-thumbnail img { transform: scale(1.05); }
+        .thumbnail-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #0D2B1A, #1B4D2E); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .play-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .video-kaart:hover .play-overlay { opacity: 1; }
+        .play-cirkel { width: 52px; height: 52px; background: rgba(76,201,122,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transform: scale(0.8); transition: transform 0.2s; box-shadow: 0 4px 20px rgba(76,201,122,0.5); }
+        .video-kaart:hover .play-cirkel { transform: scale(1); }
+
+        .video-info { padding: 14px 16px; }
+        .video-info-titel { color: white; font-weight: 800; font-size: 0.9rem; line-height: 1.4; margin-bottom: 4px; }
+        .video-info-meta { color: rgba(167,196,181,0.45); font-size: 0.76rem; display: flex; justify-content: space-between; align-items: center; }
+        .video-type-chip { background: rgba(76,201,122,0.15); color: #4CC97A; padding: 2px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+
+        /* ── MODAL ── */
+        .video-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s ease; }
+        .video-modal.actief { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-inhoud { width: 100%; max-width: 900px; animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+        .modal-titel { font-family: 'Grandstander', cursive; color: #F7C948; font-size: 1.3rem; }
+        .modal-sluiten { background: rgba(255,255,255,0.1); border: none; border-radius: 50%; width: 40px; height: 40px; color: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .modal-sluiten:hover { background: rgba(248,113,113,0.3); }
+        .modal-video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .modal-video-wrapper iframe, .modal-video-wrapper video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 16px; }
+
+        .geen-videos { text-align: center; padding: 60px 20px; color: rgba(167,196,181,0.4); }
+        .geen-videos span { font-size: 4rem; display: block; margin-bottom: 16px; }
+
+        .video-rating { margin-top: 16px; text-align: center; }
+        .stars span { font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; display: inline-block; }
+        .stars span:hover { transform: scale(1.25); }
+        .rating-info { color: rgba(167,196,181,0.5); font-size: 0.82rem; margin-top: 6px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <p class="site-subtitle">Video's & Verhalen</p>
+</header>
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
+    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
+    <a href="videos.html" class="actief">🎬 Video's</a>
+    <a href="mijn-verhalen-overzicht.html" id="navMijnVerhaalLink" style="display:none">✍️ Mijn Verhaal</a>
+    <a href="login.html" id="navLoginLink">👤 Login</a>
+</nav>
+
+<!-- Video modal -->
+<div class="video-modal" id="videoModal" onclick="sluitModal(event)">
+    <div class="modal-inhoud">
+        <div class="modal-header">
+            <div class="modal-titel" id="modalTitel"></div>
+            <button class="modal-sluiten" onclick="sluitModalDirect()">✕</button>
+        </div>
+        <div class="modal-video-wrapper" id="modalVideoWrapper"></div>
+        <div class="video-rating">
+            <div class="stars" id="modalStars">
+                <span onclick="beoordeel(1)">⭐</span>
+                <span onclick="beoordeel(2)">⭐</span>
+                <span onclick="beoordeel(3)">⭐</span>
+                <span onclick="beoordeel(4)">⭐</span>
+                <span onclick="beoordeel(5)">⭐</span>
+            </div>
+            <div class="rating-info" id="modalRatingInfo"></div>
+        </div>
+    </div>
+</div>
+
+<main>
+
+    <!-- Featured video (eerste video) -->
+    <div class="featured-sectie" id="featuredSectie" style="display:none;">
+        <div class="featured-video-wrapper" id="featuredVideo"></div>
+        <div class="featured-overlay">
+            <div class="featured-tag">🔴 Uitgelicht</div>
+            <div class="featured-titel" id="featuredTitel"></div>
+            <div class="featured-beschrijving" id="featuredBeschrijving"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="video-sectie">
+            <div class="sectie-kop">
+                <h2>🎬 Alle Video's</h2>
+                <span class="video-teller" id="videoTellerTekst"></span>
+            </div>
+            <div class="video-grid" id="videoGrid">
+                <div class="geen-videos"><span>⏳</span><p>Laden...</p></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer style="text-align:center; padding:24px; margin-top:40px;">
+    <p>Gemaakt met <span style="color:#FF6B9D;">❤️</span> voor de Depeterpost Verhalen Club</p>
+</footer>
+
+<script>
+let videos = [];
+let actieveVideoId = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const u = localStorage.getItem('userInfo');
+    if (u) {
+        const user = JSON.parse(u);
+        const link = document.getElementById('navLoginLink');
+        if (link) link.textContent = user.avatar + ' ' + user.gebruikersnaam;
+        const mijnLink = document.getElementById('navMijnVerhaalLink');
+        if (mijnLink) mijnLink.style.display = '';
+    }
+    laadVideos();
+});
+
+async function laadVideos() {
+    try {
+        const r = await fetch('/api/videos');
+        videos = await r.json();
+
+        if (videos.length === 0) {
+            document.getElementById('videoGrid').innerHTML =
+                '<div class="geen-videos" style="grid-column:1/-1;"><span>📭</span><p>Nog geen video\'s toegevoegd.<br>De beheerder kan ze toevoegen via het admin paneel.</p></div>';
+            return;
+        }
+
+        // Featured: eerste video tonen bovenaan (embedded, niet klikbaar)
+        const featured = videos[0];
+        toonFeatured(featured);
+
+        // Grid: alle videos
+        document.getElementById('videoTellerTekst').textContent = `${videos.length} video${videos.length !== 1 ? "'s" : ''}`;
+        document.getElementById('videoGrid').innerHTML = videos.map(v => maakVideoKaart(v)).join('');
+
+    } catch(e) {
+        document.getElementById('videoGrid').innerHTML =
+            '<div class="geen-videos" style="grid-column:1/-1;"><span>❌</span><p>Geen verbinding.</p></div>';
+    }
+}
+
+function toonFeatured(v) {
+    const sectie = document.getElementById('featuredSectie');
+    sectie.style.display = 'block';
+    document.getElementById('featuredTitel').textContent = v.titel;
+    document.getElementById('featuredBeschrijving').textContent = v.beschrijving || '';
+
+    let html = '';
+    if (v.type === 'youtube' && v.bronUrl) {
+        html = `<iframe src="${v.bronUrl}" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>`;
+    } else if (v.type === 'lokaal' && v.bronUrl) {
+        html = `<video controls src="${v.bronUrl}"></video>`;
+    }
+    document.getElementById('featuredVideo').innerHTML = html;
+}
+
+function maakVideoKaart(v) {
+    const thumbnail = v.youtubeId
+        ? `<img src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt="${escapeAttr(v.titel)}" loading="lazy">`
+        : `<div class="thumbnail-placeholder">${v.type === 'youtube' ? '🎬' : '💾'}</div>`;
+
+    return `
+        <div class="video-kaart" onclick="speelAf('${v.id}')" id="kaart-${v.id}">
+            <div class="video-thumbnail">
+                ${thumbnail}
+                <div class="play-overlay">
+                    <div class="play-cirkel">▶</div>
+                </div>
+            </div>
+            <div class="video-info">
+                <div class="video-info-titel">${escapeHTML(v.titel)}</div>
+                <div class="video-info-meta">
+                    <span>${v.datum || ''}</span>
+                    <span class="video-type-chip">${v.type === 'youtube' ? '▶ YouTube' : '💾 Lokaal'}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function speelAf(videoId) {
+    const v = videos.find(v => v.id === videoId);
+    if (!v) return;
+
+    actieveVideoId = videoId;
+
+    // Markeer actieve kaart
+    document.querySelectorAll('.video-kaart').forEach(k => k.classList.remove('actief'));
+    document.getElementById('kaart-' + videoId)?.classList.add('actief');
+
+    // Vul modal
+    document.getElementById('modalTitel').textContent = v.titel;
+
+    let videoHtml = '';
+    if (v.type === 'youtube' && v.bronUrl) {
+        const url = v.bronUrl.includes('?') ? v.bronUrl + '&autoplay=1' : v.bronUrl + '?autoplay=1';
+        videoHtml = `<iframe src="${url}" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>`;
+    } else if (v.type === 'lokaal' && v.bronUrl) {
+        videoHtml = `<video controls autoplay src="${v.bronUrl}" style="width:100%;height:100%;border-radius:16px;"></video>`;
+    }
+    document.getElementById('modalVideoWrapper').innerHTML = videoHtml;
+
+    // Laad stats
+    try {
+        const r = await fetch(`/api/stats/${videoId}`);
+        const stats = await r.json();
+        document.getElementById('modalRatingInfo').textContent =
+            `⭐ ${stats.average} gemiddeld · ${stats.totalRatings} beoordeling${stats.totalRatings !== 1 ? 'en' : ''} · 👀 ${stats.views} weergaven`;
+    } catch(e) {}
+
+    // Registreer view
+    fetch(`/api/view/${videoId}`, { method: 'POST' }).catch(() => {});
+
+    document.getElementById('videoModal').classList.add('actief');
+    document.body.style.overflow = 'hidden';
+}
+
+async function beoordeel(ster) {
+    if (!actieveVideoId) return;
+    try {
+        const r = await fetch(`/api/rate/${actieveVideoId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rating: ster })
+        });
+        const data = await r.json();
+        document.getElementById('modalRatingInfo').textContent =
+            `⭐ ${data.average} gemiddeld · ${data.totalRatings} beoordeling${data.totalRatings !== 1 ? 'en' : ''}`;
+        // Visuele bevestiging
+        const sterren = document.querySelectorAll('#modalStars span');
+        sterren.forEach((s, i) => {
+            s.style.transform = i < ster ? 'scale(1.2)' : 'scale(1)';
+            s.style.filter = i < ster ? 'brightness(1.5)' : 'brightness(0.5)';
+        });
+    } catch(e) {}
+}
+
+function sluitModal(e) {
+    if (e.target === document.getElementById('videoModal')) sluitModalDirect();
+}
+
+function sluitModalDirect() {
+    document.getElementById('videoModal').classList.remove('actief');
+    document.getElementById('modalVideoWrapper').innerHTML = '';
+    document.body.style.overflow = '';
+    actieveVideoId = null;
+    document.querySelectorAll('.video-kaart').forEach(k => k.classList.remove('actief'));
+}
+
+// ESC toets sluit modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') sluitModalDirect(); });
+
+function escapeHTML(t) {
+    if (!t) return '';
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(t));
+    return d.innerHTML;
+}
+function escapeAttr(t) {
+    return (t||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

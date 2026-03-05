@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ── HEADER ── -->
+    <header>
+        <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+        <p class="site-subtitle">Deel je verhalen, inspireer anderen!</p>
+    </header>
+
+    <!-- ── NAVIGATIE ── -->
+    <nav>
+        <a href="index.html" class="actief">🏠 Home</a>
+        <a href="verhalen.html">📖 Verhalen</a>
+    </nav>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main>
+        <div class="container">
+
+            <!-- ── VIDEO SECTIE ── -->
+            <section class="sectie">
+                <h2 class="sectie-titel geel">🎥 Bekijk de Nieuwste Video</h2>
+                <p style="margin-bottom: 16px; color: #666;">
+                    Elke week een nieuw verhaal, tips en inspiratie van de Depeterpost Verhalen Club!
+                </p>
+
+                <!-- YouTube Embed - vervang VIDEO_ID door het echte YouTube video ID -->
+                <!-- Voorbeeld: https://youtu.be/cEbgBSsMKj0?si=jElJioyBFIQ8DD6K → VIDEO_ID = dQw4w9WgXcQ -->
+                <div class="video-wrapper">
+                    <iframe width="560" height="315" 
+                    src="https://www.youtube.com/embed/cEbgBSsMKj0?si=jElJioyBFIQ8DD6K" 
+                    title="YouTube video player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+                </iframe>
+                </div>
+                <p style="font-size: 0.85rem; color: #999; margin-top: 8px; text-align: center;">
+                    💡 Tip: Verander VIDEO_ID in index.html naar jouw echte YouTube video ID
+                </p>
+
+                <div class="video-stats">
+                  <p>👀 <span id="viewCount">0</span> weergaven</p>
+                  <p>
+                    ⭐ Gemiddelde score:
+                    <span id="avgRating">0.0</span>
+                    (<span id="totalRatings">0</span> beoordelingen)
+                  </p>
+                  <div class="stars">
+                    <span onclick="rate(1)">⭐</span>
+                    <span onclick="rate(2)">⭐</span>
+                    <span onclick="rate(3)">⭐</span>
+                    <span onclick="rate(4)">⭐</span>
+                    <span onclick="rate(5)">⭐</span>
+                  </div>
+                </div>
+            </section>
+
+            <!-- ── IDEE INSTUREN FORMULIER ── -->
+            <section class="sectie">
+                <h2 class="sectie-titel roze">💡 Stuur Jouw Idee In!</h2>
+                <p style="margin-bottom: 20px; color: #666;">
+                    Heb je een cool idee voor een verhaal? Deel het hier en wie weet komt het wel op de site!
+                </p>
+
+                <form class="formulier" id="ideeFormulier">
+                    <!-- Naam veld -->
+                    <div>
+                        <label for="ideeNaam">👤 Jouw naam</label>
+                        <input
+                            type="text"
+                            id="ideeNaam"
+                            placeholder="Bijv. Sofie, Thomas, Anoniem..."
+                            required
+                            maxlength="50"
+                        >
+                    </div>
+
+                    <!-- Idee veld -->
+                    <div>
+                        <label for="ideeTekst">✏️ Jouw idee</label>
+                        <textarea
+                            id="ideeTekst"
+                            placeholder="Beschrijf jouw verhaalidee hier... Wees zo creatief als je wilt!"
+                            required
+                            maxlength="1000"
+                        ></textarea>
+                    </div>
+
+                    <!-- Verzenden knop -->
+                    <button type="submit" class="knop knop-roze" id="ideeVerzendKnop">
+                        🚀 Verstuur Mijn Idee!
+                    </button>
+                </form>
+
+                <!-- Melding dat alles gecontroleerd wordt -->
+                <div class="melding-badge">
+                    🔍 Alle inzendingen worden eerst gecontroleerd voordat ze verschijnen.
+                </div>
+
+                <!-- Succes/fout meldingen -->
+                <div class="melding-succes" id="ideeSucces">
+                    🎉 Super! Je idee is ontvangen en wordt beoordeeld. Bedankt!
+                </div>
+                <div class="melding-fout" id="ideeFout">
+                    😕 Er ging iets mis. Probeer het opnieuw!
+                </div>
+            </section>
+
+            <!-- ── INFO SECTIE ── -->
+            <section class="sectie">
+                <h2 class="sectie-titel blauw">📚 Over de Verhalen Club</h2>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 12px;">
+                    Welkom bij de <strong>Depeterpost Verhalen Club</strong>! Hier kunnen bezoekers
+                    verhalen lezen, hun eigen versies schrijven en ideeën insturen.
+                </p>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 20px;">
+                    Alle inzendingen worden handmatig goedgekeurd zodat alles netjes en leuk blijft voor iedereen. 🌟
+                </p>
+                <a href="verhalen.html" class="knop knop-blauw">📖 Bekijk de Verhalen →</a>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <p>Gemaakt met <span>❤️</span> voor de Depeterpost Verhalen Club</p>
+    </footer>
+
+    <!-- JavaScript voor het ideeformulier -->
+     <!-- ── SCHRIJFOPDRACHT KNOP SECTIE ── -->
+<section class="sectie schrijf-hero-sectie">
+    <div class="schrijf-hero-inner">
+        <div class="ster ster-1">✨</div>
+        <div class="ster ster-2">⭐</div>
+        <div class="ster ster-3">🌟</div>
+        <div class="ster ster-4">✨</div>
+        <div class="ster ster-5">⭐</div>
+        <p class="schrijf-hero-tag">📅 Elke dag een nieuw avontuur</p>
+        <h2 class="schrijf-hero-titel">Schrijf vandaag<br>jouw verhaaltje!</h2>
+        <p class="schrijf-hero-sub">Er wacht een geheime opdracht op je.<br>Drie bolletjes. Jouw pen. Eén groot verhaal.</p>
+        <a href="schrijfopdracht.html" class="schrijf-mega-knop" id="schrijfMegaKnop">
+            <span class="knop-glans"></span>
+            <span class="knop-inhoud">
+                <span class="knop-emoji" id="knopEmoji">✏️</span>
+                <span class="knop-tekst">Bekijk de Opdracht van Vandaag</span>
+                <span class="knop-pijl">→</span>
+            </span>
+            <span class="knop-ripple" id="knopRipple"></span>
+        </a>
+        <div class="schrijf-stats">
+            <span>🏆 Winnaar wordt elke dag gekozen</span>
+            <span style="opacity:0.3">·</span>
+            <span>📖 Jouw tekst in het grote verhaal</span>
+        </div>
+    </div>
+</section>
+
+<style>
+.schrijf-hero-sectie {
+    background: linear-gradient(135deg, #1a0533 0%, #2d1254 40%, #4a1a7a 100%);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: 0 20px 60px rgba(100, 30, 180, 0.4);
+}
+.schrijf-hero-sectie::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(255,100,200,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(100,200,255,0.1) 0%, transparent 40%);
+    pointer-events: none;
+}
+.schrijf-hero-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 52px 32px 44px;
+}
+.ster {
+    position: absolute;
+    font-size: 1.4rem;
+    animation: zweef 3s ease-in-out infinite;
+    pointer-events: none;
+    opacity: 0.7;
+}
+.ster-1 { top: 12%; left: 8%; animation-delay: 0s; }
+.ster-2 { top: 20%; right: 10%; animation-delay: 0.8s; }
+.ster-3 { bottom: 25%; left: 12%; animation-delay: 1.4s; }
+.ster-4 { top: 60%; right: 7%; animation-delay: 0.4s; }
+.ster-5 { bottom: 15%; right: 20%; animation-delay: 1.8s; }
+@keyframes zweef {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(15deg); }
+}
+.schrijf-hero-tag {
+    display: inline-block;
+    background: rgba(255,217,61,0.15);
+    border: 1px solid rgba(255,217,61,0.4);
+    color: #FFD93D;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+.schrijf-hero-titel {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 900;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.schrijf-hero-sub {
+    color: rgba(255,255,255,0.65);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 36px;
+}
+.schrijf-mega-knop {
+    display: inline-block;
+    position: relative;
+    text-decoration: none;
+    margin-bottom: 28px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #FF6B9D, #FF8C42, #FFD93D);
+    background-size: 200% 200%;
+    box-shadow: 0 8px 32px rgba(255,107,157,0.5);
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
+    animation: gradientBeweeg 3s ease infinite, pulse 2s ease-in-out infinite;
+}
+.schrijf-mega-knop:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 16px 48px rgba(255,107,157,0.6);
+    animation: gradientBeweeg 3s ease infinite;
+}
+.schrijf-mega-knop:active { transform: scale(0.99); }
+@keyframes gradientBeweeg {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 32px rgba(255,107,157,0.5); }
+    50% { box-shadow: 0 8px 48px rgba(255,107,157,0.8), 0 0 0 8px rgba(255,107,157,0.15); }
+}
+.knop-glans {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: skewX(-20deg);
+    animation: glans 2.5s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes glans {
+    0% { left: -100%; }
+    40% { left: 150%; }
+    100% { left: 150%; }
+}
+.knop-inhoud {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 32px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.knop-emoji {
+    font-size: 1.5rem;
+    display: inline-block;
+    animation: wiebel 1.5s ease-in-out infinite;
+}
+@keyframes wiebel {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+}
+.knop-pijl {
+    font-size: 1.2rem;
+    transition: transform 0.2s ease;
+}
+.schrijf-mega-knop:hover .knop-pijl { transform: translateX(5px); }
+.schrijf-stats {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+</style>
+
+<script>
+document.getElementById('schrijfMegaKnop')?.addEventListener('click', function() {
+    const ripple = document.getElementById('knopRipple');
+    ripple.classList.remove('actief');
+    void ripple.offsetWidth;
+    ripple.classList.add('actief');
+});
+const emojis = ['✏️', '📝', '🖊️', '✨', '🌟', '🏆'];
+let emojiIndex = 0;
+setInterval(() => {
+    emojiIndex = (emojiIndex + 1) % emojis.length;
+    const el = document.getElementById('knopEmoji');
+    if (el) {
+        el.style.transform = 'scale(0)';
+        setTimeout(() => {
+            el.textContent = emojis[emojiIndex];
+            el.style.transform = 'scale(1.3)';
+            setTimeout(() => { el.style.transform = ''; }, 150);
+        }, 150);
+    }
+}, 2000);
+</script>
+    <script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "video-1",
+    "titel": "Welkom bij de Verhalen Club!",
+    "beschrijving": "De eerste video van de Depeterpost Verhalen Club.",
+    "type": "youtube",
+    "bronUrl": "https://www.youtube.com/embed/cEbgBSsMKj0?si=jElJioyBFIQ8DD6K",
+    "thumbnail": "",
+    "datum": "2026-03-01",
+    "volgorde": 1
+  },
+  {
+    "id": "video-1772571934159",
+    "titel": "Tipitent",
+    "beschrijving": "",
+    "type": "youtube",
+    "bronUrl": "https://www.youtube.com/embed/<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/g9Ca6N-m1Gg?si=_jXLS6OR1QQA7ugn\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+    "youtubeId": "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/g9Ca6N-m1Gg?si=_jXLS6OR1QQA7ugn\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>",
+    "thumbnail": "",
+    "datum": "2026-03-03",
+    "volgorde": 2,
+    "views": 0
+  }
+]

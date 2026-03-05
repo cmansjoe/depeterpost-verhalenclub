@@ -1,0 +1,13 @@
+// Voeg dit toe aan je script:
+function kies(paletId, naam) {
+    document.querySelectorAll('.palet-blok').forEach(el => el.classList.remove('gekozen'));
+    document.getElementById(paletId).classList.add('gekozen');
+    
+    // Opslaan in localStorage
+    localStorage.setItem('gekozenStijl', paletId);
+    localStorage.setItem('gekozenNaam', naam);
+    
+    document.getElementById('keuzeFooter').innerHTML =
+        `🎉 Je hebt gekozen voor: <strong>${naam}</strong>! Vertel dit aan Claude Code en hij past de hele site aan.`;
+    // ... rest van je code
+}

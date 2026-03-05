@@ -1,0 +1,108 @@
+[
+  {
+    "id": "pverhaal-1772568985527",
+    "gebruikerId": "user-1772566296056",
+    "titel": "Draakje",
+    "aantalDelen": 2,
+    "onderwerpKeuze": "zelf",
+    "onderwerp": "",
+    "personages": "",
+    "delen": [
+      {
+        "nummer": 1,
+        "tekst": "",
+        "bijgewerkt": "2026-03-03T20:16:25.527Z"
+      },
+      {
+        "nummer": 2,
+        "tekst": "",
+        "bijgewerkt": "2026-03-03T20:16:25.527Z"
+      }
+    ],
+    "status": "bezig",
+    "aangemaakt": "2026-03-03T20:16:25.527Z",
+    "bijgewerkt": "2026-03-03T20:16:25.527Z",
+    "openbaar": true
+  },
+  {
+    "id": "pverhaal-1772570240905",
+    "gebruikerId": "user-1772566296056",
+    "titel": "Draakjes",
+    "aantalDelen": 2,
+    "onderwerpKeuze": "ai",
+    "onderwerp": "Een vergeten bibliotheek op de bodem van de oceaan waar boeken tot leven komen en de verhalen dreigen te ontsnappen naar de echte wereld",
+    "personages": "Zara - een nieuwsgierig meisje met een magische duikbril waarmee ze talen van vissen kan verstaan, Boekenworm - een vrolijke inktvis die als bibliothecaris de verhalen bewaart en altijd inkt op zijn tentakels heeft, Professor Pagina - een oud en verward zeepaardje dat zelf per ongeluk in een avonturenverhaal terechtgekomen is en de weg terug zoekt",
+    "delen": [
+      {
+        "nummer": 1,
+        "tekst": "'Nog 1x duiken mam, als je blieft!'. Daar ging ze weer onderwater met haar nieuwe duikbril op die ze net gekocht hadden. Steeds dieper ging ze, tot dat daar opeens licht uit een grot kwam. Verbaasd en nieuwsgierig ging ze er naar toe. Tot ze op nog geen meter afstand 2 tentakels voor zich zag. Er zat een vies zwart vloeistof op. Geschrokken probeerde ze weg te gaan, maar te laat. Een enorme inktvis kwam op haar af, pakte haar vast met zijn tentakels en... begon haar te kietelen. Lachend en gierend nam hij haar mee de grot in waar ze nu duidelijk kon zien waar al dat licht vandaag kwam. Het leek wel een enorme bibliotheek. Op een stoel, met zijn rug naar haar toe gedraaid, zat iemand aandachtig te lezen in een boek. Later bleek dat professor Pagina te zijn.",
+        "bijgewerkt": "2026-03-03T20:45:41.760Z"
+      },
+      {
+        "nummer": 2,
+        "tekst": "",
+        "bijgewerkt": "2026-03-03T20:45:41.760Z"
+      }
+    ],
+    "status": "klaar",
+    "aangemaakt": "2026-03-03T20:37:20.905Z",
+    "bijgewerkt": "2026-03-03T20:46:13.038Z",
+    "openbaar": true
+  },
+  {
+    "id": "pverhaal-1772654760964",
+    "gebruikerId": "user-1772566296056",
+    "titel": "Eten op het strand",
+    "aantalDelen": 5,
+    "onderwerpKeuze": "ai",
+    "onderwerp": "Een vergeten bibliotheek op de bodem van de oceaan waar boeken tot leven komen als ze worden opengeslagen",
+    "personages": "Finn - een nieuwsgierige jongen met kieuwen die kan ademhalen onder water, Blekka - een octopus die alle boeken heeft gelezen en als bibliothecaris werkt, Pagina - een levend boek zonder titel dat zijn eigen verhaal nog moet ontdekken",
+    "huidigDeelNummer": 2,
+    "delen": [
+      {
+        "nummer": 1,
+        "tekst": "Finn duikt voor het eerst zonder zuurstofvlessen. Hij moet dus zijn adem inhouden terwijl hij steeds dieper naar beneden gaat. Hij ziet wat glinsteren en daaronder een bibliotheek. Stiekem binnen ziet hij een geheime doos staan tussen de boeken. Als hijj die doos aanraakt, schikt hij. er komt een schaakstuk uit dat lijkt te bewegen.",
+        "opdracht": "Finn duikt dieper dan ooit tevoren en ontdekt plotseling een geheimzinnig gebouw op de oceaanbodem, bedekt met zeewier en glinsterende schelpen — de vergeten bibliotheek! Schrijf hoe Finn naar binnen sluipt, Blekka voor het eerst ontmoet achter haar inktdonkere balie, en hoe er ineens iets begint te bewegen tussen de boekenrekken. Wat hoort Finn, wat ziet hij, en waarom klopt zijn hart zo wild in zijn borst?",
+        "hint": "Tip: Beschrijf wat Finn ruikt, hoort en voelt om de onderwaterbibliotheek écht tot leven te brengen voor je lezer.",
+        "voltooid": true,
+        "bijgewerkt": "2026-03-04T20:09:30.917Z"
+      },
+      {
+        "nummer": 2,
+        "tekst": "",
+        "opdracht": "Het schaakstuk beweegt verder en leidt Finn dieper de bibliotheek in, waar hij plotseling Blekka tegenkomt die hem met al haar acht tentakels de weg verspert. Schrijf hoe Finn en Blekka elkaar ontmoeten en waarom Blekka zo geschrokken is van het schaakstuk dat Finn heeft aangeraakt. Bedenk ook wat voor geheim de geheime doos nog meer verbergt en laat Pagina voor het eerst verschijnen.",
+        "hint": "Tip: Beschrijf hoe de bibliotheek eruitziet en klinkt als de boeken om je heen beginnen te bewegen en te fluisteren.",
+        "voltooid": false,
+        "bijgewerkt": "2026-03-04T20:09:30.917Z"
+      },
+      {
+        "nummer": 3,
+        "tekst": "",
+        "opdracht": "",
+        "hint": "",
+        "voltooid": false,
+        "bijgewerkt": "2026-03-04T20:09:30.917Z"
+      },
+      {
+        "nummer": 4,
+        "tekst": "",
+        "opdracht": "",
+        "hint": "",
+        "voltooid": false,
+        "bijgewerkt": "2026-03-04T20:09:30.917Z"
+      },
+      {
+        "nummer": 5,
+        "tekst": "",
+        "opdracht": "",
+        "hint": "",
+        "voltooid": false,
+        "bijgewerkt": "2026-03-04T20:09:30.917Z"
+      }
+    ],
+    "status": "bezig",
+    "aangemaakt": "2026-03-04T20:06:00.965Z",
+    "bijgewerkt": "2026-03-04T20:09:39.055Z",
+    "openbaar": true
+  }
+]

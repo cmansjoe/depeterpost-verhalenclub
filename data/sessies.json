@@ -1,0 +1,30 @@
+[
+  {
+    "token": "1a716e293de5a570d5b1e6ae365998e18b93722f2eed861dc7a9e65e2149f458",
+    "type": "gebruiker",
+    "gebruikerId": "user-1772363127937",
+    "aangemaakt": 1772363127938
+  },
+  {
+    "token": "00cf7792f933651a1893af12c2fe1fef7269860a6582284811672bd3a73ebae9",
+    "type": "gebruiker",
+    "gebruikerId": "user-1772363127937",
+    "aangemaakt": 1772369608279
+  },
+  {
+    "token": "7e52cdd3685d65451bc27770edbf9948c3e44d483aec29b1f042842ba9a2ea44",
+    "type": "admin",
+    "aangemaakt": 1772390358476
+  },
+  {
+    "token": "7cc3d8cee8b6effa752453355044a587464657cb3e560ab99eb3ea7ed89e5f96",
+    "type": "gebruiker",
+    "gebruikerId": "user-1772566296056",
+    "aangemaakt": 1772566296058
+  },
+  {
+    "token": "6ac77efb8ecc65b95cf459dba1b30d0b6c42643de0b250d1e99f86943d7674ba",
+    "type": "admin",
+    "aangemaakt": 1772646494079
+  }
+]
