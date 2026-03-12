@@ -273,19 +273,6 @@
             display: flex; align-items: center; gap: 8px;
         }
 
-        /* ── PROJECT STATUS ── */
-        .project-leeg { text-align: center; padding: 20px 0; color: rgba(167,196,181,0.5); font-size: 0.9rem; }
-        .project-item { background: rgba(13,43,26,0.4); border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; }
-        .project-naam { color: white; font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; }
-        .project-voortgang-balk { height: 6px; background: rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden; margin: 8px 0 4px; }
-        .project-voortgang-vulling { height: 100%; background: linear-gradient(90deg, #4CC97A, #F7C948); border-radius: 6px; transition: width 1s ease; }
-        .project-meta { color: rgba(167,196,181,0.5); font-size: 0.78rem; display: flex; justify-content: space-between; }
-        .groep-badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-        .groep-badge-mini { padding: 3px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700; }
-        .badge-A { background: rgba(242,140,56,0.2); color: #F28C38; }
-        .badge-B { background: rgba(139,92,246,0.2); color: #8B5CF6; }
-        .badge-C { background: rgba(76,201,122,0.2); color: #4CC97A; }
-
         /* ── LEEFTIJDSGROEPEN ── */
         .groepen-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
         @media (max-width: 500px) { .groepen-grid { grid-template-columns: 1fr; } }
@@ -363,27 +350,7 @@
             font-size: 0.9rem; font-weight: 700; display: none; margin-top: 8px;
         }
 
-        .nav-login {
-            float: right; display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 16px !important; background: rgba(76,201,122,0.1) !important;
-            border: 1px solid rgba(76,201,122,0.25) !important; border-radius: 50px !important;
-            margin: 8px 0 !important;
-        }
-        .nav-agent {
-            float: right; display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 16px !important; background: rgba(247,201,72,0.1) !important;
-            border: 1px solid rgba(247,201,72,0.3) !important; border-radius: 50px !important;
-            margin: 8px 0 !important; cursor: default; color: #F7C948 !important;
-            font-weight: 800; font-size: 0.9rem;
-        }
-        .nav-agent-uitloggen {
-            float: right; display: inline-flex; align-items: center;
-            padding: 6px 14px !important; background: rgba(248,113,113,0.08) !important;
-            border: 1px solid rgba(248,113,113,0.2) !important; border-radius: 50px !important;
-            margin: 8px 4px 8px 0 !important; color: rgba(248,113,113,0.7) !important;
-            font-size: 0.82rem; font-weight: 700; text-decoration: none;
-        }
-        .nav-agent-uitloggen:hover { background: rgba(248,113,113,0.15) !important; color: #F87171 !important; }
+        /* nav-stijlen staan in style.css */
     </style>
 </head>
 <body>
@@ -402,14 +369,13 @@
 </header>
 
 <!-- NAV -->
-<nav>
-    <a href="index.html" class="actief">🏠 Home</a>
+<nav id="hoofdNav">
+    <a href="index.html">🏠 Home</a>
+    <a href="verhaal.html">✏️ Schrijf & Verhaal</a>
     <a href="verhalen.html">📖 Verhalen</a>
-    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
-    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
     <a href="videos.html">🎬 Video's</a>
-    <a href="mijn-dossier.html" id="navMijnVerhaalLink" style="display:none">🗂️ Mijn Dossier</a>
-    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.35); border-radius:50px; padding:6px 16px;">🕵️ De Geheime Club</a>
+    <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">🕵️ De Geheime Club</a>
     <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
 </nav>
 
@@ -429,7 +395,7 @@
             <div class="hero-tag">📅 Elke dag een nieuw avontuur</div>
             <h2 class="hero-titel">Schrijf vandaag<br>jouw stuk van het verhaal!</h2>
             <p class="hero-sub">Er wacht een geheime opdracht op je.<br>Schrijf je verhaal, krijg AI-feedback, en wie weet win jij vandaag!</p>
-            <a href="schrijfopdracht.html" class="hero-knop">
+            <a href="verhaal.html" class="hero-knop">
                 <span class="hero-knop-glans"></span>
                 <span class="hero-knop-inner">
                     <span id="heroEmoji">✏️</span>
@@ -481,23 +447,23 @@
                     <li class="modus-stap"><span class="modus-stap-nr stap-nr-operatie">3</span><span>De AI kiest de winnaar — en die woorden komen in het grote verhaal</span></li>
                 </ul>
                 <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-                    <a href="schrijfopdracht.html?groep=A" style="flex:1; min-width:68px; text-align:center; padding:10px 6px; background:rgba(242,140,56,0.18); border:1px solid rgba(242,140,56,0.4); border-radius:14px; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(242,140,56,0.32)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(242,140,56,0.18)';this.style.transform=''">
+                    <a href="verhaal.html?groep=A" style="flex:1; min-width:68px; text-align:center; padding:10px 6px; background:rgba(242,140,56,0.18); border:1px solid rgba(242,140,56,0.4); border-radius:14px; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(242,140,56,0.32)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(242,140,56,0.18)';this.style.transform=''">
                         <div style="font-size:1.3rem;">🟠</div>
                         <div style="color:#F28C38; font-weight:800; font-size:0.8rem;">Groep A</div>
                         <div style="color:rgba(242,140,56,0.6); font-size:0.7rem;">6–8 jaar</div>
                     </a>
-                    <a href="schrijfopdracht.html?groep=B" style="flex:1; min-width:68px; text-align:center; padding:10px 6px; background:rgba(139,92,246,0.18); border:1px solid rgba(139,92,246,0.4); border-radius:14px; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(139,92,246,0.32)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(139,92,246,0.18)';this.style.transform=''">
+                    <a href="verhaal.html?groep=B" style="flex:1; min-width:68px; text-align:center; padding:10px 6px; background:rgba(139,92,246,0.18); border:1px solid rgba(139,92,246,0.4); border-radius:14px; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(139,92,246,0.32)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(139,92,246,0.18)';this.style.transform=''">
                         <div style="font-size:1.3rem;">🔵</div>
                         <div style="color:#8B5CF6; font-weight:800; font-size:0.8rem;">Groep B</div>
                         <div style="color:rgba(139,92,246,0.6); font-size:0.7rem;">9–11 jaar</div>
                     </a>
-                    <a href="schrijfopdracht.html?groep=C" style="flex:1; min-width:68px; text-align:center; padding:10px 6px; background:rgba(76,201,122,0.18); border:1px solid rgba(76,201,122,0.4); border-radius:14px; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(76,201,122,0.32)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(76,201,122,0.18)';this.style.transform=''">
+                    <a href="verhaal.html?groep=C" style="flex:1; min-width:68px; text-align:center; padding:10px 6px; background:rgba(76,201,122,0.18); border:1px solid rgba(76,201,122,0.4); border-radius:14px; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(76,201,122,0.32)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(76,201,122,0.18)';this.style.transform=''">
                         <div style="font-size:1.3rem;">🟢</div>
                         <div style="color:#4CC97A; font-weight:800; font-size:0.8rem;">Groep C</div>
                         <div style="color:rgba(76,201,122,0.6); font-size:0.7rem;">12+ jaar</div>
                     </a>
                 </div>
-                <a href="verhaal-overzicht.html" class="modus-knop modus-knop-operatie">📖 Lees het grote verhaal →</a>
+                <a href="verhaal.html#verhaal" class="modus-knop modus-knop-operatie">📖 Lees het grote verhaal →</a>
             </div>
         </div>
 
@@ -572,25 +538,12 @@
     </div>
 
 
-    <!-- ── TWEE KOLOM: PROJECT + WINNAARS ── -->
-    <div class="twee-kolom">
-
-        <!-- Actief project -->
-        <div class="kaart">
-            <div class="kaart-titel">📅 Actief Project</div>
-            <div id="projectStatus">
-                <div class="project-leeg">⏳ Laden...</div>
-            </div>
+    <!-- ── LAATSTE WINNAARS ── -->
+    <div class="kaart">
+        <div class="kaart-titel">🏆 Laatste Winnaars</div>
+        <div id="winnaarsList">
+            <div style="text-align:center; padding:20px 0; color:rgba(167,196,181,0.5); font-size:0.9rem;">⏳ Laden...</div>
         </div>
-
-        <!-- Laatste winnaars -->
-        <div class="kaart">
-            <div class="kaart-titel">🏆 Laatste Winnaars</div>
-            <div id="winnaarsList">
-                <div class="project-leeg">⏳ Laden...</div>
-            </div>
-        </div>
-
     </div>
 
     <!-- ── IDEE INSTUREN ── -->
@@ -616,7 +569,7 @@
         </p>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <a href="verhalen.html" style="padding:10px 20px; background:rgba(78,205,196,0.2); border:1px solid rgba(78,205,196,0.3); border-radius:12px; color:#4ECDC4; text-decoration:none; font-weight:800; font-size:0.9rem;">📖 Bekijk Verhalen</a>
-            <a href="verhaal-overzicht.html" style="padding:10px 20px; background:rgba(155,89,182,0.2); border:1px solid rgba(155,89,182,0.3); border-radius:12px; color:#C39BD3; text-decoration:none; font-weight:800; font-size:0.9rem;">📚 Ons Grote Verhaal</a>
+            <a href="verhaal.html#verhaal" style="padding:10px 20px; background:rgba(155,89,182,0.2); border:1px solid rgba(155,89,182,0.3); border-radius:12px; color:#C39BD3; text-decoration:none; font-weight:800; font-size:0.9rem;">📚 Ons Grote Verhaal</a>
             <a href="videos.html" style="padding:10px 20px; background:rgba(255,107,157,0.2); border:1px solid rgba(255,107,157,0.3); border-radius:12px; color:#FF6B9D; text-decoration:none; font-weight:800; font-size:0.9rem;">🎬 Video's</a>
         </div>
     </div>
@@ -630,53 +583,56 @@
 </footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Nav login update
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-        const u = JSON.parse(userInfo);
-
-        // Vervang de login-knop door een niet-klikbaar agent-badge + uitlogknop
-        const link = document.getElementById('navLoginLink');
-        if (link) {
-            // Agent-badge (niet klikbaar)
+// ── Navigatie: actieve link + inlogstatus ──
+(function() {
+    const p = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
+    document.querySelectorAll('#hoofdNav a[href]').forEach(a => {
+        if (a.getAttribute('href').split('?')[0] === p) a.classList.add('actief');
+    });
+    const ui = localStorage.getItem('userInfo');
+    if (!ui) return;
+    try {
+        const u = JSON.parse(ui);
+        const ll = document.getElementById('navLoginLink');
+        if (ll) {
             const badge = document.createElement('span');
             badge.className = 'nav-agent';
-            badge.title = 'Je bent ingelogd als ' + u.gebruikersnaam;
-            badge.textContent = '🕵️ Agent ' + u.gebruikersnaam;
-
-            // Uitloggen-knop
-            const uitlogLink = document.createElement('a');
-            uitlogLink.className = 'nav-agent-uitloggen';
-            uitlogLink.href = '#';
-            uitlogLink.textContent = '🚪 Uitloggen';
-            uitlogLink.addEventListener('click', (e) => {
+            badge.title = 'Ingelogd als ' + u.gebruikersnaam;
+            badge.textContent = (u.avatar || '🕵️') + ' ' + u.gebruikersnaam;
+            const ul = document.createElement('a');
+            ul.className = 'nav-agent-uitloggen';
+            ul.href = '#';
+            ul.textContent = '🚪 Uitloggen';
+            ul.addEventListener('click', e => {
                 e.preventDefault();
                 localStorage.removeItem('userInfo');
-                window.location.reload();
+                localStorage.removeItem('authToken');
+                window.location.href = 'index.html';
             });
-
-            link.replaceWith(badge);
-            badge.insertAdjacentElement('beforebegin', uitlogLink);
+            ll.replaceWith(badge);
+            badge.insertAdjacentElement('afterend', ul);
         }
+        const md = document.getElementById('navMijnDossierLink');
+        if (md) md.style.display = '';
+        const gc = document.getElementById('navGeheimeClubLink');
+        if (gc) gc.style.display = 'inline-flex';
+    } catch(e) {}
+})();
 
-        const mijnLink = document.getElementById('navMijnVerhaalLink');
-        if (mijnLink) mijnLink.style.display = '';
-
-        const clubLink = document.getElementById('navGeheimeClubLink');
-        if (clubLink) clubLink.style.display = 'inline-flex';
-
-        // Mijn Geheim Dossier knop is altijd goed — geen aanpassing nodig
-
-        // Toon spionnen-welkomstbericht in hero
-        const welkom = document.getElementById('agentWelkom');
-        const agentNaam = document.getElementById('agentNaam');
-        if (welkom && agentNaam) {
-            agentNaam.textContent = u.gebruikersnaam;
-            welkom.style.display = 'block';
-        }
+document.addEventListener('DOMContentLoaded', () => {
+    // Toon welkomstbericht in hero als ingelogd
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+        try {
+            const u = JSON.parse(userInfo);
+            const welkom = document.getElementById('agentWelkom');
+            const agentNaam = document.getElementById('agentNaam');
+            if (welkom && agentNaam) {
+                agentNaam.textContent = u.gebruikersnaam;
+                welkom.style.display = 'block';
+            }
+        } catch(e) {}
     }
-    laadProjecten();
     laadWinnaars();
     animeerHeroEmoji();
 });
@@ -693,48 +649,6 @@ function animeerHeroEmoji() {
             setTimeout(() => { el.textContent = emojis[i]; el.style.transform = 'scale(1.3)'; setTimeout(() => el.style.transform = '', 150); }, 150);
         }
     }, 2000);
-}
-
-async function laadProjecten() {
-    const container = document.getElementById('projectStatus');
-    try {
-        const r = await fetch('/api/projecten');
-        const projecten = await r.json();
-        if (projecten.length === 0) {
-            container.innerHTML = '<div class="project-leeg">Nog geen actief project.<br>De beheerder kan er een aanmaken.</div>';
-            return;
-        }
-        container.innerHTML = projecten.map(p => {
-            const start = new Date(p.startDatum);
-            const eind  = new Date(p.eindDatum);
-            const nu    = new Date();
-            const totaal = (eind - start) / 86400000;
-            const verstreken = Math.min(totaal, (nu - start) / 86400000);
-            const pct = Math.round((verstreken / totaal) * 100);
-            const resterend = Math.max(0, Math.ceil((eind - nu) / 86400000));
-            // Bepaal eerste groep van dit project voor de link
-            const eersteGroep = (p.leeftijdsgroepen || ['B'])[0];
-            return `
-                <a href="schrijfopdracht.html?groep=${eersteGroep}" style="text-decoration:none; display:block;">
-                <div class="project-item" style="cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='rgba(76,201,122,0.08)'" onmouseout="this.style.background=''">
-                    <div class="project-naam">${escapeHTML(p.naam)} <span style="color:rgba(76,201,122,0.6); font-size:0.78rem;">→ Meedoen</span></div>
-                    <div class="project-voortgang-balk">
-                        <div class="project-voortgang-vulling" style="width:${pct}%"></div>
-                    </div>
-                    <div class="project-meta">
-                        <span>${pct}% klaar</span>
-                        <span>nog ${resterend} dag${resterend !== 1 ? 'en' : ''}</span>
-                    </div>
-                    <div class="groep-badges">
-                        ${(p.leeftijdsgroepen||[]).map(g => `<span class="groep-badge-mini badge-${g}">${{A:'6-8 jr',B:'9-11 jr',C:'12+ jr'}[g]}</span>`).join('')}
-                    </div>
-                </div>
-                </a>
-            `;
-        }).join('');
-    } catch(e) {
-        container.innerHTML = '<div class="project-leeg">Geen verbinding</div>';
-    }
 }
 
 async function laadWinnaars() {

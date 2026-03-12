@@ -210,6 +210,17 @@
 </head>
 <body>
 
+<!-- NAV -->
+<nav id="hoofdNav">
+    <a href="index.html">🏠 Home</a>
+    <a href="verhaal.html">✏️ Schrijf & Verhaal</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">🕵️ De Geheime Club</a>
+    <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
+</nav>
+
 <div class="login-kaart">
 
     <div class="login-logo">
@@ -387,6 +398,42 @@
 </div>
 
 <script>
+// ── Navigatie: actieve link + inlogstatus ──
+(function() {
+    const p = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
+    document.querySelectorAll('#hoofdNav a[href]').forEach(a => {
+        if (a.getAttribute('href').split('?')[0] === p) a.classList.add('actief');
+    });
+    const ui = localStorage.getItem('userInfo');
+    if (!ui) return;
+    try {
+        const u = JSON.parse(ui);
+        const ll = document.getElementById('navLoginLink');
+        if (ll) {
+            const badge = document.createElement('span');
+            badge.className = 'nav-agent';
+            badge.title = 'Ingelogd als ' + u.gebruikersnaam;
+            badge.textContent = (u.avatar || '🕵️') + ' ' + u.gebruikersnaam;
+            const ul = document.createElement('a');
+            ul.className = 'nav-agent-uitloggen';
+            ul.href = '#';
+            ul.textContent = '🚪 Uitloggen';
+            ul.addEventListener('click', e => {
+                e.preventDefault();
+                localStorage.removeItem('userInfo');
+                localStorage.removeItem('authToken');
+                window.location.href = 'index.html';
+            });
+            ll.replaceWith(badge);
+            badge.insertAdjacentElement('afterend', ul);
+        }
+        const md = document.getElementById('navMijnDossierLink');
+        if (md) md.style.display = '';
+        const gc = document.getElementById('navGeheimeClubLink');
+        if (gc) gc.style.display = 'inline-flex';
+    } catch(e) {}
+})();
+
 let huidigGebruikerId = null;
 let huidigEmail       = null;
 let resetToken        = null;

@@ -152,6 +152,38 @@ nav a.actief {
   font-weight: 900;
   box-shadow: 0 3px 12px rgba(76,201,122,0.35);
 }
+.nav-login {
+  float: right; display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 16px !important;
+  background: rgba(76,201,122,0.1) !important;
+  border: 1px solid rgba(76,201,122,0.25) !important;
+  border-radius: 50px !important;
+  margin: 8px 0 !important;
+}
+.nav-agent {
+  float: right; display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px !important;
+  background: rgba(247,201,72,0.1) !important;
+  border: 1px solid rgba(247,201,72,0.25) !important;
+  border-radius: 50px !important;
+  margin: 8px 0 !important;
+  cursor: default; color: #F7C948 !important;
+  font-weight: 800; font-size: 0.9rem;
+}
+.nav-agent-uitloggen {
+  float: right; display: inline-flex; align-items: center;
+  padding: 6px 14px !important;
+  background: rgba(248,113,113,0.08) !important;
+  border: 1px solid rgba(248,113,113,0.2) !important;
+  border-radius: 50px !important;
+  margin: 8px 4px 8px 0 !important;
+  color: rgba(248,113,113,0.7) !important;
+  font-size: 0.82rem; font-weight: 700; text-decoration: none;
+}
+.nav-agent-uitloggen:hover {
+  background: rgba(248,113,113,0.15) !important;
+  color: #F87171 !important;
+}
 
 /* ══ MAIN ══ */
 main { padding: 36px 0 60px; position: relative; z-index: 1; }

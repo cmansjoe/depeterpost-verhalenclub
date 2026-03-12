@@ -40,11 +40,13 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 // ── E-mail transporter (Gmail) ──
 function maakTransporter() {
+    // Spaties verwijderen uit app-wachtwoord (Google toont het met spaties, maar code heeft ze niet nodig)
+    const wachtwoord = (process.env.EMAIL_WACHTWOORD || '').replace(/\s/g, '');
     return nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: process.env.EMAIL_GEBRUIKER,
-            pass: process.env.EMAIL_WACHTWOORD  // App-wachtwoord van Gmail
+            pass: wachtwoord  // App-wachtwoord van Gmail (zonder spaties)
         }
     });
 }
@@ -58,9 +60,11 @@ async function stuurMail(naar, onderwerp, html) {
             subject: onderwerp,
             html
         });
+        console.log(`📧 E-mail verstuurd naar: ${naar}`);
         return true;
     } catch (err) {
-        console.error('E-mail fout:', err.message);
+        console.error('❌ E-mail fout:', err.message);
+        console.error('   Controleer EMAIL_GEBRUIKER en EMAIL_WACHTWOORD in .env');
         return false;
     }
 }
@@ -1074,6 +1078,17 @@ app.post('/api/admin/reject/:id', checkAdmin, (req, res) => {
 
 app.get('/api/verhalen', (req, res) => res.json(leesJSON(VERHALEN_PAD, [])));
 app.get('/api/verhaal',  (req, res) => res.json(leesJSON(VERHAAL_PAD, { titel: 'Het Grote Avontuur', samenvatting: '', hoofdstukken: [] })));
+
+// Publieke teller: hoeveel inzendingen zijn er vandaag voor een groep?
+app.get('/api/inzendingen/vandaag-teller', (req, res) => {
+    const vandaag = new Date().toISOString().split('T')[0];
+    const groep = req.query.groep || null;
+    const inzendingen = leesJSON(INZENDINGEN_PAD, []);
+    const count = inzendingen.filter(i =>
+        i.datum === vandaag && (!groep || i.leeftijdsgroep === groep)
+    ).length;
+    res.json({ count });
+});
 
 app.post('/api/view/:id', (req, res) => {
     const views = leesJSON(VIEWS_PAD, {});

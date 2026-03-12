@@ -72,10 +72,6 @@
         .leeg-melding { text-align: center; padding: 50px 20px; color: rgba(167,196,181,0.4); }
         .leeg-melding .emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
 
-        /* ── PROJECT KAARTEN ── */
-        .project-kaart { background: rgba(34,99,58,0.35); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
-        .project-kaart h4 { color: #F7C948; margin-bottom: 6px; }
-        .project-kaart p { color: rgba(167,196,181,0.6); font-size: 0.85rem; margin: 3px 0; }
         .groep-badge { display: inline-block; padding: 3px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; margin-right: 6px; margin-top: 6px; }
         .groep-A { background: rgba(242,140,56,0.2); color: #F28C38; }
         .groep-B { background: rgba(139,92,246,0.2); color: #8B5CF6; }
@@ -144,8 +140,7 @@
     <!-- Tabs -->
     <div class="tabs">
         <button class="tab-knop actief" onclick="wissel('moderatie')">📋 Moderatie</button>
-        <button class="tab-knop" onclick="wissel('projecten')">📅 Projecten</button>
-        <button class="tab-knop" onclick="wissel('opdracht')">🎯 Opdracht</button>
+<button class="tab-knop" onclick="wissel('opdracht')">🎯 Opdracht</button>
         <button class="tab-knop" onclick="wissel('inzendingen')">📝 Inzendingen</button>
         <button class="tab-knop" onclick="wissel('dagelijks')">🌙 Dagelijks</button>
         <button class="tab-knop" onclick="wissel('videos')">🎬 Video's</button>
@@ -174,46 +169,7 @@
     </div>
 
 
-    <!-- ══ TAB 2: PROJECTEN ══ -->
-    <div id="tab-projecten" class="tab-inhoud">
-
-        <div class="admin-kaart">
-            <h3>➕ Nieuw project aanmaken</h3>
-            <input class="admin-input" id="projectNaam" placeholder="Projectnaam (bijv. 'Avonturen in het Woud')">
-            <input class="admin-input" id="projectBeschrijving" placeholder="Korte beschrijving (optioneel)">
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
-                <div style="flex:1; min-width:150px;">
-                    <label style="color:rgba(255,255,255,0.6); font-size:0.8rem; display:block; margin-bottom:4px;">Looptijd (dagen)</label>
-                    <input class="admin-input" id="projectDagen" type="number" value="10" min="1" max="365" style="margin-bottom:0;">
-                </div>
-            </div>
-            <label style="color:rgba(255,255,255,0.6); font-size:0.8rem; display:block; margin-bottom:8px;">Leeftijdsgroepen</label>
-            <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
-                <label style="display:flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); cursor:pointer;">
-                    <input type="checkbox" id="groepA" checked style="accent-color:#FF9800;"> 
-                    <span style="color:#FF9800; font-weight:700;">🟠 6-8 jaar</span>
-                </label>
-                <label style="display:flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); cursor:pointer;">
-                    <input type="checkbox" id="groepB" checked style="accent-color:#2196F3;">
-                    <span style="color:#2196F3; font-weight:700;">🔵 9-11 jaar</span>
-                </label>
-                <label style="display:flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); cursor:pointer;">
-                    <input type="checkbox" id="groepC" checked style="accent-color:#4CAF50;">
-                    <span style="color:#4CAF50; font-weight:700;">🟢 12+ jaar</span>
-                </label>
-            </div>
-            <button class="knop knop-groen" onclick="maakProject()" id="projectKnop">✅ Project aanmaken</button>
-            <div class="resultaat-vak" id="projectResultaat"></div>
-        </div>
-
-        <div class="admin-kaart">
-            <h3>📋 Actieve projecten</h3>
-            <div id="projectenLijst"><p style="color:rgba(255,255,255,0.4);">Laden...</p></div>
-        </div>
-    </div>
-
-
-    <!-- ══ TAB 3: OPDRACHT ══ -->
+    <!-- ══ TAB 2: OPDRACHT ══ -->
     <div id="tab-opdracht" class="tab-inhoud">
 
         <div class="admin-kaart">
@@ -461,7 +417,6 @@ function toonAdminPaneel() {
     document.getElementById('loginScherm').style.display = 'none';
     document.getElementById('adminPaneel').style.display = 'block';
     laadPending();
-    laadProjecten();
     laadVideos();
 }
 
@@ -591,77 +546,6 @@ function verwijderKaart(id) {
         kaart.style.opacity = '0'; kaart.style.transform = 'scale(0.95)';
         setTimeout(() => { kaart.remove(); if (!document.querySelector('.pending-kaart')) toonGefilterd(); }, 300);
     }
-}
-
-// ══════════════════════════════════════
-// PROJECTEN
-// ══════════════════════════════════════
-async function laadProjecten() {
-    const container = document.getElementById('projectenLijst');
-    const r = await adminFetch('/api/projecten/alle');
-    const projecten = await r.json();
-
-    if (projecten.length === 0) {
-        container.innerHTML = '<p style="color:rgba(255,255,255,0.4); text-align:center; padding:20px;">Nog geen projecten aangemaakt.</p>';
-        return;
-    }
-
-    container.innerHTML = projecten.map(p => `
-        <div class="project-kaart">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
-                <h4>${escapeHTML(p.naam)} ${p.actief ? '🟢' : '🔴'}</h4>
-                ${p.actief ? `<button class="knop knop-rood" onclick="archiveerProject('${p.id}')" style="padding:5px 12px; font-size:0.78rem;">📦 Archiveer</button>` : '<span style="color:rgba(255,255,255,0.3); font-size:0.8rem;">Gearchiveerd</span>'}
-            </div>
-            <p>📅 ${p.startDatum} → ${p.eindDatum} (${p.aantalDagen} dagen)</p>
-            <p>${escapeHTML(p.beschrijving || '')}</p>
-            <div>
-                ${(p.leeftijdsgroepen || []).map(g => `<span class="groep-badge groep-${g}">${{A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'}[g]}</span>`).join('')}
-            </div>
-        </div>
-    `).join('');
-}
-
-async function maakProject() {
-    const naam = document.getElementById('projectNaam').value.trim();
-    if (!naam) { alert('Vul een projectnaam in.'); return; }
-    const knop = document.getElementById('projectKnop');
-    const resultaat = document.getElementById('projectResultaat');
-    knop.disabled = true; knop.textContent = '⏳ Aanmaken...';
-
-    const groepen = [];
-    if (document.getElementById('groepA').checked) groepen.push('A');
-    if (document.getElementById('groepB').checked) groepen.push('B');
-    if (document.getElementById('groepC').checked) groepen.push('C');
-
-    const r = await adminFetch('/api/admin/project/nieuw', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            naam,
-            beschrijving: document.getElementById('projectBeschrijving').value.trim(),
-            aantalDagen: parseInt(document.getElementById('projectDagen').value) || 10,
-            leeftijdsgroepen: groepen
-        })
-    });
-    const data = await r.json();
-    resultaat.style.display = 'block';
-    if (data.succes) {
-        resultaat.textContent = `✅ Project "${data.project.naam}" aangemaakt!\nLooptijd: ${data.project.startDatum} → ${data.project.eindDatum}`;
-        resultaat.style.color = '#51CF66';
-        document.getElementById('projectNaam').value = '';
-        document.getElementById('projectBeschrijving').value = '';
-        laadProjecten();
-    } else {
-        resultaat.textContent = '❌ ' + data.bericht;
-        resultaat.style.color = '#FF6B6B';
-    }
-    knop.disabled = false; knop.textContent = '✅ Project aanmaken';
-}
-
-async function archiveerProject(id) {
-    if (!confirm('Project archiveren?')) return;
-    await adminFetch(`/api/admin/project/${id}/archiveer`, { method: 'POST' });
-    laadProjecten();
 }
 
 // ══════════════════════════════════════

@@ -332,15 +332,14 @@
 </header>
 
 <!-- NAV -->
-<nav>
+<nav id="hoofdNav">
     <a href="index.html">🏠 Home</a>
+    <a href="verhaal.html">✏️ Schrijf & Verhaal</a>
     <a href="verhalen.html">📖 Verhalen</a>
-    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
-    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
     <a href="videos.html">🎬 Video's</a>
-    <a href="mijn-dossier.html" class="actief" id="navMijnVerhaalLink" style="display:none">🗂️ Mijn Dossier</a>
-    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.35); border-radius:50px; padding:6px 16px;">🕵️ De Geheime Club</a>
-    <a href="login.html" class="nav-login" id="navLoginLink" style="float:right; display:inline-flex; align-items:center; gap:6px; padding:6px 16px; background:rgba(76,201,122,0.1); border:1px solid rgba(76,201,122,0.25); border-radius:50px; margin:8px 0;">👤 Login</a>
+    <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">🕵️ De Geheime Club</a>
+    <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
 </nav>
 
 <main>
@@ -410,7 +409,7 @@
         </div>
 
         <div style="text-align:center; margin-top:24px; margin-bottom:40px;">
-            <a href="schrijfopdracht.html" class="knop-groen">✏️ Nieuwe inzending schrijven →</a>
+            <a href="verhaal.html" class="knop-groen">✏️ Nieuwe inzending schrijven →</a>
         </div>
 
         <!-- ── PERSOONLIJKE VERHALEN ── -->
@@ -433,6 +432,42 @@
 </footer>
 
 <script>
+// ── Navigatie: actieve link + inlogstatus ──
+(function() {
+    const p = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
+    document.querySelectorAll('#hoofdNav a[href]').forEach(a => {
+        if (a.getAttribute('href').split('?')[0] === p) a.classList.add('actief');
+    });
+    const ui = localStorage.getItem('userInfo');
+    if (!ui) return;
+    try {
+        const u = JSON.parse(ui);
+        const ll = document.getElementById('navLoginLink');
+        if (ll) {
+            const badge = document.createElement('span');
+            badge.className = 'nav-agent';
+            badge.title = 'Ingelogd als ' + u.gebruikersnaam;
+            badge.textContent = (u.avatar || '🕵️') + ' ' + u.gebruikersnaam;
+            const ul = document.createElement('a');
+            ul.className = 'nav-agent-uitloggen';
+            ul.href = '#';
+            ul.textContent = '🚪 Uitloggen';
+            ul.addEventListener('click', e => {
+                e.preventDefault();
+                localStorage.removeItem('userInfo');
+                localStorage.removeItem('authToken');
+                window.location.href = 'index.html';
+            });
+            ll.replaceWith(badge);
+            badge.insertAdjacentElement('afterend', ul);
+        }
+        const md = document.getElementById('navMijnDossierLink');
+        if (md) md.style.display = '';
+        const gc = document.getElementById('navGeheimeClubLink');
+        if (gc) gc.style.display = 'inline-flex';
+    } catch(e) {}
+})();
+
 const BADGE_NAMEN = {
     eerste_verhaal:   '✏️ Eerste verhaal',
     op_dreef:         '🚀 Op dreef',
@@ -448,28 +483,6 @@ const GROEP_NAMEN = { A: 'Groep A · 6–8 jaar', B: 'Groep B · 9–11 jaar', C
 document.addEventListener('DOMContentLoaded', () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
     const userToken = localStorage.getItem('userToken');
-
-    // Nav update
-    if (userInfo) {
-        const link = document.getElementById('navLoginLink');
-        if (link) {
-            const badge = document.createElement('span');
-            badge.style.cssText = 'float:right; display:inline-flex; align-items:center; gap:8px; padding:6px 16px; background:rgba(247,201,72,0.1); border:1px solid rgba(247,201,72,0.3); border-radius:50px; margin:8px 0; color:#F7C948; font-weight:800; font-size:0.9rem; cursor:default;';
-            badge.title = 'Je bent ingelogd als ' + userInfo.gebruikersnaam;
-            badge.textContent = '🕵️ Agent ' + userInfo.gebruikersnaam;
-            const uitlogLink = document.createElement('a');
-            uitlogLink.style.cssText = 'float:right; display:inline-flex; align-items:center; padding:6px 14px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:50px; margin:8px 4px 8px 0; color:rgba(248,113,113,0.7); font-size:0.82rem; font-weight:700; text-decoration:none; cursor:pointer;';
-            uitlogLink.href = '#';
-            uitlogLink.textContent = '🚪 Uitloggen';
-            uitlogLink.addEventListener('click', e => { e.preventDefault(); localStorage.removeItem('userInfo'); localStorage.removeItem('userToken'); window.location.href = 'index.html'; });
-            link.replaceWith(badge);
-            badge.insertAdjacentElement('beforebegin', uitlogLink);
-        }
-        const mijnLink = document.getElementById('navMijnVerhaalLink');
-        if (mijnLink) mijnLink.style.display = '';
-        const clubLink = document.getElementById('navGeheimeClubLink');
-        if (clubLink) clubLink.style.display = 'inline-flex';
-    }
 
     if (!userInfo || !userToken) {
         document.getElementById('nietIngelogd').style.display = 'block';

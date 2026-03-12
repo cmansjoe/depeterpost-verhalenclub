@@ -3,16 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schrijfopdracht — Depeterpost Verhalen Club</title>
+    <title>Schrijf & Verhaal — Depeterpost Verhalen Club</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        main { padding: 32px 0 60px; }
         .container { max-width: 820px; margin: 0 auto; padding: 0 20px; }
+
+        /* ── PAGINA SECTIES ── */
+        .pagina-sectie {
+            margin-bottom: 40px;
+        }
+        .sectie-kop {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px; padding-bottom: 14px;
+            border-bottom: 2px solid rgba(76,201,122,0.15);
+        }
+        .sectie-kop-emoji { font-size: 1.8rem; }
+        .sectie-kop h2 {
+            font-family: 'Grandstander', cursive;
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+            color: #F7C948; margin: 0;
+        }
+        .sectie-kop p { color: rgba(167,196,181,0.6); font-size: 0.88rem; margin: 2px 0 0; }
 
         /* ── GROEP SELECTOR ── */
         .groep-balk {
             background: rgba(34,99,58,0.5); border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 24px; padding: 16px 20px; margin-bottom: 24px;
+            border-radius: 24px; padding: 14px 20px; margin-bottom: 20px;
             display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
         }
         .groep-balk span { color: rgba(167,196,181,0.6); font-size: 0.85rem; font-weight: 700; }
@@ -26,11 +42,21 @@
         .groep-keuze.actief-B { border-color: #8B5CF6; background: rgba(139,92,246,0.15); color: #8B5CF6; }
         .groep-keuze.actief-C { border-color: #4CC97A; background: rgba(76,201,122,0.15); color: #4CC97A; }
 
+        /* ── INZENDINGEN TELLER ── */
+        .inzendingen-teller {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(247,201,72,0.1); border: 1px solid rgba(247,201,72,0.25);
+            color: #F7C948; font-size: 0.85rem; font-weight: 800;
+            padding: 7px 18px; border-radius: 50px; margin-bottom: 20px;
+            animation: puls 2s ease-in-out infinite;
+        }
+        @keyframes puls { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
         /* ── OPDRACHT KAART ── */
         .opdracht-kaart {
             background: linear-gradient(135deg, #0D2B1A, #1B4D2E);
             border: 2px solid rgba(247,201,72,0.25); border-radius: 24px;
-            padding: 28px; margin-bottom: 24px; position: relative; overflow: hidden;
+            padding: 28px; margin-bottom: 20px; position: relative; overflow: hidden;
         }
         .opdracht-kaart::before {
             content: ''; position: absolute; top: -40px; right: -40px;
@@ -44,11 +70,12 @@
             color: #F7C948; font-size: 0.78rem; font-weight: 800; padding: 5px 16px;
             border-radius: 50px; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .opdracht-tekst-groot { font-family: 'Grandstander', cursive; font-size: clamp(1.3rem, 4vw, 1.7rem); color: white; line-height: 1.4; margin-bottom: 20px; }
+        .opdracht-tekst-groot { font-family: 'Grandstander', cursive; font-size: clamp(1.2rem, 4vw, 1.6rem); color: white; line-height: 1.4; margin-bottom: 20px; }
         .opdracht-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
         .opdracht-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px 14px; }
         .chip-label { color: rgba(167,196,181,0.5); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .chip-waarde { color: white; font-size: 0.9rem; font-weight: 700; }
+
         /* ── VERHAAL VERLOOP ── */
         .verhaal-verloop { margin: 16px 0 12px; display: flex; flex-direction: column; gap: 0; }
         .verloop-item { background: rgba(13,43,26,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 16px; }
@@ -66,36 +93,36 @@
         .idee-item { background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.18); border-radius: 10px; padding: 9px 14px; color: rgba(167,196,181,0.75); font-size: 0.88rem; line-height: 1.5; }
         .idee-item::before { content: '💡 '; }
 
-        /* ── SLEUTELWOORDEN MET BOLLETJE ── */
+        /* ── SLEUTELWOORDEN ── */
         .sleutelwoorden { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
         .sleutelwoord { display: inline-flex; align-items: center; gap: 6px; background: rgba(247,201,72,0.12); border: 1px solid rgba(247,201,72,0.25); color: #F7C948; font-size: 0.8rem; font-weight: 700; padding: 4px 14px; border-radius: 50px; transition: background 0.3s, border-color 0.3s; }
         .sleutelwoord.gevonden { background: rgba(76,201,122,0.18); border-color: rgba(76,201,122,0.5); color: #4CC97A; }
         .sw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(247,201,72,0.35); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s; }
         .sleutelwoord.gevonden .sw-dot { background: #4CC97A; box-shadow: 0 0 6px rgba(76,201,122,0.7); }
 
-        /* ── SCHRIJF SECTIE ── */
+        /* ── SCHRIJF EDITOR ── */
         .schrijf-sectie {
             background: rgba(34,99,58,0.45); border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 24px; padding: 28px; margin-bottom: 24px;
+            border-radius: 24px; padding: 28px; margin-bottom: 20px;
         }
-        .schrijf-sectie h2 { font-family: 'Grandstander', cursive; color: #F7C948; font-size: 1.5rem; margin-bottom: 6px; }
-        .schrijf-sectie p { color: rgba(167,196,181,0.7); font-size: 0.9rem; margin-bottom: 18px; }
+        .schrijf-sectie h3 { font-family: 'Grandstander', cursive; color: #F7C948; font-size: 1.3rem; margin-bottom: 6px; }
+        .schrijf-sectie > p { color: rgba(167,196,181,0.7); font-size: 0.9rem; margin-bottom: 18px; }
 
         .naam-input {
             width: 100%; padding: 12px 16px; background: rgba(13,43,26,0.6);
             border: 2px solid rgba(76,201,122,0.2); border-radius: 50px; color: white;
             font-family: 'Baloo 2', sans-serif; font-size: 0.95rem; outline: none;
-            margin-bottom: 14px; transition: border-color 0.2s;
+            margin-bottom: 14px; transition: border-color 0.2s; box-sizing: border-box;
         }
         .naam-input:focus { border-color: #4CC97A; }
         .naam-input::placeholder { color: rgba(167,196,181,0.4); }
 
         .verhaal-textarea {
-            width: 100%; min-height: 220px; padding: 18px;
+            width: 100%; min-height: 200px; padding: 18px;
             background: rgba(13,43,26,0.6); border: 2px solid rgba(76,201,122,0.2);
             border-radius: 16px; color: white; font-family: 'Baloo 2', sans-serif;
             font-size: 1rem; line-height: 1.7; resize: vertical; outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
         }
         .verhaal-textarea:focus { border-color: #4CC97A; box-shadow: 0 0 0 3px rgba(76,201,122,0.15); }
         .verhaal-textarea::placeholder { color: rgba(167,196,181,0.4); }
@@ -139,7 +166,7 @@
         .knop-insturen:disabled::after { display: none; }
 
         /* ── AI FEEDBACK ── */
-        #feedbackScherm { display: none; background: rgba(34,99,58,0.4); border: 2px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 28px; margin-bottom: 24px; animation: slideIn 0.4s ease; }
+        #feedbackScherm { display: none; background: rgba(34,99,58,0.4); border: 2px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 28px; margin-bottom: 20px; animation: slideIn 0.4s ease; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .feedback-titel { font-family: 'Grandstander', cursive; font-size: 1.6rem; color: #F7C948; margin-bottom: 6px; }
         .feedback-subtitel { color: rgba(167,196,181,0.6); font-size: 0.9rem; margin-bottom: 24px; }
@@ -183,21 +210,121 @@
         .succes-titel { font-family: 'Grandstander', cursive; font-size: 2rem; color: #F7C948; margin-bottom: 8px; }
         .succes-sub { color: rgba(167,196,181,0.7); margin-bottom: 24px; }
 
-        .geen-opdracht { text-align: center; padding: 50px 20px; }
+        .geen-opdracht { text-align: center; padding: 40px 20px; }
         .geen-opdracht .groot-emoji { font-size: 4rem; display: block; margin-bottom: 16px; }
         .geen-opdracht h3 { color: white; margin-bottom: 8px; }
         .geen-opdracht p { color: rgba(167,196,181,0.5); }
 
         .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(76,201,122,0.3); border-top-color: #4CC97A; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── SCHEIDINGSLIJN ── */
+        .sectie-scheiding {
+            border: none; border-top: 2px solid rgba(76,201,122,0.12);
+            margin: 40px 0;
+        }
+
+        /* ── VERHAAL STATS HERO ── */
+        .verhaal-stats {
+            display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
+        }
+        .stat-badge {
+            background: rgba(76,201,122,0.12); border: 1px solid rgba(76,201,122,0.25);
+            border-radius: 50px; padding: 7px 16px;
+            font-size: 0.85rem; font-weight: 700; color: #4CC97A;
+        }
+
+        /* ── LAATSTE 3 HOOFDSTUKKEN (compact) ── */
+        .hoofdstuk-compact {
+            background: rgba(13,43,26,0.6); border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 18px; padding: 18px 22px; margin-bottom: 14px;
+            transition: border-color 0.2s;
+        }
+        .hoofdstuk-compact:hover { border-color: rgba(76,201,122,0.25); }
+        .hoofdstuk-compact-meta {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+        }
+        .hoofdstuk-nr {
+            background: linear-gradient(135deg, #4CC97A, #F7C948); color: #0D2B1A;
+            border-radius: 50%; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .hoofdstuk-auteur-naam { font-weight: 800; color: #E8F5EE; font-size: 0.9rem; }
+        .hoofdstuk-datum-tag { color: rgba(167,196,181,0.5); font-size: 0.78rem; }
+        .groep-chip { padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; }
+        .chip-A { background: rgba(242,140,56,0.2); color: #F28C38; }
+        .chip-B { background: rgba(139,92,246,0.2); color: #8B5CF6; }
+        .chip-C { background: rgba(76,201,122,0.2); color: #4CC97A; }
+        .hoofdstuk-fragment {
+            font-family: 'Lora', serif; color: rgba(167,196,181,0.8);
+            font-size: 0.95rem; line-height: 1.7;
+        }
+        .nieuwste-badge {
+            background: rgba(247,201,72,0.15); border: 1px solid rgba(247,201,72,0.3);
+            color: #F7C948; font-size: 0.7rem; font-weight: 800;
+            padding: 2px 10px; border-radius: 50px;
+        }
+
+        /* ── TOON ALLE KNOP ── */
+        .toon-alle-knop {
+            width: 100%; padding: 14px; background: rgba(34,99,58,0.5);
+            border: 2px solid rgba(76,201,122,0.2); border-radius: 16px;
+            color: #4CC97A; font-family: 'Baloo 2', sans-serif;
+            font-weight: 800; font-size: 0.95rem; cursor: pointer;
+            transition: all 0.25s; margin-top: 8px;
+        }
+        .toon-alle-knop:hover { background: rgba(76,201,122,0.15); border-color: rgba(76,201,122,0.4); transform: translateY(-2px); }
+
+        /* ── VOLLEDIGE TIJDLIJN ── */
+        #volledigeTimeline { display: none; margin-top: 24px; }
+        #volledigeTimeline.open { display: block; animation: slideIn 0.35s ease; }
+
+        .tijdlijn {
+            position: relative; padding-left: 28px;
+        }
+        .tijdlijn::before {
+            content: ''; position: absolute;
+            left: 8px; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(to bottom, #4CC97A, #F7C948, #F28C38);
+            border-radius: 3px;
+        }
+        .hoofdstuk-kaart {
+            background: rgba(13,43,26,0.7); border-radius: 18px;
+            padding: 20px 22px; margin-bottom: 16px;
+            border: 2px solid rgba(255,255,255,0.08); position: relative;
+            transition: all 0.3s ease;
+        }
+        .hoofdstuk-kaart:hover { border-color: rgba(76,201,122,0.3); transform: translateX(4px); }
+        .hoofdstuk-kaart::before {
+            content: ''; position: absolute;
+            left: -24px; top: 20px; width: 16px; height: 16px;
+            border-radius: 50%; background: #4CC97A;
+            border: 3px solid #1B4D2E; box-shadow: 0 0 0 2px #4CC97A;
+        }
+        .hoofdstuk-kaart:nth-child(2n)::before { background: #F472B6; box-shadow: 0 0 0 2px #F472B6; }
+        .hoofdstuk-kaart:nth-child(3n)::before { background: #F7C948; box-shadow: 0 0 0 2px #F7C948; }
+        .hoofdstuk-kaart:nth-child(4n)::before { background: #F28C38; box-shadow: 0 0 0 2px #F28C38; }
+        .hoofdstuk-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .hoofdstuk-nummer { background: linear-gradient(135deg, #4CC97A, #F7C948); color: #0D2B1A; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; flex-shrink: 0; }
+        .hoofdstuk-auteur { font-weight: 800; color: #E8F5EE; font-size: 0.9rem; }
+        .hoofdstuk-datum { color: rgba(167,196,181,0.6); font-size: 0.78rem; }
+        .hoofdstuk-tekst { font-family: 'Lora', serif; color: rgba(167,196,181,0.9); line-height: 1.85; font-size: 0.98rem; }
+        .hoofdstuk-rest { display: none; }
+        .lees-verder { background: none; border: none; color: #4CC97A; font-family: 'Baloo 2', cursive; font-weight: 800; font-size: 0.85rem; cursor: pointer; padding: 4px 0; margin-top: 6px; display: inline-block; transition: color 0.2s; }
+        .lees-verder:hover { color: #F7C948; }
+
+        .geen-hoofdstukken { text-align: center; padding: 40px 20px; color: rgba(167,196,181,0.7); }
+        .geen-hoofdstukken .emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
 <header>
     <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
-    <p class="site-subtitle">Schrijf jouw stuk van het grote verhaal!</p>
+    <p class="site-subtitle">Schrijf mee aan het grote avontuur!</p>
 </header>
+
 <!-- NAV -->
 <nav id="hoofdNav">
     <a href="index.html">🏠 Home</a>
@@ -212,127 +339,171 @@
 <main>
 <div class="container">
 
-    <!-- Groep selector -->
-    <div class="groep-balk">
-        <span>Mijn leeftijdsgroep:</span>
-        <button class="groep-keuze" onclick="wisselGroep('A', this)">🟠 6-8 jaar</button>
-        <button class="groep-keuze actief-B" onclick="wisselGroep('B', this)">🔵 9-11 jaar</button>
-        <button class="groep-keuze" onclick="wisselGroep('C', this)">🟢 12+ jaar</button>
+    <!-- ══════════════════════════════════
+         SECTIE 1: SCHRIJF VANDAAG
+    ══════════════════════════════════ -->
+    <div class="pagina-sectie">
+        <div class="sectie-kop">
+            <span class="sectie-kop-emoji">✏️</span>
+            <div>
+                <h2>Schrijf vandaag!</h2>
+                <p>Kies je groep, lees de opdracht en schrijf jouw stuk van het grote verhaal.</p>
+            </div>
+        </div>
+
+        <!-- Groep selector -->
+        <div class="groep-balk">
+            <span>Mijn groep:</span>
+            <button class="groep-keuze" onclick="wisselGroep('A', this)">🟠 6–8 jaar</button>
+            <button class="groep-keuze actief-B" onclick="wisselGroep('B', this)">🔵 9–11 jaar</button>
+            <button class="groep-keuze" onclick="wisselGroep('C', this)">🟢 12+ jaar</button>
+        </div>
+
+        <!-- Inzendingen teller -->
+        <div class="inzendingen-teller" id="inzendingsTeller" style="display:none">
+            ✍️ <span id="tellerTekst">Al 0 kinderen schreven vandaag mee!</span>
+        </div>
+
+        <!-- Opdracht container -->
+        <div id="opdrachtContainer">
+            <div class="geen-opdracht">
+                <span class="groot-emoji">⏳</span>
+                <h3>Opdracht laden...</h3>
+            </div>
+        </div>
+
+        <!-- Schrijf editor (verborgen tot opdracht geladen) -->
+        <div class="schrijf-sectie" id="schrijfSectie" style="display:none">
+            <h3>✏️ Schrijf jouw verhaaltje</h3>
+            <p>Gebruik het personage, de omgeving en de sleutelwoorden van vandaag. Jij kiest hoe het verhaal verder gaat!</p>
+
+            <input class="naam-input" id="schrijverNaam" placeholder="👤 Jouw naam (of blijf anoniem)" maxlength="50">
+
+            <textarea class="verhaal-textarea" id="verhaalTekst"
+                placeholder="Begin hier met je verhaal... Laat je fantasie de vrije loop! ✨"
+                oninput="bijwerkTeller()"></textarea>
+
+            <div class="woorden-balk">
+                <span class="woorden-teller" id="woordenTeller">0 / 200 woorden</span>
+                <div class="voortgang-balk"><div class="voortgang-vulling" id="voortgangVulling"></div></div>
+            </div>
+
+            <!-- Checklist bolletjes -->
+            <div class="bolletjes-sectie" id="bolletjesSectie">
+                <div class="bolletjes-titel">✅ Checklist</div>
+                <div class="bolletje-rij">
+                    <div class="bolletje" id="bolletjePersonage"></div>
+                    <span class="bolletje-label" id="labelPersonage">Personage verwerkt</span>
+                </div>
+                <div class="bolletje-rij">
+                    <div class="bolletje" id="bolletjeOmgeving"></div>
+                    <span class="bolletje-label" id="labelOmgeving">Omgeving verwerkt</span>
+                </div>
+                <div class="bolletje-rij">
+                    <div class="bolletje" id="bolletjeGebeurtenis"></div>
+                    <span class="bolletje-label" id="labelGebeurtenis">Beginpunt verwerkt</span>
+                </div>
+                <div class="checker-feedback" id="checkerFeedback"></div>
+            </div>
+
+            <div class="knop-rij">
+                <button class="knop-check" onclick="checkVerhaal()" id="checkKnop">🔍 Check Mijn Verhaal</button>
+                <button class="knop-insturen" onclick="insturenMetFeedback()" id="insturenKnop" disabled>
+                    🚀 Stuur In & Krijg Feedback!
+                </button>
+            </div>
+        </div>
+
+        <!-- AI Feedback scherm -->
+        <div id="feedbackScherm">
+            <div class="feedback-titel">🤖 Feedback van de AI</div>
+            <div class="feedback-subtitel">Hier is wat de AI van jouw verhaal vindt!</div>
+            <div class="score-ring-wrapper">
+                <div class="score-ring" id="scoreRing" style="--pct: 0%">
+                    <span class="score-getal" id="scoreGetal">0</span>
+                </div>
+                <div class="score-tekst">
+                    <h4 id="scoreTitel">Opdracht score</h4>
+                    <p id="scoreUitleg">Hoe goed sluit jouw verhaal aan op de opdracht?</p>
+                </div>
+            </div>
+            <div class="compliment-blok">
+                <h4>🌟 Dit ging super goed!</h4>
+                <p id="feedbackCompliment"></p>
+            </div>
+            <div class="spelfouten-sectie" id="spelFoutenSectie">
+                <h4>🔧 Kleine verbeteringen</h4>
+                <div id="spelFoutenLijst"></div>
+            </div>
+            <div class="spelfouten-sectie" id="verbeterpuntenSectie">
+                <h4>💡 Tips voor de volgende keer</h4>
+                <div id="verbeterpuntenLijst"></div>
+            </div>
+            <div class="aanmoediging-blok">
+                <p id="feedbackAanmoediging"></p>
+            </div>
+            <div class="feedback-knoppen">
+                <button class="knop-aanpassen" onclick="gaTerug()">✏️ Ik wil aanpassen</button>
+                <button class="knop-zo-insturen" onclick="definitiefInsturen()" id="definitiefKnop">✅ Stuur zo in!</button>
+            </div>
+        </div>
+
+        <!-- Succes scherm -->
+        <div class="succes-scherm" id="succesScherm">
+            <div class="succes-emoji">🎉</div>
+            <div class="succes-titel">Joepie! Ingestuurd!</div>
+            <p class="succes-sub">Je verhaaltje is ontvangen en wordt beoordeeld. Morgen zie je wie gewonnen heeft!</p>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <button onclick="scrollNaarVerhaal()" class="knop knop-paars">📚 Bekijk het grote verhaal</button>
+                <a href="index.html" class="knop knop-blauw">🏠 Terug naar home</a>
+            </div>
+        </div>
     </div>
 
-    <!-- Opdracht container -->
-    <div id="opdrachtContainer">
-        <div class="geen-opdracht">
-            <span class="groot-emoji">⏳</span>
-            <h3>Opdracht laden...</h3>
-        </div>
-    </div>
+    <hr class="sectie-scheiding">
 
-    <!-- Schrijf sectie -->
-    <div class="schrijf-sectie" id="schrijfSectie" style="display:none;">
-        <h2>✏️ Schrijf Jouw Verhaaltje</h2>
-        <p>Gebruik het personage, de omgeving en de gebeurtenis van vandaag. Succes!</p>
-
-        <input class="naam-input" id="schrijverNaam" placeholder="👤 Jouw naam (of blijf anoniem)" maxlength="50">
-
-        <textarea class="verhaal-textarea" id="verhaalTekst"
-            placeholder="Begin hier met je verhaal... Laat je fantasie de vrije loop! ✨"
-            oninput="bijwerkTeller()"></textarea>
-
-        <div class="woorden-balk">
-            <span class="woorden-teller" id="woordenTeller">0 / 200 woorden</span>
-            <div class="voortgang-balk"><div class="voortgang-vulling" id="voortgangVulling"></div></div>
-        </div>
-
-        <!-- Bolletjes checker -->
-        <div class="bolletjes-sectie" id="bolletjesSectie">
-            <div class="bolletjes-titel">✅ Checklist</div>
-            <div class="bolletje-rij">
-                <div class="bolletje" id="bolletjePersonage"></div>
-                <span class="bolletje-label" id="labelPersonage">Personage verwerkt</span>
-            </div>
-            <div class="bolletje-rij">
-                <div class="bolletje" id="bolletjeOmgeving"></div>
-                <span class="bolletje-label" id="labelOmgeving">Omgeving verwerkt</span>
-            </div>
-            <div class="bolletje-rij">
-                <div class="bolletje" id="bolletjeGebeurtenis"></div>
-                <span class="bolletje-label" id="labelGebeurtenis">Beginpunt verwerkt</span>
-            </div>
-            <div class="checker-feedback" id="checkerFeedback"></div>
-        </div>
-
-        <div class="knop-rij">
-            <button class="knop-check" onclick="checkVerhaal()" id="checkKnop">🔍 Check Mijn Verhaal</button>
-            <button class="knop-insturen" onclick="insturenMetFeedback()" id="insturenKnop" disabled>
-                🚀 Stuur In & Krijg Feedback!
-            </button>
-        </div>
-    </div>
-
-    <!-- AI Feedback scherm -->
-    <div id="feedbackScherm">
-        <div class="feedback-titel">🤖 Feedback van de AI</div>
-        <div class="feedback-subtitel">Hier is wat de AI van jouw verhaal vindt!</div>
-
-        <!-- Score -->
-        <div class="score-ring-wrapper">
-            <div class="score-ring" id="scoreRing" style="--pct: 0%">
-                <span class="score-getal" id="scoreGetal">0</span>
-            </div>
-            <div class="score-tekst">
-                <h4 id="scoreTitel">Opdracht score</h4>
-                <p id="scoreUitleg">Hoe goed sluit jouw verhaal aan op de opdracht?</p>
+    <!-- ══════════════════════════════════
+         SECTIE 2: HET VERHAAL TOT NU TOE
+    ══════════════════════════════════ -->
+    <div class="pagina-sectie" id="verhaalSectie">
+        <div class="sectie-kop">
+            <span class="sectie-kop-emoji">📖</span>
+            <div>
+                <h2 id="verhaalTitel">Ons grote verhaal</h2>
+                <p id="verhaalSamenvatting">Een doorlopend verhaal, elke dag een stukje groter.</p>
             </div>
         </div>
 
-        <!-- Compliment -->
-        <div class="compliment-blok">
-            <h4>🌟 Dit ging super goed!</h4>
-            <p id="feedbackCompliment"></p>
+        <!-- Stats badges -->
+        <div class="verhaal-stats" id="verhaalStats">
+            <span class="stat-badge">⏳ Laden...</span>
         </div>
 
-        <!-- Spelfouten -->
-        <div class="spelfouten-sectie" id="spelFoutenSectie">
-            <h4>🔧 Kleine verbeteringen</h4>
-            <div id="spelFoutenLijst"></div>
+        <!-- Laatste 3 hoofdstukken -->
+        <div id="laasteDrieContainer">
+            <div class="geen-hoofdstukken">
+                <span class="emoji">⏳</span><p>Laden...</p>
+            </div>
         </div>
 
-        <!-- Verbeterpunten -->
-        <div class="spelfouten-sectie" id="verbeterpuntenSectie">
-            <h4>💡 Tips voor de volgende keer</h4>
-            <div id="verbeterpuntenLijst"></div>
-        </div>
+        <!-- Knop: toon alle -->
+        <button class="toon-alle-knop" id="toonAlleKnop" onclick="toggleAlleHoofdstukken()" style="display:none">
+            📚 Toon alle <span id="aantalHoofdstukken">0</span> hoofdstukken ↓
+        </button>
 
-        <!-- Aanmoediging -->
-        <div class="aanmoediging-blok">
-            <p id="feedbackAanmoediging"></p>
-        </div>
-
-        <!-- Keuze knoppen -->
-        <div class="feedback-knoppen">
-            <button class="knop-aanpassen" onclick="gaTerug()">✏️ Ik wil aanpassen</button>
-            <button class="knop-zo-insturen" onclick="definitiefInsturen()" id="definitiefKnop">
-                ✅ Stuur zo in!
-            </button>
-        </div>
-    </div>
-
-    <!-- Succes scherm -->
-    <div class="succes-scherm" id="succesScherm">
-        <div class="succes-emoji">🎉</div>
-        <div class="succes-titel">Joepie! Ingestuurd!</div>
-        <p class="succes-sub">Je verhaaltje is ontvangen en wordt beoordeeld. Morgen zie je wie gewonnen heeft!</p>
-        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-            <a href="verhaal.html#verhaal" class="knop knop-paars">📚 Bekijk het grote verhaal</a>
-            <a href="index.html" class="knop knop-blauw">🏠 Terug naar home</a>
+        <!-- Volledige tijdlijn (verborgen) -->
+        <div id="volledigeTimeline">
+            <div class="tijdlijn" id="tijdlijnContainer"></div>
         </div>
     </div>
 
 </div>
 </main>
 
-<footer><p>Gemaakt met <span style="color:#FF6B9D;">❤️</span> voor de Depeterpost Verhalen Club</p></footer>
+<footer>
+    <div class="quote">"Elk groot verhaal begon met één zin."</div>
+    <div class="quote-auteur">— Depeterpost Verhalen Club</div>
+</footer>
 
 <script>
 // ── Navigatie: actieve link + inlogstatus ──
@@ -371,6 +542,9 @@
     } catch(e) {}
 })();
 
+// ══════════════════════════════
+// SCHRIJFOPDRACHT LOGICA
+// ══════════════════════════════
 let huidigeOpdracht = null;
 let huidigGroep = 'B';
 let huidigeTekst = '';
@@ -378,23 +552,34 @@ let huidigeNaam = '';
 let allesGroen = false;
 let feedbackData = null;
 
-// ── Initialisatie ──
 document.addEventListener('DOMContentLoaded', () => {
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
-        const u = JSON.parse(userInfo);
-        // Auto-fill groep van ingelogde gebruiker
-        if (u.leeftijdsgroep) wisselGroepStil(u.leeftijdsgroep);
+        try {
+            const u = JSON.parse(userInfo);
+            if (u.leeftijdsgroep) wisselGroepStil(u.leeftijdsgroep);
+        } catch(e) {}
+    }
+    // Kijk of er een ?groep=X parameter is
+    const urlParams = new URLSearchParams(location.search);
+    const groepParam = urlParams.get('groep');
+    if (groepParam && ['A','B','C'].includes(groepParam)) {
+        wisselGroepStil(groepParam);
     }
     laadOpdracht();
+    laadVerhaal();
+    // Scroll naar verhaal als er #verhaal in de URL staat
+    if (location.hash === '#verhaal') {
+        setTimeout(() => scrollNaarVerhaal(), 500);
+    }
 });
 
 function wisselGroepStil(groep) {
     huidigGroep = groep;
     document.querySelectorAll('.groep-keuze').forEach(b => b.className = 'groep-keuze');
-    const groepenBtns = document.querySelectorAll('.groep-keuze');
+    const btns = document.querySelectorAll('.groep-keuze');
     const map = { A: 0, B: 1, C: 2 };
-    if (groepenBtns[map[groep]]) groepenBtns[map[groep]].classList.add('actief-' + groep);
+    if (btns[map[groep]]) btns[map[groep]].classList.add('actief-' + groep);
 }
 
 function wisselGroep(groep, btn) {
@@ -417,10 +602,10 @@ async function laadOpdracht() {
             huidigeOpdracht = data.opdracht;
             toonOpdracht(data.opdracht);
             schrijfSectie.style.display = 'block';
-            // Labels updaten
             document.getElementById('labelPersonage').textContent = `Personage: ${data.opdracht.personage}`;
             document.getElementById('labelOmgeving').textContent = `Omgeving: ${data.opdracht.omgeving}`;
             document.getElementById('labelGebeurtenis').textContent = `Beginpunt: ${data.opdracht.beginpunt || data.opdracht.gebeurtenis}`;
+            laadTeller();
         } else {
             container.innerHTML = `
                 <div class="geen-opdracht">
@@ -434,11 +619,23 @@ async function laadOpdracht() {
     }
 }
 
+async function laadTeller() {
+    try {
+        const r = await fetch(`/api/inzendingen/vandaag-teller?groep=${huidigGroep}`);
+        const data = await r.json();
+        const count = data.count || 0;
+        if (count > 0) {
+            document.getElementById('tellerTekst').textContent =
+                `Al ${count} kind${count !== 1 ? 'eren' : ''} schr${count !== 1 ? 'even' : 'eef'} vandaag mee!`;
+            document.getElementById('inzendingsTeller').style.display = 'inline-flex';
+        }
+    } catch(e) {}
+}
+
 function toonOpdracht(o) {
     const groepNamen = { A: '6-8 jaar', B: '9-11 jaar', C: '12+ jaar' };
     const maxWoorden = { A: 100, B: 200, C: 350 };
 
-    // Verhaal verloop sectie (verhaaleinde + beginpunt)
     let verloopHTML = '';
     if (o.verhaaleinde || o.beginpunt) {
         verloopHTML = `
@@ -456,7 +653,6 @@ function toonOpdracht(o) {
             </div>` : ''}
         </div>`;
     } else if (o.gebeurtenis) {
-        // Fallback voor oude opdrachten zonder verhaaleinde/beginpunt
         verloopHTML = `
         <div class="verhaal-verloop">
             <div class="verloop-item verloop-nu">
@@ -466,7 +662,6 @@ function toonOpdracht(o) {
         </div>`;
     }
 
-    // Ideeën sectie
     let ideeeenHTML = '';
     if (o.ideeen && o.ideeen.length) {
         ideeeenHTML = `
@@ -478,12 +673,11 @@ function toonOpdracht(o) {
         </div>`;
     }
 
-    // Sleutelwoorden met bolletjes
     let sleutelwoordenHTML = '';
     if (o.sleutelwoorden && o.sleutelwoorden.length) {
         sleutelwoordenHTML = `
         <div style="margin-top:14px;">
-            <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:rgba(167,196,181,0.45); margin-bottom:6px;">🔑 Deze 3 woorden moet je verwerken in je verhaal</div>
+            <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:rgba(167,196,181,0.45); margin-bottom:6px;">🔑 Deze 3 woorden moet je verwerken</div>
             <div class="sleutelwoorden">
                 ${o.sleutelwoorden.map((w, i) => `<span class="sleutelwoord" id="sw-chip-${i}"><span class="sw-dot" id="sw-dot-${i}"></span>${escapeHTML(w)}</span>`).join('')}
             </div>
@@ -508,11 +702,11 @@ function toonOpdracht(o) {
             ${ideeeenHTML}
             ${sleutelwoordenHTML}
             ${o.aansluitingsTip ? `<p style="color:rgba(255,255,255,0.4); font-size:0.82rem; margin-top:14px;">💡 ${escapeHTML(o.aansluitingsTip)}</p>` : ''}
-        </div>
-    `;
-    // Max woorden updaten
+        </div>`;
+
     const max = maxWoorden[o.leeftijdsgroep] || 200;
     document.getElementById('woordenTeller').dataset.max = max;
+    document.getElementById('woordenTeller').textContent = `0 / ${max} woorden`;
 }
 
 function bijwerkTeller() {
@@ -522,24 +716,21 @@ function bijwerkTeller() {
     const teller = document.getElementById('woordenTeller');
     teller.textContent = `${woorden} / ${max} woorden`;
     teller.className = 'woorden-teller' + (woorden > max ? ' vol' : woorden > max * 0.85 ? ' bijna' : '');
-    const pct = Math.min(100, (woorden / max) * 100);
-    document.getElementById('voortgangVulling').style.width = pct + '%';
-    // Reset checker
+    document.getElementById('voortgangVulling').style.width = Math.min(100, (woorden / max) * 100) + '%';
     allesGroen = false;
     document.getElementById('insturenKnop').disabled = true;
     document.getElementById('bolletjesSectie').style.display = 'none';
-    // Live sleutelwoorden bolletjes bijwerken
     bijwerkSleutelwoordBolletjes(tekst);
 }
 
 function bijwerkSleutelwoordBolletjes(tekst) {
     if (!huidigeOpdracht?.sleutelwoorden) return;
-    const tekstLager = tekst.toLowerCase();
-    huidigeOpdracht.sleutelwoorden.forEach((woord, i) => {
+    const lager = tekst.toLowerCase();
+    huidigeOpdracht.sleutelwoorden.forEach((w, i) => {
         const chip = document.getElementById('sw-chip-' + i);
         const dot  = document.getElementById('sw-dot-' + i);
         if (!chip || !dot) return;
-        const gevonden = tekstLager.includes(woord.toLowerCase());
+        const gevonden = lager.includes(w.toLowerCase());
         chip.className = 'sleutelwoord' + (gevonden ? ' gevonden' : '');
     });
 }
@@ -547,13 +738,11 @@ function bijwerkSleutelwoordBolletjes(tekst) {
 async function checkVerhaal() {
     const tekst = document.getElementById('verhaalTekst').value.trim();
     if (!tekst || tekst.length < 20) { alert('Schrijf eerst een verhaaltje! 😊'); return; }
-
     const knop = document.getElementById('checkKnop');
     knop.disabled = true;
     knop.innerHTML = '<span class="spinner"></span> Checken...';
     document.getElementById('bolletjesSectie').style.display = 'block';
     ['Personage','Omgeving','Gebeurtenis'].forEach(n => document.getElementById('bolletje'+n).className = 'bolletje');
-
     try {
         const r = await fetch('/api/check-verhaal', {
             method: 'POST',
@@ -587,13 +776,10 @@ async function insturenMetFeedback() {
     huidigeTekst = document.getElementById('verhaalTekst').value.trim();
     huidigeNaam  = document.getElementById('schrijverNaam').value.trim() || 'Anoniem';
     if (!huidigeTekst) return;
-
     const knop = document.getElementById('insturenKnop');
     knop.disabled = true;
     knop.innerHTML = '<span class="spinner"></span> AI analyseert jouw verhaal...';
-
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
-
     try {
         const r = await fetch('/api/inzending', {
             method: 'POST',
@@ -616,58 +802,38 @@ async function insturenMetFeedback() {
         } else {
             toonSucces();
         }
-    } catch(e) {
-        toonSucces();
-    }
+    } catch(e) { toonSucces(); }
     knop.disabled = false;
     knop.innerHTML = '🚀 Stuur In & Krijg Feedback!';
 }
 
 function toonFeedback(fb) {
-    // Score ring
     const score = fb.opdrachtvolgingScore || 75;
-    const pct = (score / 100) * 360;
-    document.getElementById('scoreRing').style.setProperty('--pct', score + '%');
-    // Animeer de conic-gradient
     document.getElementById('scoreRing').style.background =
         `conic-gradient(${score >= 70 ? '#51CF66' : score >= 50 ? '#FF9800' : '#FF5252'} ${score}%, rgba(255,255,255,0.08) 0%)`;
     document.getElementById('scoreGetal').textContent = score;
     document.getElementById('scoreGetal').style.color = score >= 70 ? '#51CF66' : score >= 50 ? '#FF9800' : '#FF5252';
     document.getElementById('scoreTitel').textContent = score >= 80 ? '🌟 Fantastisch!' : score >= 60 ? '👍 Goed gedaan!' : '💪 Oefening baart kunst!';
-
-    // Woordenaantal
     const w = fb.woordAantal || 0;
     const max = fb.maxWoorden || 200;
     document.getElementById('scoreUitleg').textContent = `${w} woorden geschreven (max ${max})`;
-
-    // Compliment
     document.getElementById('feedbackCompliment').textContent = fb.algemeenCompliment || '';
-
-    // Spelfouten
     const fouten = fb.spelfouten || [];
-    const foutenEl = document.getElementById('spelFoutenLijst');
     document.getElementById('spelFoutenSectie').style.display = fouten.length ? 'block' : 'none';
-    foutenEl.innerHTML = fouten.map(f => `
+    document.getElementById('spelFoutenLijst').innerHTML = fouten.map(f => `
         <div class="spelfout-item">
             <span class="fout-woord">${escapeHTML(f.origineel)}</span>
             <span class="pijl">→</span>
             <span class="goed-woord">${escapeHTML(f.verbetering)}</span>
             <span class="fout-uitleg">${escapeHTML(f.uitleg || '')}</span>
-        </div>
-    `).join('');
-
-    // Verbeterpunten
+        </div>`).join('');
     const tips = fb.verbeterpunten || [];
-    const tipsEl = document.getElementById('verbeterpuntenLijst');
     document.getElementById('verbeterpuntenSectie').style.display = tips.length ? 'block' : 'none';
-    tipsEl.innerHTML = tips.map(t => `
+    document.getElementById('verbeterpuntenLijst').innerHTML = tips.map(t => `
         <div class="verbeterpunt-item">
             <div class="verbeterpunt-type">${escapeHTML(t.type || 'Tip')}</div>
             <p>${escapeHTML(t.uitleg || '')}</p>
-        </div>
-    `).join('');
-
-    // Aanmoediging
+        </div>`).join('');
     document.getElementById('feedbackAanmoediging').textContent = '💬 ' + (fb.aanmoediging || 'Blijf schrijven, je wordt elke dag beter!');
 }
 
@@ -677,15 +843,138 @@ function gaTerug() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-async function definitiefInsturen() {
-    toonSucces();
-}
+async function definitiefInsturen() { toonSucces(); }
 
 function toonSucces() {
     document.getElementById('schrijfSectie').style.display = 'none';
     document.getElementById('feedbackScherm').style.display = 'none';
     document.getElementById('succesScherm').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Herlaad verhaal zodat nieuw hoofdstuk zichtbaar kan worden
+    laadVerhaal();
+}
+
+// ══════════════════════════════
+// VERHAAL OVERZICHT LOGICA
+// ══════════════════════════════
+let alleHoofdstukken = [];
+let volledigGetoond = false;
+
+async function laadVerhaal() {
+    try {
+        const r = await fetch('/api/verhaal');
+        const verhaal = await r.json();
+        const hfst = verhaal.hoofdstukken || [];
+        alleHoofdstukken = hfst;
+
+        // Stats
+        const aantalAuteurs = [...new Set(hfst.map(x => x.auteur))].length;
+        const aantalWoorden = hfst.reduce((t, x) => t + (x.tekst||'').split(/\s+/).length, 0);
+        document.getElementById('verhaalTitel').textContent = verhaal.titel || 'Ons Grote Verhaal';
+        document.getElementById('verhaalSamenvatting').textContent = verhaal.samenvatting || 'Een doorlopend verhaal, elke dag een stukje groter.';
+        document.getElementById('verhaalStats').innerHTML = `
+            <span class="stat-badge">📑 ${hfst.length} hoofdstuk${hfst.length !== 1 ? 'ken' : ''}</span>
+            <span class="stat-badge">✍️ ${aantalAuteurs} schrijver${aantalAuteurs !== 1 ? 's' : ''}</span>
+            <span class="stat-badge">📝 ~${aantalWoorden} woorden</span>`;
+
+        // Laatste 3
+        const laatste3 = hfst.slice(-3).reverse();
+        toonLaatsteDrie(laatste3, hfst.length);
+
+        // Toon-alle knop
+        if (hfst.length > 3) {
+            document.getElementById('aantalHoofdstukken').textContent = hfst.length;
+            document.getElementById('toonAlleKnop').style.display = 'block';
+        }
+
+        // Vul tijdlijn alvast
+        document.getElementById('tijdlijnContainer').innerHTML = hfst.map(h => maakHoofdstukKaart(h)).join('');
+    } catch(e) {
+        document.getElementById('laasteDrieContainer').innerHTML = `
+            <div class="geen-hoofdstukken">
+                <span class="emoji">❌</span><p>Kan verhaal niet laden. Is de server actief?</p>
+            </div>`;
+    }
+}
+
+function toonLaatsteDrie(hoofdstukken, totaal) {
+    const container = document.getElementById('laasteDrieContainer');
+    if (hoofdstukken.length === 0) {
+        container.innerHTML = `
+            <div class="geen-hoofdstukken">
+                <span class="emoji">🌱</span>
+                <p><strong>Het verhaal begint hier!</strong></p>
+                <p style="margin-top:8px; font-size:0.9rem;">Nog niemand heeft een hoofdstuk geschreven. Wees de eerste!</p>
+            </div>`;
+        return;
+    }
+    const groepenNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    container.innerHTML = hoofdstukken.map((h, idx) => {
+        const fragment = (h.tekst || '').substring(0, 250);
+        const heeftMeer = (h.tekst || '').length > 250;
+        const groep = h.leeftijdsgroep || 'B';
+        return `
+        <div class="hoofdstuk-compact">
+            <div class="hoofdstuk-compact-meta">
+                <div class="hoofdstuk-nr">${h.nummer}</div>
+                <span class="hoofdstuk-auteur-naam">✍️ ${escapeHTML(h.auteur || 'Anoniem')}</span>
+                <span class="hoofdstuk-datum-tag">📅 ${h.datum || ''}</span>
+                <span class="groep-chip chip-${groep}">${groepenNamen[groep] || groep}</span>
+                ${idx === 0 ? '<span class="nieuwste-badge">⭐ Nieuwste</span>' : ''}
+            </div>
+            <div class="hoofdstuk-fragment">${escapeHTML(fragment)}${heeftMeer ? '...' : ''}</div>
+        </div>`;
+    }).join('');
+}
+
+function toggleAlleHoofdstukken() {
+    volledigGetoond = !volledigGetoond;
+    const el = document.getElementById('volledigeTimeline');
+    const knop = document.getElementById('toonAlleKnop');
+    if (volledigGetoond) {
+        el.classList.add('open');
+        knop.textContent = '📕 Verberg alle hoofdstukken ↑';
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        el.classList.remove('open');
+        knop.textContent = `📚 Toon alle ${alleHoofdstukken.length} hoofdstukken ↓`;
+    }
+}
+
+function maakHoofdstukKaart(h) {
+    const groepenNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    const groep = h.leeftijdsgroep || 'B';
+    const woorden = (h.tekst||'').trim().split(/\s+/).length;
+    const kort = (h.tekst||'').substring(0, 300);
+    const rest = (h.tekst||'').substring(300);
+    const heeftRest = rest.length > 0;
+    const id = 'hk-' + h.nummer;
+    return `
+        <div class="hoofdstuk-kaart">
+            <div class="hoofdstuk-meta">
+                <div class="hoofdstuk-nummer">${h.nummer}</div>
+                <span class="hoofdstuk-auteur">✍️ ${escapeHTML(h.auteur || 'Anoniem')}</span>
+                <span class="hoofdstuk-datum">📅 ${h.datum || ''}</span>
+                <span class="groep-chip chip-${groep}">${groepenNamen[groep]||groep}</span>
+                <span style="color:var(--tekst-zacht); font-size:0.75rem;">📝 ${woorden} woorden</span>
+            </div>
+            <div class="hoofdstuk-tekst">
+                <span class="hoofdstuk-preview">${escapeHTML(kort).replace(/\n/g,'<br>')}${heeftRest ? '...' : ''}</span>
+                ${heeftRest ? `<span class="hoofdstuk-rest" id="${id}">${escapeHTML(rest).replace(/\n/g,'<br>')}</span>` : ''}
+            </div>
+            ${heeftRest ? `<button class="lees-verder" onclick="toggleRest('${id}', this)">📖 Lees verder →</button>` : ''}
+        </div>`;
+}
+
+function toggleRest(id, btn) {
+    const el = document.getElementById(id);
+    const open = el.style.display === 'inline';
+    el.style.display = open ? 'none' : 'inline';
+    btn.textContent = open ? '📖 Lees verder →' : '📕 Minder tonen';
+}
+
+function scrollNaarVerhaal() {
+    document.getElementById('verhaalSectie').scrollIntoView({ behavior: 'smooth' });
 }
 
 function escapeHTML(t) {

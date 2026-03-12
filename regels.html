@@ -21,13 +21,15 @@
     <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
     <p class="site-subtitle">Spelregels voor een fijne club!</p>
 </header>
-<nav>
+<!-- NAV -->
+<nav id="hoofdNav">
     <a href="index.html">🏠 Home</a>
+    <a href="verhaal.html">✏️ Schrijf & Verhaal</a>
     <a href="verhalen.html">📖 Verhalen</a>
-    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
-    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
-    <a href="mijn-verhalen-overzicht.html" id="navMijnVerhaalLink" style="display:none">✍️ Mijn Verhaal</a>
-    <a href="login.html" id="navLoginLink">👤 Login</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">🕵️ De Geheime Club</a>
+    <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
 </nav>
 
 <main>
@@ -160,16 +162,41 @@
 </footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const u = localStorage.getItem('userInfo');
-    if (u) {
-        const user = JSON.parse(u);
-        const link = document.getElementById('navLoginLink');
-        if (link) link.textContent = user.avatar + ' ' + user.gebruikersnaam;
-        const mijnLink = document.getElementById('navMijnVerhaalLink');
-        if (mijnLink) mijnLink.style.display = '';
-    }
-});
+// ── Navigatie: actieve link + inlogstatus ──
+(function() {
+    const p = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
+    document.querySelectorAll('#hoofdNav a[href]').forEach(a => {
+        if (a.getAttribute('href').split('?')[0] === p) a.classList.add('actief');
+    });
+    const ui = localStorage.getItem('userInfo');
+    if (!ui) return;
+    try {
+        const u = JSON.parse(ui);
+        const ll = document.getElementById('navLoginLink');
+        if (ll) {
+            const badge = document.createElement('span');
+            badge.className = 'nav-agent';
+            badge.title = 'Ingelogd als ' + u.gebruikersnaam;
+            badge.textContent = (u.avatar || '🕵️') + ' ' + u.gebruikersnaam;
+            const ul = document.createElement('a');
+            ul.className = 'nav-agent-uitloggen';
+            ul.href = '#';
+            ul.textContent = '🚪 Uitloggen';
+            ul.addEventListener('click', e => {
+                e.preventDefault();
+                localStorage.removeItem('userInfo');
+                localStorage.removeItem('authToken');
+                window.location.href = 'index.html';
+            });
+            ll.replaceWith(badge);
+            badge.insertAdjacentElement('afterend', ul);
+        }
+        const md = document.getElementById('navMijnDossierLink');
+        if (md) md.style.display = '';
+        const gc = document.getElementById('navGeheimeClubLink');
+        if (gc) gc.style.display = 'inline-flex';
+    } catch(e) {}
+})();
 </script>
 </body>
 </html>
