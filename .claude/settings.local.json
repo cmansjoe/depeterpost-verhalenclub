@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /c/Users/cmans/Desktop/depeterpost-verhalenclub/*.js /c/Users/cmans/Desktop/depeterpost-verhalenclub/*.json)",
+      "Bash(ls -la /c/Users/cmans/Desktop/depeterpost-verhalenclub/.env*)",
+      "WebSearch",
+      "Bash(node -e \"const s = require\\(''''./server.js''''\\)\")",
+      "Bash(node --check \"c:/Users/cmans/Desktop/depeterpost-verhalenclub/server.js\")",
+      "Bash(node -e \":*)"
+    ]
+  }
+}

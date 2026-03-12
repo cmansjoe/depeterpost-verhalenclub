@@ -30,6 +30,11 @@ const VERIFICATIE_PAD   = path.join(DATA_DIR, 'verificatie.json');
 const RESET_PAD                  = path.join(DATA_DIR, 'wachtwoord_reset.json');
 const PERSOONLIJKE_VERHALEN_PAD  = path.join(DATA_DIR, 'persoonlijke-verhalen.json');
 const INGEZONDEN_VERHALEN_PAD    = path.join(DATA_DIR, 'ingezonden-verhalen.json');
+const INSPIRATIE_PAD             = path.join(DATA_DIR, 'inspiratie-bibliotheek.json');
+const SAMEN_SESSIES_PAD          = path.join(DATA_DIR, 'samen-sessies.json');
+
+// In-memory SSE verbindingen per sessie: code → [res, res, ...]
+const sseVerbindingen = new Map();
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
@@ -107,6 +112,38 @@ function parseAIJson(tekst) {
             throw new Error(`Kan AI-antwoord niet als JSON verwerken: ${e2.message}`);
         }
     }
+}
+
+// ── Inspiratiebibliotheek helper ──
+// Kiest ongebruikte of zeldzaam gebruikte elementen uit de bibliotheek
+// zodat de AI altijd verse inspiratie krijgt en nooit herhaalt.
+function kiesInspiratie(groep) {
+    const lib = leesJSON(INSPIRATIE_PAD, {});
+    const opdrachten = leesJSON(OPDRACHTEN_PAD, []);
+
+    // Verzamel wat al eerder gebruikt is
+    const gebruiktePersonages = new Set(opdrachten.map(o => (o.personage || '').toLowerCase()));
+    const gebruikteOmgevingen  = new Set(opdrachten.map(o => (o.omgeving  || '').toLowerCase()));
+    function kiesOngebruikt(lijst, gebruikte, aantal = 1) {
+        if (!lijst?.length) return [];
+        const ongebruikt = lijst.filter(item =>
+            !Array.from(gebruikte).some(g => item.toLowerCase().includes(g) || g.includes(item.toLowerCase().split(' ')[0]))
+        );
+        const pool = ongebruikt.length >= aantal ? ongebruikt : lijst;
+        const geschud = [...pool].sort(() => Math.random() - 0.5);
+        return geschud.slice(0, aantal);
+    }
+
+    const themaPool   = [...(lib.themas?.[groep] || []), ...(lib.themas?.B || [])];
+    const gekozenThemas    = kiesOngebruikt(themaPool, new Set(), 2);
+    const gekozenOmgeving  = kiesOngebruikt(lib.omgevingen || [], gebruikteOmgevingen, 2);
+    const gekozenPersonage = kiesOngebruikt(lib.personageTyepen || [], gebruiktePersonages, 2);
+    const gekozenObject    = kiesOngebruikt(lib.magischeObjecten || [], new Set(), 1);
+    const gekozenDier      = kiesOngebruikt(lib.dieren || [], new Set(), 1);
+    const gekozenHook      = kiesOngebruikt(lib.plotHooks || [], new Set(), 1);
+    const gekozenQuest     = kiesOngebruikt((lib.quests?.[groep] || lib.quests?.B || []), new Set(), 1);
+
+    return { gekozenThemas, gekozenOmgeving, gekozenPersonage, gekozenObject, gekozenDier, gekozenHook, gekozenQuest };
 }
 
 function hashWachtwoord(ww) {
@@ -510,6 +547,31 @@ app.get('/api/auth/profiel', checkGebruiker, (req, res) => {
     res.json({ succes: true, gebruiker: veiligeProfiel, inzendingen: eigenInzendingen });
 });
 
+// ── Mijn Dossier: alles in één call ──
+app.get('/api/mijn-dossier', checkGebruiker, (req, res) => {
+    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
+    const gebruiker = gebruikers.find(g => g.id === req.gebruikerId);
+    if (!gebruiker) return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
+
+    // Inzendingen: match op gebruikerId OF op naam (voor oudere inzendingen zonder userId)
+    const alleInzendingen = leesJSON(INZENDINGEN_PAD, []);
+    const eigenInzendingen = alleInzendingen.filter(i =>
+        i.gebruikerId === req.gebruikerId ||
+        (!i.gebruikerId && i.naam === gebruiker.gebruikersnaam)
+    );
+
+    const persoonlijkeVerhalen = leesJSON(PERSOONLIJKE_VERHALEN_PAD, [])
+        .filter(v => v.gebruikerId === req.gebruikerId);
+
+    const { wachtwoordHash, ...veiligeProfiel } = gebruiker;
+    res.json({
+        succes: true,
+        gebruiker: veiligeProfiel,
+        inzendingen: eigenInzendingen,
+        persoonlijkeVerhalen
+    });
+});
+
 // ── Badge toekenner ──
 function kenBadgesToe(gebruikerId) {
     const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
@@ -628,6 +690,20 @@ app.post('/api/admin/genereer-opdracht', checkAdmin, async (req, res) => {
             ? `Het verhaal eindigde met: "${laasteHoofdstuk.tekst.substring(laasteHoofdstuk.tekst.length - 200)}"`
             : '';
 
+        // Kies verse inspiratie die nog niet eerder is gebruikt
+        const inspiratie = kiesInspiratie(groep);
+        const inspiratieBlok = `
+INSPIRATIE VOOR VANDAAG (gebaseerd op kinderliteratuur-onderzoek):
+Mogelijke thema's om op te bouwen: ${inspiratie.gekozenThemas.join(' | ')}
+Interessante omgevingsideeën: ${inspiratie.gekozenOmgeving.join(' | ')}
+Personage-ideeën: ${inspiratie.gekozenPersonage.join(' | ')}
+Magisch object als inspiratie: ${inspiratie.gekozenObject[0] || ''}
+Dier als inspiratie: ${inspiratie.gekozenDier[0] || ''}
+Verhaalstarter-idee: ${inspiratie.gekozenHook[0] || ''}
+Quest-idee: ${inspiratie.gekozenQuest[0] || ''}
+
+⚠️ Gebruik deze inspiratie CREATIEF als vertrekpunt — pas het aan zodat het logisch aansluit op het verhaal hierboven. Kopieer niet letterlijk, maar laat je erdoor inspireren.`;
+
         const prompt = `Je bent een enthousiaste jonge leraar en creatieve schrijfcoach voor kinderen van ${stijl.naam}.
 Je stijl: opgewekt, bemoedigend, concreet. Je geeft opdrachten die logisch aansluiten op het verhaal.
 
@@ -640,14 +716,22 @@ LAATSTE HOOFDSTUKKEN:
 ${verhaalContext}
 
 ${openEindje ? `OPEN EINDJE:\n${openEindje}\n` : ''}
+${inspiratieBlok}
 
 INSTRUCTIES:
 - Analyseer zorgvuldig wat er in het verhaal is gebeurd
 - De nieuwe opdracht MOET logisch voortvloeien uit de vorige gebeurtenissen
-- Gebruik bestaande personages of introduceer een nieuw personage dat past
-- Temperatuur: wees creatief maar niet chaotisch — logische verhaallijn is belangrijker dan verrassingen
+- Gebruik de inspiratie hierboven als vonk voor iets nieuws — voorkom herhaling van eerder gebruikte personages en omgevingen
+- Gebruik bestaande personages of introduceer een nieuw personage dat past bij de inspiratie
+- Wees creatief maar niet chaotisch — logische verhaallijn is belangrijker dan verrassingen
 - Schrijf de opdrachttekst in vrolijk, enthousiast kindertaal voor ${stijl.naam}
 - ${stijl.taalTip}
+
+UITLEG VELDEN:
+- verhaaleinde: 1 zin hoe het vorige hoofdstuk eindigde (verleden tijd, voor het kind als context)
+- beginpunt: 1 zin precies waar het verhaal vandaag begint (tegenwoordige tijd, startpositie schrijver)
+- ideeen: 2 uitnodigende verhaalontwikkelingsideeën die kinderen KUNNEN volgen maar NIET hoeven. Creatief, 1-2 zinnen elk.
+- sleutelwoorden: 3 woorden die het verhaal sturen in de gewenste richting. Het kind MOET ze verwerken. Kies sturende woorden (emotie, object, of actie die de plot vooruit helpt).
 
 Geef ALLEEN geldig JSON:
 {
@@ -655,15 +739,18 @@ Geef ALLEEN geldig JSON:
   "leeftijdsgroep": "${groep}",
   "personage": "naam van het personage van vandaag",
   "omgeving": "omgeving die aansluit op het verhaal",
-  "gebeurtenis": "concrete begingebeurtenis die logisch volgt op het vorige hoofdstuk",
+  "verhaaleinde": "zo eindigde het vorige hoofdstuk (1 zin, verleden tijd)",
+  "beginpunt": "hier begint het verhaal vandaag (1 zin, tegenwoordige tijd)",
+  "gebeurtenis": "zelfde als beginpunt",
+  "ideeen": ["uitnodigend idee 1 in kindertaal (1-2 zinnen)", "uitnodigend idee 2 in kindertaal (1-2 zinnen)"],
   "opdrachttekst": "vrolijke opdracht in kindertaal, max 2 zinnen",
-  "sleutelwoorden": ["woord1", "woord2", "woord3"],
+  "sleutelwoorden": ["sturingswoord1", "sturingswoord2", "sturingswoord3"],
   "aansluitingsTip": "hoe sluit dit aan op het vorige hoofdstuk"
 }`;
 
         const message = await client.messages.create({
             model: 'claude-sonnet-4-6',
-            max_tokens: 600,
+            max_tokens: 900,
             temperature: 0.6,
             messages: [{ role: 'user', content: prompt }]
         });
@@ -678,6 +765,16 @@ Geef ALLEEN geldig JSON:
         console.error('Fout bij genereren opdracht:', err);
         res.json({ succes: false, bericht: err.message });
     }
+});
+
+// Verwijder opdracht voor een specifieke dag + groep
+app.delete('/api/admin/opdracht', checkAdmin, (req, res) => {
+    const { datum, groep } = req.query;
+    if (!datum || !groep) return res.json({ succes: false, bericht: 'datum en groep zijn verplicht.' });
+    const opdrachten = leesJSON(OPDRACHTEN_PAD, []);
+    const nieuw = opdrachten.filter(o => !(o.datum === datum && o.leeftijdsgroep === groep));
+    schrijfJSON(OPDRACHTEN_PAD, nieuw);
+    res.json({ succes: true, verwijderd: opdrachten.length - nieuw.length });
 });
 
 // ════════════════════════════════════════
@@ -792,7 +889,7 @@ app.post('/api/check-verhaal', async (req, res) => {
         if (!opdracht) return res.json({ succes: false, bericht: 'Geen opdracht gevonden voor vandaag.' });
 
         const message = await client.messages.create({
-            model: 'claude-sonnet-4-6',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 200,
             temperature: 0.3,
             messages: [{ role: 'user', content:
@@ -901,6 +998,34 @@ app.post('/api/admin/update-verhaal', checkAdmin, (req, res) => {
         verhaal.hoofdstukken.push(nieuwHoofdstuk);
         schrijfJSON(VERHAAL_PAD, verhaal);
         res.json({ succes: true, hoofdstuk: nieuwHoofdstuk });
+    } catch (err) {
+        res.json({ succes: false, bericht: err.message });
+    }
+});
+
+// Reset het grote verhaal (archiveer + begin opnieuw)
+app.post('/api/admin/verhaal/reset', checkAdmin, (req, res) => {
+    try {
+        const verhaal = leesJSON(VERHAAL_PAD, {});
+        if ((verhaal.hoofdstukken || []).length > 0) {
+            const backupNaam = `verhaal-archief-${Date.now()}.json`;
+            schrijfJSON(path.join(DATA_DIR, backupNaam), {
+                ...verhaal,
+                gearchiveerdOp: new Date().toISOString()
+            });
+        }
+        schrijfJSON(VERHAAL_PAD, {
+            titel: verhaal.titel || 'Het Grote Avontuur',
+            samenvatting: '',
+            personages: [],
+            locaties: [],
+            hoofdstukken: []
+        });
+        // Verwijder opdrachten van vandaag en toekomst
+        const vandaag = new Date().toISOString().split('T')[0];
+        const opdrachten = leesJSON(OPDRACHTEN_PAD, []);
+        schrijfJSON(OPDRACHTEN_PAD, opdrachten.filter(o => o.datum < vandaag));
+        res.json({ succes: true });
     } catch (err) {
         res.json({ succes: false, bericht: err.message });
     }
@@ -1022,11 +1147,20 @@ app.get('/verhaal/:id', (req, res) =>
 // AI: genereer onderwerp + personages
 app.post('/api/mijn-verhaal/genereer-onderwerp', checkGebruiker, async (req, res) => {
     try {
+        const inspiratie = kiesInspiratie('B');
         const message = await client.messages.create({
             model: 'claude-sonnet-4-6', max_tokens: 300, temperature: 0.9,
             messages: [{ role: 'user', content:
                 `Genereer een leuk en creatief verhaalonderwerp voor een kind van 9-12 jaar.
-Kies een origineel, fantasierijk thema. Geef ALLEEN geldig JSON:
+Laat je inspireren door deze ideeën uit kinderliteratuur-onderzoek:
+- Thema-ideeën: ${inspiratie.gekozenThemas.join(' | ')}
+- Omgeving-ideeën: ${inspiratie.gekozenOmgeving.join(' | ')}
+- Personage-ideeën: ${inspiratie.gekozenPersonage.join(' | ')}
+- Magisch object: ${inspiratie.gekozenObject[0] || ''}
+- Dier als metgezel: ${inspiratie.gekozenDier[0] || ''}
+
+Gebruik deze als inspiratie, niet als letterlijke instructie. Combineer ze creatief tot iets origineels.
+Geef ALLEEN geldig JSON:
 {"onderwerp": "korte beschrijving van het thema (max 1 zin)", "personages": "2-3 leuke personages met korte beschrijving, gescheiden door komma's"}`
             }]
         });
@@ -1209,7 +1343,7 @@ app.post('/api/mijn-verhaal/:id/check-deel', checkGebruiker, async (req, res) =>
         if (!vorigDeel?.tekst?.trim()) return res.json({ succes: true, verbindt: true });
 
         const msg = await client.messages.create({
-            model: 'claude-sonnet-4-6', max_tokens: 80, temperature: 0,
+            model: 'claude-haiku-4-5-20251001', max_tokens: 80, temperature: 0,
             messages: [{ role: 'user', content:
                 `Sluit dit nieuwe stuk verhaal logisch aan op het vorige deel? Antwoord alleen met geldig JSON.
 Vorig deel: "${vorigDeel.tekst.trim().substring(0, 400)}"
@@ -1265,7 +1399,7 @@ app.post('/api/verhaal-insturen', async (req, res) => {
     if (!tekst?.trim() || tekst.trim().length < 20) return res.json({ succes: false, bericht: 'Je verhaal is te kort (minimaal 20 tekens).' });
     try {
         const message = await client.messages.create({
-            model: 'claude-sonnet-4-6', max_tokens: 150, temperature: 0,
+            model: 'claude-haiku-4-5-20251001', max_tokens: 150, temperature: 0,
             messages: [{ role: 'user', content:
                 `Beoordeel dit verhaal voor een kinderwebsite (doelgroep 6-14 jaar).
 Controleer op: 18+ inhoud, grof geweld, scheldwoorden of ongepaste thema's.
@@ -1312,6 +1446,397 @@ app.delete('/api/admin/ingezonden-verhaal/:id', checkAdmin, (req, res) => {
     if (nieuw.length === alle.length) return res.status(404).json({ succes: false, bericht: 'Niet gevonden.' });
     schrijfJSON(INGEZONDEN_VERHALEN_PAD, nieuw);
     res.json({ succes: true });
+});
+
+// ════════════════════════════════════════
+// SAMEN SCHRIJVEN — SESSIES
+// ════════════════════════════════════════
+
+// Stuur een SSE-update naar alle verbonden clients van een sessie
+function sseZend(code, sessie) {
+    const lijst = sseVerbindingen.get(code);
+    if (!lijst || lijst.length === 0) return;
+    const bericht = `data: ${JSON.stringify({ type: 'staat', sessie })}\n\n`;
+    for (const res of lijst) {
+        try { res.write(bericht); } catch (_) {}
+    }
+}
+
+// GET /api/sessie/:code/status-stream — SSE verbinding voor real-time updates
+app.get('/api/sessie/:code/status-stream', (req, res) => {
+    const code = req.params.code.toUpperCase();
+
+    res.setHeader('Content-Type',  'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection',    'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Nginx: schakel buffering uit
+    res.flushHeaders();
+
+    // Stuur huidige staat meteen bij verbinden
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    const sessie  = sessies.find(s => s.code === code);
+    if (sessie) {
+        res.write(`data: ${JSON.stringify({ type: 'staat', sessie })}\n\n`);
+    } else {
+        res.write(`data: ${JSON.stringify({ type: 'fout', bericht: 'Sessie niet gevonden.' })}\n\n`);
+    }
+
+    // Registreer verbinding
+    if (!sseVerbindingen.has(code)) sseVerbindingen.set(code, []);
+    sseVerbindingen.get(code).push(res);
+
+    // Ping elke 25s om verbinding levend te houden (proxies/firewalls)
+    const pingTimer = setInterval(() => {
+        try { res.write(': ping\n\n'); } catch (_) { clearInterval(pingTimer); }
+    }, 25000);
+
+    // Cleanup bij verbreking
+    req.on('close', () => {
+        clearInterval(pingTimer);
+        const rest = (sseVerbindingen.get(code) || []).filter(r => r !== res);
+        if (rest.length > 0) sseVerbindingen.set(code, rest);
+        else sseVerbindingen.delete(code);
+    });
+});
+
+// Genereer een unieke 6-tekens lobbycode (hoofdletters + cijfers)
+function genereerLobbycode() {
+    const tekens = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += tekens[Math.floor(Math.random() * tekens.length)];
+    return code;
+}
+
+// POST /api/sessie/nieuw — Maak een nieuwe gezamenlijke schrijfsessie aan
+app.post('/api/sessie/nieuw', (req, res) => {
+    const { groep, aantalDeelnemers } = req.body;
+    if (!groep || !['A', 'B', 'C'].includes(groep)) {
+        return res.status(400).json({ succes: false, bericht: 'Ongeldige groep. Kies A, B of C.' });
+    }
+    const aantal = parseInt(aantalDeelnemers, 10);
+    if (isNaN(aantal) || aantal < 2 || aantal > 32) {
+        return res.status(400).json({ succes: false, bericht: 'Aantal deelnemers moet tussen 2 en 32 zijn.' });
+    }
+
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+
+    // Zorg dat de lobbycode uniek is
+    let code;
+    const bestaandeCodes = new Set(sessies.map(s => s.code));
+    do { code = genereerLobbycode(); } while (bestaandeCodes.has(code));
+
+    const nieuweSessie = {
+        code,
+        groep,
+        aantalDeelnemers: aantal,
+        status: 'wachten',           // wachten | actief | klaar
+        aangemaaktOp: new Date().toISOString(),
+        deelnemers: [],              // { naam, hoofdstukNummer, hoofdstukTekst, klaar }
+        blueprint: null,             // wordt later ingevuld
+        eindverhaal: null            // wordt later ingevuld na montage
+    };
+
+    sessies.push(nieuweSessie);
+    schrijfJSON(SAMEN_SESSIES_PAD, sessies);
+
+    res.json({ succes: true, code, sessie: nieuweSessie });
+});
+
+// GET /api/sessie/:code — Haal een sessie op via lobbycode
+app.get('/api/sessie/:code', (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    const sessie = sessies.find(s => s.code === code);
+    if (!sessie) return res.status(404).json({ succes: false, bericht: 'Sessie niet gevonden. Controleer de code.' });
+    res.json({ succes: true, sessie });
+});
+
+// POST /api/sessie/:code/join — Voeg een deelnemer toe aan een sessie
+app.post('/api/sessie/:code/join', (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const { naam } = req.body;
+    if (!naam || naam.trim().length < 2) {
+        return res.status(400).json({ succes: false, bericht: 'Vul een naam in van minimaal 2 tekens.' });
+    }
+
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    const idx = sessies.findIndex(s => s.code === code);
+    if (idx === -1) return res.status(404).json({ succes: false, bericht: 'Sessie niet gevonden. Controleer de code.' });
+
+    const sessie = sessies[idx];
+    if (sessie.status !== 'wachten') {
+        return res.status(400).json({ succes: false, bericht: 'Deze sessie is al gestart of afgelopen.' });
+    }
+    if (sessie.deelnemers.length >= sessie.aantalDeelnemers) {
+        return res.status(400).json({ succes: false, bericht: 'De sessie zit al vol.' });
+    }
+    const naamTrimmed = naam.trim();
+    if (sessie.deelnemers.some(d => d.naam.toLowerCase() === naamTrimmed.toLowerCase())) {
+        return res.status(400).json({ succes: false, bericht: 'Deze naam is al in gebruik in de sessie.' });
+    }
+
+    const hoofdstukNummer = sessie.deelnemers.length + 1;
+    sessie.deelnemers.push({
+        naam: naamTrimmed,
+        hoofdstukNummer,
+        hoofdstukTekst: null,
+        klaar: false
+    });
+
+    schrijfJSON(SAMEN_SESSIES_PAD, sessies);
+    sseZend(code, sessies[idx]);
+    res.json({ succes: true, hoofdstukNummer, sessie: sessies[idx] });
+});
+
+// POST /api/sessie/:code/schrijft — Markeer deelnemer als actief schrijvend (voor whiteboard)
+app.post('/api/sessie/:code/schrijft', (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const { hoofdstukNummer } = req.body;
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    const idx = sessies.findIndex(s => s.code === code);
+    if (idx === -1) return res.status(404).json({ succes: false, bericht: 'Sessie niet gevonden.' });
+    const dIdx = sessies[idx].deelnemers.findIndex(d => d.hoofdstukNummer === hoofdstukNummer);
+    if (dIdx !== -1) sessies[idx].deelnemers[dIdx].schrijft = true;
+    schrijfJSON(SAMEN_SESSIES_PAD, sessies);
+    sseZend(code, sessies[idx]);
+    res.json({ succes: true });
+});
+
+// POST /api/sessie/:code/hoofdstuk — Sla een ingestuurd hoofdstuk op
+app.post('/api/sessie/:code/hoofdstuk', (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const { hoofdstukNummer, tekst } = req.body;
+
+    if (!tekst || tekst.trim().split(/\s+/).filter(Boolean).length < 10) {
+        return res.status(400).json({ succes: false, bericht: 'Je verhaal is te kort.' });
+    }
+
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    const idx = sessies.findIndex(s => s.code === code);
+    if (idx === -1) return res.status(404).json({ succes: false, bericht: 'Sessie niet gevonden.' });
+
+    const sessie = sessies[idx];
+    if (sessie.status !== 'actief') {
+        return res.status(400).json({ succes: false, bericht: 'De sessie is niet actief.' });
+    }
+
+    const dIdx = sessie.deelnemers.findIndex(d => d.hoofdstukNummer === parseInt(hoofdstukNummer, 10));
+    if (dIdx === -1) return res.status(404).json({ succes: false, bericht: 'Deelnemer niet gevonden.' });
+    if (sessie.deelnemers[dIdx].klaar) {
+        return res.json({ succes: true, bericht: 'Al ingestuurd.' });
+    }
+
+    sessies[idx].deelnemers[dIdx].hoofdstukTekst = tekst.trim();
+    sessies[idx].deelnemers[dIdx].klaar          = true;
+    sessies[idx].deelnemers[dIdx].schrijft        = false;
+    sessies[idx].deelnemers[dIdx].ingezondOp      = new Date().toISOString();
+
+    // Als iedereen klaar is: sessie op 'klaar' zetten
+    const alleKlaar = sessies[idx].deelnemers.every(d => d.klaar);
+    if (alleKlaar) sessies[idx].status = 'klaar';
+
+    schrijfJSON(SAMEN_SESSIES_PAD, sessies);
+    sseZend(code, sessies[idx]);
+    res.json({ succes: true, alleKlaar, sessie: sessies[idx] });
+});
+
+// POST /api/sessie/:code/blueprint — Genereer Story Blueprint + start de sessie
+app.post('/api/sessie/:code/blueprint', async (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    const idx = sessies.findIndex(s => s.code === code);
+    if (idx === -1) return res.status(404).json({ succes: false, bericht: 'Sessie niet gevonden.' });
+
+    const sessie = sessies[idx];
+    if (sessie.status !== 'wachten') {
+        return res.status(400).json({ succes: false, bericht: 'Sessie is al gestart of afgelopen.' });
+    }
+    if (sessie.deelnemers.length < 2) {
+        return res.status(400).json({ succes: false, bericht: 'Er zijn minimaal 2 deelnemers nodig om te starten.' });
+    }
+
+    try {
+        const groep = sessie.groep;
+        const stijl = LEEFTIJD_STIJL[groep];
+        const inspiratie = kiesInspiratie(groep);
+        const aantalHoofdstukken = sessie.deelnemers.length;
+
+        const deelnemersLijst = sessie.deelnemers
+            .map(d => `Hoofdstuk ${d.hoofdstukNummer}: ${d.naam}`)
+            .join('\n');
+
+        const prompt = `Je bent een creatieve schrijfcoach die een samen-schrijf-avontuur begeleidt voor kinderen van ${stijl.naam}.
+Er zijn ${aantalHoofdstukken} kinderen die elk één hoofdstuk schrijven. Samen vormen ze één doorlopend verhaal.
+
+DEELNEMERS EN HUN HOOFDSTUK:
+${deelnemersLijst}
+
+INSPIRATIE (gebruik dit als vertrekpunt, niet als letterlijke instructie):
+- Thema-ideeën: ${inspiratie.gekozenThemas.join(' | ')}
+- Omgeving: ${inspiratie.gekozenOmgeving[0] || ''}
+- Hoofdpersonage-type: ${inspiratie.gekozenPersonage[0] || ''}
+- Magisch object: ${inspiratie.gekozenObject[0] || ''}
+- Dier als metgezel: ${inspiratie.gekozenDier[0] || ''}
+- Verhaalstarter: ${inspiratie.gekozenHook[0] || ''}
+
+INSTRUCTIES:
+- Maak een overkoepelend verhaalplan dat logisch werkt voor ${aantalHoofdstukken} hoofdstukken
+- Elk hoofdstuk bouwt voort op het vorige — de verhaaldraad moet doorlopen
+- Eerste hoofdstuk introduceert de wereld en het probleem
+- Tussenhoofdstukken bouwen spanning op
+- Laatste hoofdstuk brengt een bevredigend einde
+- Schrijf in vrolijk, kindvriendelijk Nederlands voor ${stijl.naam}
+- De sleutelwoorden per hoofdstuk MOETEN het kind verplicht verwerken (max 3 woorden)
+- Elk hoofdstuk: max ${stijl.maxWoorden} woorden
+
+Geef ALLEEN geldig JSON:
+{
+  "titel": "pakkende verhaaltitel",
+  "setting": "korte beschrijving van de wereld/omgeving (2 zinnen)",
+  "beginscene": "hoe begint het verhaal precies — de openingsscène (2-3 zinnen voor context)",
+  "hoofdstukken": [
+    {
+      "nummer": 1,
+      "schrijver": "naam van de schrijver",
+      "opdracht": "wat dit kind schrijft — concrete schrijfopdracht in kindertaal (2-3 zinnen, spreek aan met 'jij')",
+      "verhaaldraad": "wat er in dit hoofdstuk moet gebeuren voor de rode lijn (1 zin, voor de leraar/intern)",
+      "beginpunt": "waar begint dit hoofdstuk precies (1 zin, tegenwoordige tijd)",
+      "sleutelwoorden": ["woord1", "woord2", "woord3"]
+    }
+  ]
+}`;
+
+        const message = await client.messages.create({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 200 + (aantalHoofdstukken * 150),
+            temperature: 0.7,
+            messages: [{ role: 'user', content: prompt }]
+        });
+
+        const blueprint = parseAIJson(message.content[0].text);
+
+        // Valideer dat de AI het juiste aantal hoofdstukken heeft gegenereerd
+        if (!blueprint.hoofdstukken || blueprint.hoofdstukken.length !== aantalHoofdstukken) {
+            // Herstel indien nodig: vul ontbrekende hoofdstukken aan
+            while ((blueprint.hoofdstukken || []).length < aantalHoofdstukken) {
+                const nr = (blueprint.hoofdstukken?.length || 0) + 1;
+                const deelnemer = sessie.deelnemers.find(d => d.hoofdstukNummer === nr);
+                blueprint.hoofdstukken = blueprint.hoofdstukken || [];
+                blueprint.hoofdstukken.push({
+                    nummer: nr,
+                    schrijver: deelnemer?.naam || `Schrijver ${nr}`,
+                    opdracht: `Schrijf hoofdstuk ${nr} van het verhaal. Bouw voort op wat er al is gebeurd.`,
+                    verhaaldraad: `Hoofdstuk ${nr}`,
+                    beginpunt: 'Het verhaal gaat verder...',
+                    sleutelwoorden: ['avontuur', 'moed', 'vriendschap']
+                });
+            }
+        }
+
+        // Zet status op actief en sla blueprint op
+        sessies[idx].blueprint = blueprint;
+        sessies[idx].status = 'actief';
+        sessies[idx].gestartOp = new Date().toISOString();
+        schrijfJSON(SAMEN_SESSIES_PAD, sessies);
+        sseZend(code, sessies[idx]);
+
+        res.json({ succes: true, blueprint, sessie: sessies[idx] });
+    } catch (err) {
+        console.error('Fout bij genereren blueprint:', err);
+        res.json({ succes: false, bericht: err.message });
+    }
+});
+
+// GET /api/admin/sessies — Alle samen-sessies voor de admin
+app.get('/api/admin/sessies', checkAdmin, (_req, res) => {
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    res.json({ succes: true, sessies });
+});
+
+// POST /api/sessie/:code/montage — AI samenvoegen van alle hoofdstukken
+app.post('/api/sessie/:code/montage', async (req, res) => {
+    const code = req.params.code.toUpperCase();
+    const sessies = leesJSON(SAMEN_SESSIES_PAD, []);
+    const idx = sessies.findIndex(s => s.code === code);
+    if (idx === -1) return res.status(404).json({ succes: false, bericht: 'Sessie niet gevonden.' });
+
+    const sessie = sessies[idx];
+    if (sessie.status !== 'klaar') {
+        return res.status(400).json({ succes: false, bericht: 'Niet alle hoofdstukken zijn ingestuurd.' });
+    }
+    if (sessie.eindverhaal) {
+        return res.json({ succes: true, eindverhaal: sessie.eindverhaal, sessie });
+    }
+
+    const klaarDeelnemers = sessie.deelnemers.filter(d => d.klaar && d.hoofdstukTekst);
+    if (klaarDeelnemers.length === 0) {
+        return res.status(400).json({ succes: false, bericht: 'Geen ingestuurde hoofdstukken gevonden.' });
+    }
+
+    try {
+        const bp = sessie.blueprint || {};
+        const groep = sessie.groep || 'B';
+        const stijl = LEEFTIJD_STIJL[groep] || LEEFTIJD_STIJL['B'];
+
+        const hoofdstukkenTekst = klaarDeelnemers
+            .sort((a, b) => a.hoofdstukNummer - b.hoofdstukNummer)
+            .map(d => {
+                const bpHst = (bp.hoofdstukken || []).find(h => h.nummer === d.hoofdstukNummer) || {};
+                return `=== HOOFDSTUK ${d.hoofdstukNummer}: ${d.naam.toUpperCase()} ===\nOpdracht was: ${bpHst.opdracht || ''}\nVerhaaldraad: ${bpHst.verhaaldraad || ''}\n\nGeschreven tekst:\n${d.hoofdstukTekst}`;
+            })
+            .join('\n\n');
+
+        const prompt = `Je bent een kinderboekenredacteur die het samengestelde verhaal van ${klaarDeelnemers.length} kinderen (groep ${groep}, ${stijl.naam}) afwerkt.
+
+VERHAALTITEL: ${bp.titel || 'Ons Samen Verhaal'}
+SETTING: ${bp.setting || ''}
+BEGINSCÈNE: ${bp.beginscene || ''}
+
+INGESTUURDE HOOFDSTUKKEN:
+${hoofdstukkenTekst}
+
+JOUW TAAK:
+Bewerk dit gezamenlijke verhaal zodat het één vloeiend, samenhangend geheel wordt.
+Regels:
+- Bewaar de KERN en het PLEZIER van elke inzending — kinderen moeten hun eigen deel herkennen
+- Maak overgangen tussen hoofdstukken soepel (voeg maximaal 1-2 verbindingszinnen toe tussen hoofdstukken)
+- Corrigeer taalfouten subtiel, maar behoud de kindertaal en de energie van het origineel
+- Schrijf in vrolijk, kindvriendelijk Nederlands voor ${stijl.naam}
+- Elk hoofdstuk blijft een apart blok met de naam van de schrijver erbij
+- Voeg een korte, pakkende afsluiting toe als het laatste hoofdstuk geen duidelijk einde heeft
+
+Geef ALLEEN geldig JSON terug (geen markdown):
+{
+  "titel": "definitieve verhaaltitel (mag iets pakkender zijn dan het origineel)",
+  "hoofdstukken": [
+    {
+      "nummer": 1,
+      "schrijver": "naam van de schrijver",
+      "tekst": "bewerkte hoofdstuktekst"
+    }
+  ],
+  "slotwoord": "korte afsluiting of moraal van het verhaal (1-2 zinnen, optioneel)"
+}`;
+
+        const message = await client.messages.create({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 400 + (klaarDeelnemers.length * 500),
+            temperature: 0.6,
+            messages: [{ role: 'user', content: prompt }]
+        });
+
+        const eindverhaal = parseAIJson(message.content[0].text);
+
+        sessies[idx].eindverhaal = eindverhaal;
+        sessies[idx].montageOp = new Date().toISOString();
+        schrijfJSON(SAMEN_SESSIES_PAD, sessies);
+        sseZend(code, sessies[idx]);
+
+        res.json({ succes: true, eindverhaal, sessie: sessies[idx] });
+    } catch (err) {
+        console.error('Fout bij montage:', err);
+        res.status(500).json({ succes: false, bericht: 'De AI kon het verhaal niet samenvoegen. Probeer opnieuw.' });
+    }
 });
 
 // ════════════════════════════════════════

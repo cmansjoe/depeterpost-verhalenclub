@@ -15,5 +15,26 @@
     "verhalen": {
       "C": "verhaal-project-1772373367456-C"
     }
+  },
+  {
+    "id": "project-1773256734444",
+    "naam": "Het avontuur in het toverbos",
+    "beschrijving": "Twee kinderen zijn tijdens het buitenspelen een bos ingelopen. Maar dit is niet zomaar een bos maar hier kan werkelijk alles gebeuren",
+    "startDatum": "2026-03-11",
+    "eindDatum": "2026-03-15",
+    "aantalDagen": 4,
+    "leeftijdsgroepen": [
+      "A",
+      "B",
+      "C"
+    ],
+    "actief": true,
+    "gearchiveerd": false,
+    "aangemaakt": "2026-03-11T19:18:54.444Z",
+    "verhalen": {
+      "A": "verhaal-project-1773256734444-A",
+      "B": "verhaal-project-1773256734444-B",
+      "C": "verhaal-project-1773256734444-C"
+    }
   }
 ]

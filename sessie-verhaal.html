@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ons Verhaal | Depeterpost Verhalen Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0f0f1a;
+            color: #f0f0ff;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            padding: 24px 16px 60px;
+        }
+
+        h1, h2, h3 { font-family: 'Fredoka One', cursive; }
+
+        .container { max-width: 760px; margin: 0 auto; }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        .header-logo { font-size: 22px; color: #a78bfa; }
+        .header-sub  { font-size: 13px; color: #555; }
+
+        /* ── Laden / Fout ── */
+        .scherm { display: none; }
+        .scherm.actief { display: block; }
+
+        .centered-kaart {
+            max-width: 500px;
+            margin: 80px auto;
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 48px 40px;
+            text-align: center;
+        }
+
+        /* ── Montage laden ── */
+        .montage-laden {
+            max-width: 520px;
+            margin: 60px auto;
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 48px 40px;
+            text-align: center;
+        }
+        .montage-icoon { font-size: 64px; margin-bottom: 16px; }
+        .montage-laden h2 { font-size: 26px; color: #10b981; margin-bottom: 10px; }
+        .montage-laden p  { color: #888; font-size: 15px; margin-bottom: 24px; }
+
+        .voortgang-bg { background: #222; border-radius: 999px; height: 8px; overflow: hidden; }
+        .voortgang-fg {
+            height: 100%;
+            background: linear-gradient(90deg, #7c3aed, #10b981);
+            border-radius: 999px;
+            animation: laadBalk 3s ease-in-out infinite;
+        }
+        @keyframes laadBalk {
+            0%   { width: 5%; }
+            50%  { width: 75%; }
+            100% { width: 95%; }
+        }
+
+        .dots { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
+        .dot  {
+            width: 10px; height: 10px;
+            border-radius: 50%; background: #333;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.7); background: #333; }
+            40%            { transform: scale(1.1); background: #7c3aed; }
+        }
+
+        /* ── Verhaal weergave ── */
+        .verhaal-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .verhaal-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: #c4b5fd;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 6px 18px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+        }
+        .verhaal-titel {
+            font-size: 38px;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 480px) { .verhaal-titel { font-size: 28px; } }
+
+        .verhaal-meta { font-size: 14px; color: #555; }
+        .verhaal-meta span { color: #a78bfa; font-weight: 700; }
+
+        /* ── Decoratieve lijn ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 32px 0;
+        }
+        .divider-lijn { flex: 1; height: 1px; background: #2a2a3e; }
+        .divider-icoon { font-size: 20px; }
+
+        /* ── Hoofdstuk kaart ── */
+        .hoofdstuk-kaart {
+            background: #1a1a2e;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 28px;
+            border: 1px solid #2a2a3e;
+            transition: border-color 0.2s;
+        }
+        .hoofdstuk-kaart:hover { border-color: #4c1d95; }
+
+        .hst-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, #12012b, #1a1a2e);
+            border-bottom: 1px solid #2a2a3e;
+        }
+        .hst-nummer {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed, #e8197d);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+        .hst-info { flex: 1; }
+        .hst-label {
+            font-size: 11px;
+            color: #555;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .hst-schrijver {
+            font-family: 'Fredoka One', cursive;
+            font-size: 20px;
+            color: #c4b5fd;
+        }
+        .hst-pen { font-size: 24px; }
+
+        .hst-tekst {
+            padding: 22px 24px;
+            font-size: 16px;
+            line-height: 1.85;
+            color: #e0e0ff;
+            white-space: pre-wrap;
+        }
+
+        /* ── Slotwoord ── */
+        .slotwoord-kaart {
+            background: linear-gradient(135deg, #062b1a, #0a1628);
+            border: 1px solid #10b98133;
+            border-radius: 20px;
+            padding: 28px 28px;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .slotwoord-label {
+            font-size: 12px;
+            color: #10b981;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .slotwoord-tekst {
+            font-size: 17px;
+            color: #6ee7b7;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* ── Auteurs banner ── */
+        .auteurs-banner {
+            background: #1a1a2e;
+            border-radius: 18px;
+            padding: 24px;
+            margin-top: 32px;
+            text-align: center;
+            border: 1px solid #2a2a3e;
+        }
+        .auteurs-label {
+            font-size: 12px;
+            color: #555;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+        .auteurs-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .auteur-chip {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: #e9d5ff;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        /* ── Knoppen ── */
+        .actie-rij {
+            display: flex;
+            gap: 12px;
+            margin-top: 36px;
+            flex-wrap: wrap;
+        }
+        .actie-knop {
+            flex: 1;
+            min-width: 160px;
+            padding: 15px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .actie-knop:hover { opacity: 0.88; transform: translateY(-2px); }
+        .knop-print  { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; }
+        .knop-nieuw  { background: linear-gradient(135deg, #7c3aed, #e8197d); color: white; }
+        .knop-deel   { background: linear-gradient(135deg, #059669, #10b981); color: white; }
+
+        /* ── Print stijl ── */
+        @media print {
+            body { background: white; color: black; }
+            .header, .actie-rij, .auteurs-banner { display: none; }
+            .hoofdstuk-kaart { background: #f9f9f9; border: 1px solid #ddd; break-inside: avoid; }
+            .hst-header { background: #f0f0f0; }
+            .hst-schrijver, .hst-tekst { color: black; }
+            .verhaal-badge, .verhaal-meta { display: none; }
+            .verhaal-titel { color: black; font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCHERM: Montage bezig
+══════════════════════════════════ -->
+<div id="scherm-montage" class="scherm actief">
+    <div class="montage-laden">
+        <div class="montage-icoon">🪡</div>
+        <h2>Verhaal samenvoegen...</h2>
+        <p>De AI weeft alle hoofdstukken samen tot één groot verhaal. Even geduld!</p>
+        <div class="voortgang-bg"><div class="voortgang-fg"></div></div>
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM: Fout
+══════════════════════════════════ -->
+<div id="scherm-fout" class="scherm">
+    <div class="centered-kaart">
+        <div style="font-size:48px;margin-bottom:16px;">😕</div>
+        <h2 style="font-size:22px;color:#fca5a5;margin-bottom:10px;">Oeps!</h2>
+        <p id="fout-tekst" style="color:#888;margin-bottom:24px;">Er ging iets mis.</p>
+        <button onclick="location.reload()"
+            style="padding:12px 24px;background:#7c3aed;color:white;border:none;border-radius:12px;font-family:'Fredoka One',cursive;font-size:16px;cursor:pointer;margin-right:10px;">
+            Opnieuw proberen
+        </button>
+        <button onclick="location.href='index.html'"
+            style="padding:12px 24px;background:#1a1a2e;color:#888;border:1px solid #333;border-radius:12px;font-family:'Fredoka One',cursive;font-size:16px;cursor:pointer;">
+            Naar home
+        </button>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM: Verhaal
+══════════════════════════════════ -->
+<div id="scherm-verhaal" class="scherm">
+    <div class="container">
+
+        <div class="header">
+            <div>
+                <div class="header-logo">📚 Depeterpost Verhalen Club</div>
+                <div class="header-sub">Samen geschreven verhaal</div>
+            </div>
+            <div style="font-size:13px;color:#555;">
+                Code: <span id="hdr-code" style="color:#a78bfa;font-weight:700;"></span>
+            </div>
+        </div>
+
+        <!-- Verhaaltitel -->
+        <div class="verhaal-header">
+            <div class="verhaal-badge">✨ Ons samen verhaal</div>
+            <h1 class="verhaal-titel" id="verhaal-titel"></h1>
+            <div class="verhaal-meta">
+                Geschreven door <span id="verhaal-auteurs"></span>
+            </div>
+        </div>
+
+        <div class="divider">
+            <div class="divider-lijn"></div>
+            <div class="divider-icoon">📖</div>
+            <div class="divider-lijn"></div>
+        </div>
+
+        <!-- Hoofdstukken -->
+        <div id="hoofdstukken-container"></div>
+
+        <!-- Slotwoord -->
+        <div class="slotwoord-kaart" id="slotwoord-kaart" style="display:none;">
+            <div class="slotwoord-label">✨ En de moraal van dit verhaal...</div>
+            <div class="slotwoord-tekst" id="slotwoord-tekst"></div>
+        </div>
+
+        <!-- Auteurs banner -->
+        <div class="auteurs-banner">
+            <div class="auteurs-label">🖊️ Geschreven door</div>
+            <div class="auteurs-chips" id="auteurs-chips"></div>
+        </div>
+
+        <!-- Acties -->
+        <div class="actie-rij">
+            <button class="actie-knop knop-deel" onclick="deelVerhaal()">
+                🔗 Deel link
+            </button>
+            <button class="actie-knop knop-print" onclick="window.print()">
+                🖨️ Afdrukken
+            </button>
+            <button class="actie-knop knop-nieuw" onclick="location.href='sessie-host.html'">
+                ✍️ Nieuw verhaal
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let sessiecode = null;
+    let sessieData = null;
+
+    (async function init() {
+        const p = new URLSearchParams(location.search);
+        sessiecode = (p.get('code') || sessionStorage.getItem('samenCode') || '').toUpperCase();
+
+        if (!sessiecode) {
+            toonFout('Geen sessiecode gevonden. Ga terug naar de lobby.');
+            return;
+        }
+
+        document.getElementById('hdr-code').textContent = sessiecode;
+
+        // Controleer of de sessie al een eindverhaal heeft
+        try {
+            const resp = await fetch(`/api/sessie/${sessiecode}`);
+            const data = await resp.json();
+            if (!data.succes) { toonFout(data.bericht); return; }
+
+            sessieData = data.sessie;
+
+            if (data.sessie.eindverhaal) {
+                // Al klaar — direct tonen
+                toonVerhaal(data.sessie.eindverhaal, data.sessie);
+            } else if (data.sessie.status === 'klaar') {
+                // Starten met montage
+                startMontage();
+            } else {
+                toonFout('Niet alle hoofdstukken zijn nog ingestuurd. Wacht tot iedereen klaar is.');
+            }
+        } catch (_) {
+            toonFout('Verbindingsfout. Controleer je internet en herlaad de pagina.');
+        }
+    })();
+
+    async function startMontage() {
+        toonScherm('scherm-montage');
+        try {
+            const resp = await fetch(`/api/sessie/${sessiecode}/montage`, { method: 'POST' });
+            const data = await resp.json();
+
+            if (!data.succes) { toonFout(data.bericht); return; }
+
+            sessieData = data.sessie;
+            toonVerhaal(data.eindverhaal, data.sessie);
+        } catch (_) {
+            toonFout('De AI kon het verhaal niet samenvoegen. Probeer de pagina opnieuw te laden.');
+        }
+    }
+
+    function toonVerhaal(eindverhaal, sessie) {
+        const schrijvers = sessie.deelnemers
+            .filter(d => d.klaar)
+            .sort((a, b) => a.hoofdstukNummer - b.hoofdstukNummer)
+            .map(d => d.naam);
+
+        // Titel & auteurs
+        document.getElementById('verhaal-titel').textContent = eindverhaal.titel || 'Ons Samen Verhaal';
+        document.getElementById('verhaal-auteurs').textContent = schrijvers.join(', ');
+
+        // Hoofdstukken
+        const container = document.getElementById('hoofdstukken-container');
+        container.innerHTML = '';
+        const kleuren = ['#7c3aed', '#e8197d', '#059669', '#d97706', '#3b82f6', '#ec4899'];
+
+        (eindverhaal.hoofdstukken || []).forEach((hst, i) => {
+            const kleur = kleuren[i % kleuren.length];
+            const kaart = document.createElement('div');
+            kaart.className = 'hoofdstuk-kaart';
+            kaart.innerHTML = `
+                <div class="hst-header">
+                    <div class="hst-nummer" style="background:linear-gradient(135deg,${kleur},${kleuren[(i+1)%kleuren.length]})">${hst.nummer}</div>
+                    <div class="hst-info">
+                        <div class="hst-label">Hoofdstuk ${hst.nummer}</div>
+                        <div class="hst-schrijver">${escHtml(hst.schrijver || '')}</div>
+                    </div>
+                    <div class="hst-pen">✏️</div>
+                </div>
+                <div class="hst-tekst">${escHtml(hst.tekst || '')}</div>
+            `;
+            container.appendChild(kaart);
+
+            // Scheidingslijn tussen hoofdstukken
+            if (i < (eindverhaal.hoofdstukken.length - 1)) {
+                const div = document.createElement('div');
+                div.className = 'divider';
+                div.innerHTML = `<div class="divider-lijn"></div><div class="divider-icoon">⋯</div><div class="divider-lijn"></div>`;
+                container.appendChild(div);
+            }
+        });
+
+        // Slotwoord
+        if (eindverhaal.slotwoord) {
+            document.getElementById('slotwoord-tekst').textContent = eindverhaal.slotwoord;
+            document.getElementById('slotwoord-kaart').style.display = 'block';
+        }
+
+        // Auteurs chips
+        const chipsEl = document.getElementById('auteurs-chips');
+        chipsEl.innerHTML = '';
+        schrijvers.forEach(naam => {
+            const chip = document.createElement('div');
+            chip.className = 'auteur-chip';
+            chip.textContent = naam;
+            chipsEl.appendChild(chip);
+        });
+
+        toonScherm('scherm-verhaal');
+    }
+
+    function deelVerhaal() {
+        const url = `${location.origin}/sessie-verhaal.html?code=${sessiecode}`;
+        if (navigator.share) {
+            navigator.share({
+                title: 'Ons Samen Verhaal — Depeterpost',
+                text: 'Kijk ons samen geschreven verhaal! 📚',
+                url
+            }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link gekopieerd naar klembord! 📋');
+            }).catch(() => {
+                prompt('Kopieer deze link:', url);
+            });
+        }
+    }
+
+    function toonScherm(id) {
+        document.querySelectorAll('.scherm').forEach(s => s.classList.remove('actief'));
+        document.getElementById(id).classList.add('actief');
+    }
+
+    function toonFout(tekst) {
+        document.getElementById('fout-tekst').textContent = tekst;
+        toonScherm('scherm-fout');
+    }
+
+    function escHtml(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+</script>
+</body>
+</html>

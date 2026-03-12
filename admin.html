@@ -150,6 +150,8 @@
         <button class="tab-knop" onclick="wissel('dagelijks')">🌙 Dagelijks</button>
         <button class="tab-knop" onclick="wissel('videos')">🎬 Video's</button>
         <button class="tab-knop" onclick="wissel('ingezonden'); laadIngezonden()">📨 Ingezonden</button>
+        <button class="tab-knop" onclick="wissel('verhaal'); laadVolledigVerhaal()">📖 Verhaal</button>
+        <button class="tab-knop" onclick="wissel('sessies'); laadSessies()">🤝 Sessies</button>
     </div>
 
 
@@ -221,7 +223,10 @@
                 <button class="groep-btn actief-B" onclick="selecteerGroep('B', this)">🔵 9-11 jaar</button>
                 <button class="groep-btn" onclick="selecteerGroep('C', this)">🟢 12+ jaar</button>
             </div>
-            <button class="knop knop-blauw" onclick="laadHuidigeOpdracht()" style="font-size:0.85rem; padding:8px 16px;">🔄 Bekijk opdracht</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                <button class="knop knop-blauw" onclick="laadHuidigeOpdracht()" style="font-size:0.85rem; padding:8px 16px;">🔄 Bekijk opdracht</button>
+                <button class="knop knop-rood" onclick="verwijderOpdracht()" style="font-size:0.85rem; padding:8px 16px;">🗑️ Verwijder opdracht van vandaag</button>
+            </div>
             <div id="huidigeOpdrachtResultaat" style="margin-top:12px;"></div>
         </div>
 
@@ -344,6 +349,52 @@
             <button class="knop knop-blauw" onclick="laadIngezonden()" style="padding:8px 16px; font-size:0.85rem; margin-bottom:14px;">🔄 Vernieuwen</button>
             <div id="ingezondenLijst"><p style="color:rgba(255,255,255,0.4);">Klik op de tab om te laden.</p></div>
         </div>
+    </div>
+
+    <!-- ══ TAB: VERHAAL ══ -->
+    <div id="tab-verhaal" class="tab-inhoud">
+
+        <div class="admin-kaart">
+            <h3>📖 Volledig verhaal</h3>
+            <p style="margin-bottom:12px; color:rgba(255,255,255,0.5);">Alle hoofdstukken achter elkaar — geschikt om te kopiëren of te exporteren.</p>
+            <button class="knop knop-blauw" onclick="laadVolledigVerhaal()" style="font-size:0.85rem; padding:8px 16px; margin-bottom:14px;">🔄 Vernieuwen</button>
+            <button class="knop knop-groen" onclick="kopieerVerhaal()" style="font-size:0.85rem; padding:8px 16px; margin-bottom:14px;">📋 Kopieer alles</button>
+            <div id="volledigVerhaalContainer">
+                <p style="color:rgba(255,255,255,0.4);">Klik op de tab om te laden.</p>
+            </div>
+        </div>
+
+        <div class="admin-kaart" style="border:2px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.04);">
+            <h3 style="color:#F87171;">⚠️ Verhaal resetten — Nieuw beginnen</h3>
+            <p style="color:rgba(255,255,255,0.5); margin-bottom:14px;">
+                Het huidige verhaal wordt gearchiveerd (een backup blijft in <code style="color:#74C0FC;">data/</code> staan) en het verhaal begint opnieuw van nul. De opdrachten van vandaag en toekomst worden ook gewist.
+            </p>
+            <button class="knop knop-rood" onclick="resetVerhaal()">🔄 Archiveer & Begin Opnieuw</button>
+            <div class="resultaat-vak" id="resetResultaat"></div>
+        </div>
+
+    </div>
+
+    <!-- ══ TAB: SESSIES ══ -->
+    <div id="tab-sessies" class="tab-inhoud">
+
+        <div class="admin-kaart">
+            <h3>🤝 Gezamenlijke Schrijfsessies</h3>
+            <p style="color:rgba(255,255,255,0.5); margin-bottom:14px;">Overzicht van alle samen-schrijf-sessies. Klik op een sessie om het eindverhaal te bekijken.</p>
+            <button class="knop knop-blauw" onclick="laadSessies()" style="font-size:0.85rem; padding:8px 16px; margin-bottom:16px;">🔄 Vernieuwen</button>
+            <div id="sessies-container">
+                <div class="leeg-melding"><span class="emoji">⏳</span>Laden...</div>
+            </div>
+        </div>
+
+        <div class="admin-kaart">
+            <h3>🔗 Snelle links</h3>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="sessie-host.html" target="_blank" class="knop knop-groen" style="text-decoration:none; padding:9px 18px; font-size:0.88rem; border-radius:50px; font-family:'Baloo 2',sans-serif; font-weight:800;">✍️ Host-pagina openen</a>
+                <a href="sessie-join.html" target="_blank" class="knop knop-blauw" style="text-decoration:none; padding:9px 18px; font-size:0.88rem; border-radius:50px; font-family:'Baloo 2',sans-serif; font-weight:800;">🙋 Join-pagina openen</a>
+            </div>
+        </div>
+
     </div>
 
 </div><!-- /admin-wrapper -->
@@ -628,7 +679,10 @@ async function laadHuidigeOpdracht() {
                 <p style="color:#FFD93D; font-weight:700; margin-bottom:10px;">📋 Opdracht voor ${({A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'})[o.leeftijdsgroep] || 'vandaag'}</p>
                 <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Personage:</strong> ${escapeHTML(o.personage)}</p>
                 <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Omgeving:</strong> ${escapeHTML(o.omgeving)}</p>
-                <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Gebeurtenis:</strong> ${escapeHTML(o.gebeurtenis)}</p>
+                ${o.verhaaleinde ? `<p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Vorig einde:</strong> ${escapeHTML(o.verhaaleinde)}</p>` : ''}
+                <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Beginpunt:</strong> ${escapeHTML(o.beginpunt || o.gebeurtenis)}</p>
+                ${o.ideeen?.length ? `<p style="color:rgba(139,92,246,0.9); margin:4px 0;"><strong>Ideeën:</strong> ${o.ideeen.map(i => escapeHTML(i)).join(' | ')}</p>` : ''}
+                <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Sleutelwoorden:</strong> ${(o.sleutelwoorden||[]).join(', ')}</p>
                 <p style="color:rgba(255,255,255,0.8); margin:4px 0;"><strong>Opdracht:</strong> ${escapeHTML(o.opdrachttekst)}</p>
                 ${o.aansluitingsTip ? `<p style="color:rgba(255,255,255,0.5); font-size:0.85rem; margin-top:8px;">💡 ${escapeHTML(o.aansluitingsTip)}</p>` : ''}
             </div>`;
@@ -652,7 +706,7 @@ async function genereerOpdracht() {
     const data = await r.json();
     if (data.succes) {
         const o = data.opdracht;
-        resultaat.textContent = `✅ Opdracht aangemaakt voor ${({A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'})[o.leeftijdsgroep]}!\n\nPersonage: ${o.personage}\nOmgeving: ${o.omgeving}\nGebeurtenis: ${o.gebeurtenis}\nOpdracht: ${o.opdrachttekst}\n\n💡 Aansluiting: ${o.aansluitingsTip || ''}`;
+        resultaat.textContent = `✅ Opdracht aangemaakt voor ${({A:'6-8 jaar',B:'9-11 jaar',C:'12+ jaar'})[o.leeftijdsgroep]}!\n\nPersonage: ${o.personage}\nOmgeving: ${o.omgeving}\n${o.verhaaleinde ? `Vorig einde: ${o.verhaaleinde}\n` : ''}Beginpunt: ${o.beginpunt || o.gebeurtenis}\nSleutelwoorden: ${(o.sleutelwoorden||[]).join(', ')}\nOpdracht: ${o.opdrachttekst}\n\n💡 Aansluiting: ${o.aansluitingsTip || ''}`;
         resultaat.style.color = '#51CF66';
     } else {
         resultaat.textContent = '❌ ' + data.bericht;
@@ -928,6 +982,139 @@ async function verwijderIngezonden(id) {
             el.style.opacity = '0'; el.style.transform = 'scale(0.95)';
             setTimeout(() => { el.remove(); laadIngezonden(); }, 300);
         }
+    }
+}
+
+// ══════════════════════════════════════
+// OPDRACHT VERWIJDEREN
+// ══════════════════════════════════════
+async function verwijderOpdracht() {
+    const vandaag = new Date().toISOString().split('T')[0];
+    if (!confirm(`Opdracht van vandaag (${vandaag}) voor groep ${huidigGroep} verwijderen?`)) return;
+    const r = await adminFetch(`/api/admin/opdracht?datum=${vandaag}&groep=${huidigGroep}`, { method: 'DELETE' });
+    const data = await r.json();
+    const container = document.getElementById('huidigeOpdrachtResultaat');
+    if (data.succes) {
+        container.innerHTML = `<p style="color:#51CF66;">✅ Opdracht verwijderd. Je kan nu een nieuwe genereren.</p>`;
+    } else {
+        container.innerHTML = `<p style="color:#FF6B6B;">❌ ${data.bericht}</p>`;
+    }
+}
+
+// ══════════════════════════════════════
+// VOLLEDIG VERHAAL
+// ══════════════════════════════════════
+async function laadVolledigVerhaal() {
+    const container = document.getElementById('volledigVerhaalContainer');
+    if (!container) return;
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.4);">Laden...</p>';
+    try {
+        const r = await fetch('/api/verhaal');
+        const verhaal = await r.json();
+        const hoofdstukken = verhaal.hoofdstukken || [];
+        if (hoofdstukken.length === 0) {
+            container.innerHTML = '<p style="color:rgba(255,255,255,0.4); text-align:center; padding:20px;">Het verhaal heeft nog geen hoofdstukken.</p>';
+            return;
+        }
+        container.innerHTML = `
+            <div style="background:rgba(13,43,26,0.5); border:1px solid rgba(76,201,122,0.15); border-radius:12px; padding:20px; margin-bottom:14px;">
+                <p style="color:#F7C948; font-weight:800; font-size:1.1rem; margin-bottom:4px;">${escapeHTML(verhaal.titel || 'Het Grote Avontuur')}</p>
+                <p style="color:rgba(167,196,181,0.5); font-size:0.82rem;">${hoofdstukken.length} hoofdstukken · Auteurs: ${[...new Set(hoofdstukken.map(h => h.auteur))].join(', ')}</p>
+            </div>
+            <div id="verhaalTekstBlok" style="background:rgba(13,43,26,0.4); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:20px; font-size:0.92rem; line-height:1.9; color:rgba(167,196,181,0.9); white-space:pre-wrap; max-height:600px; overflow-y:auto;">
+${hoofdstukken.map(h => `— Hoofdstuk ${h.nummer} (${h.auteur}, ${h.datum}) —\n\n${h.tekst}`).join('\n\n\n')}
+            </div>
+        `;
+    } catch(e) {
+        container.innerHTML = '<p style="color:#ff8a8a;">Fout bij laden van verhaal.</p>';
+    }
+}
+
+function kopieerVerhaal() {
+    const blok = document.getElementById('verhaalTekstBlok');
+    if (!blok) return;
+    navigator.clipboard.writeText(blok.innerText).then(() => {
+        alert('✅ Verhaal gekopieerd naar klembord!');
+    }).catch(() => {
+        alert('Kon niet kopiëren. Selecteer de tekst handmatig.');
+    });
+}
+
+// ══════════════════════════════════════
+// VERHAAL RESETTEN
+// ══════════════════════════════════════
+async function resetVerhaal() {
+    if (!confirm('⚠️ Weet je het zeker?\n\nHet verhaal wordt gearchiveerd en begint opnieuw. Dit kan niet ongedaan worden gemaakt.')) return;
+    if (!confirm('Laatste bevestiging: het verhaal resetten en opnieuw beginnen?')) return;
+    const knop = event.target;
+    knop.disabled = true; knop.textContent = '⏳ Resetten...';
+    const r = await adminFetch('/api/admin/verhaal/reset', { method: 'POST' });
+    const data = await r.json();
+    const resultaat = document.getElementById('resetResultaat');
+    resultaat.style.display = 'block';
+    if (data.succes) {
+        resultaat.textContent = '✅ Verhaal gearchiveerd en gereset! Je kan nu een nieuw verhaal beginnen.';
+        resultaat.style.color = '#51CF66';
+        laadVolledigVerhaal();
+    } else {
+        resultaat.textContent = '❌ ' + data.bericht;
+        resultaat.style.color = '#FF6B6B';
+    }
+    knop.disabled = false; knop.textContent = '🔄 Archiveer & Begin Opnieuw';
+}
+
+// ══════════════════════════════════════
+// SESSIES
+// ══════════════════════════════════════
+async function laadSessies() {
+    const container = document.getElementById('sessies-container');
+    container.innerHTML = '<div class="leeg-melding"><span class="emoji">⏳</span>Laden...</div>';
+
+    try {
+        const r = await adminFetch('/api/admin/sessies');
+        const data = await r.json();
+        const sessies = data.sessies || [];
+
+        if (sessies.length === 0) {
+            container.innerHTML = '<div class="leeg-melding"><span class="emoji">📭</span>Nog geen sessies aangemaakt.</div>';
+            return;
+        }
+
+        const statusKleur = { wachten: '#F7C948', actief: '#4CC97A', klaar: '#74C0FC' };
+        const statusLabel = { wachten: '⏳ Wacht', actief: '✍️ Actief', klaar: '✅ Klaar' };
+
+        container.innerHTML = sessies
+            .slice().reverse()
+            .map(s => {
+                const klaar  = (s.deelnemers || []).filter(d => d.klaar).length;
+                const totaal = (s.deelnemers || []).length;
+                const namen  = (s.deelnemers || []).map(d =>
+                    `<span style="display:inline-block;background:rgba(255,255,255,0.07);border-radius:50px;padding:3px 10px;font-size:0.78rem;margin:2px;">${escapeHTML(d.naam)} H${d.hoofdstukNummer}${d.klaar ? ' ✓' : ''}</span>`
+                ).join('');
+                const kleur = statusKleur[s.status] || '#888';
+                const datum = s.aangemaaktOp ? new Date(s.aangemaaktOp).toLocaleString('nl-NL', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+
+                return `
+                <div style="background:rgba(34,99,58,0.35);border:2px solid rgba(255,255,255,0.08);border-left:4px solid ${kleur};border-radius:16px;padding:18px 20px;margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                        <div>
+                            <span style="font-family:'Grandstander',cursive;font-size:1.1rem;color:white;margin-right:10px;">🔑 ${escapeHTML(s.code)}</span>
+                            <span style="background:rgba(${s.groep==='A'?'242,140,56':s.groep==='C'?'76,201,122':'139,92,246'},0.2);color:${s.groep==='A'?'#F28C38':s.groep==='C'?'#4CC97A':'#8B5CF6'};padding:3px 12px;border-radius:50px;font-size:0.75rem;font-weight:700;">Groep ${s.groep}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="color:${kleur};font-weight:700;font-size:0.85rem;">${statusLabel[s.status] || s.status}</span>
+                            <span style="color:rgba(167,196,181,0.4);font-size:0.78rem;">${datum}</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:10px;">${namen || '<span style="color:rgba(167,196,181,0.4);font-size:0.85rem;">Geen deelnemers</span>'}</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                        <span style="color:rgba(167,196,181,0.5);font-size:0.82rem;">📝 ${klaar}/${totaal} hoofdstukken klaar · ${s.blueprint ? '📖 ' + escapeHTML(s.blueprint.titel || 'Blueprint aanwezig') : 'Geen blueprint'}</span>
+                        ${s.eindverhaal ? `<a href="sessie-verhaal.html?code=${s.code}" target="_blank" class="knop knop-groen" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;border-radius:50px;font-family:'Baloo 2',sans-serif;font-weight:800;">📚 Bekijk verhaal</a>` : (s.status === 'klaar' ? `<a href="sessie-verhaal.html?code=${s.code}" target="_blank" class="knop knop-blauw" style="text-decoration:none;padding:7px 16px;font-size:0.82rem;border-radius:50px;font-family:'Baloo 2',sans-serif;font-weight:800;">🪡 Assembleer</a>` : '')}
+                    </div>
+                </div>`;
+            }).join('');
+    } catch (e) {
+        container.innerHTML = '<div class="leeg-melding"><span class="emoji">⚠️</span>Kon sessies niet laden.</div>';
     }
 }
 

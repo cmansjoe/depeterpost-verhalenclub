@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mijn Geheim Dossier — Depeterpost Verhalen Club</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { overflow-x: hidden; }
+        main { position: relative; z-index: 1; padding: 0 0 60px; }
+        .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+        /* ── ACHTERGROND ORBS ── */
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px);
+            animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
+        }
+        @keyframes orbDrift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
+        }
+
+        /* ── NIET INGELOGD ── */
+        .niet-ingelogd {
+            text-align: center; padding: 80px 20px;
+            background: rgba(13,43,26,0.5); border: 2px dashed rgba(247,201,72,0.25);
+            border-radius: 24px; margin-top: 32px;
+        }
+        .niet-ingelogd-emoji { font-size: 3.5rem; margin-bottom: 16px; }
+        .niet-ingelogd h2 { font-family: 'Grandstander', cursive; color: #F7C948; margin-bottom: 10px; }
+        .niet-ingelogd p { color: rgba(167,196,181,0.7); margin-bottom: 24px; }
+
+        /* ── SECTIE LABEL ── */
+        .sectie-label {
+            color: rgba(167,196,181,0.5); font-size: 0.75rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .sectie-label::after { content: ''; flex: 1; height: 1px; background: rgba(76,201,122,0.1); }
+
+        /* ── AGENTENPROFIEL ── */
+        @keyframes profileIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .agent-profiel {
+            background: linear-gradient(135deg, #0D2B1A 0%, #1B4D2E 60%, #0D2B1A 100%);
+            border: 2px solid rgba(247,201,72,0.3);
+            border-radius: 28px; padding: 32px 28px;
+            margin: 28px 0 24px; position: relative; overflow: hidden;
+            animation: profileIn 0.5s ease both;
+        }
+        .agent-profiel::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(circle at 10% 50%, rgba(247,201,72,0.07), transparent 50%),
+                        radial-gradient(circle at 90% 20%, rgba(76,201,122,0.06), transparent 45%);
+        }
+        .agent-profiel-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        .agent-avatar {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(247,201,72,0.12); border: 3px solid rgba(247,201,72,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; flex-shrink: 0;
+        }
+        .agent-info { flex: 1; min-width: 0; }
+        .agent-tag {
+            display: inline-block; font-size: 0.7rem; font-weight: 800;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            background: rgba(247,201,72,0.12); border: 1px solid rgba(247,201,72,0.3);
+            color: #F7C948; padding: 3px 12px; border-radius: 50px; margin-bottom: 8px;
+        }
+        .agent-naam { font-family: 'Grandstander', cursive; font-size: 1.6rem; color: white; margin-bottom: 4px; }
+        .agent-groep { color: rgba(167,196,181,0.6); font-size: 0.88rem; }
+
+        /* Stats */
+        .agent-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+        .stat-blok {
+            flex: 1; min-width: 100px;
+            background: rgba(13,43,26,0.6); border: 1px solid rgba(76,201,122,0.15);
+            border-radius: 16px; padding: 14px 16px; text-align: center;
+        }
+        .stat-getal { font-family: 'Grandstander', cursive; font-size: 1.8rem; color: #4CC97A; line-height: 1; }
+        .stat-getal.goud { color: #F7C948; }
+        .stat-label { color: rgba(167,196,181,0.55); font-size: 0.75rem; margin-top: 4px; }
+
+        /* Badges */
+        .badge-rij { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+        .badge {
+            padding: 5px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 800;
+            background: rgba(76,201,122,0.12); border: 1px solid rgba(76,201,122,0.3); color: #4CC97A;
+        }
+        .badge.goud { background: rgba(247,201,72,0.12); border-color: rgba(247,201,72,0.3); color: #F7C948; }
+
+        /* ── INZENDINGEN ── */
+        @keyframes kaartIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .inzending-kaart {
+            background: rgba(13,43,26,0.55); border: 2px solid rgba(76,201,122,0.15);
+            border-radius: 20px; margin-bottom: 14px; overflow: hidden;
+            animation: kaartIn 0.4s ease both;
+            transition: border-color 0.2s;
+        }
+        .inzending-kaart:hover { border-color: rgba(76,201,122,0.35); }
+        .inzending-kaart.winnaar-kaart { border-color: rgba(247,201,72,0.4); }
+        .inzending-kaart.winnaar-kaart:hover { border-color: rgba(247,201,72,0.65); }
+
+        .inzending-kop {
+            display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+            cursor: pointer; user-select: none;
+        }
+        .inzending-kop:hover { background: rgba(76,201,122,0.04); }
+
+        .winnaar-lint {
+            background: linear-gradient(135deg, #F7C948, #f0a500);
+            color: #0D2B1A; font-size: 0.72rem; font-weight: 900;
+            padding: 3px 12px; border-radius: 50px; white-space: nowrap; flex-shrink: 0;
+        }
+        .inzending-datum { color: rgba(167,196,181,0.5); font-size: 0.8rem; flex-shrink: 0; }
+        .inzending-preview {
+            flex: 1; color: rgba(167,196,181,0.75); font-size: 0.88rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+        }
+        .inzending-score {
+            flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 0.82rem; border: 2px solid;
+        }
+        .score-hoog  { background: rgba(76,201,122,0.15); border-color: rgba(76,201,122,0.45); color: #4CC97A; }
+        .score-midden{ background: rgba(247,201,72,0.12); border-color: rgba(247,201,72,0.4); color: #F7C948; }
+        .score-laag  { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.4); color: #F87171; }
+
+        .inzending-chevron {
+            flex-shrink: 0; color: rgba(167,196,181,0.35);
+            font-size: 0.8rem; transition: transform 0.25s;
+        }
+        .inzending-kaart.open .inzending-chevron { transform: rotate(180deg); }
+
+        .inzending-body {
+            display: none; padding: 0 20px 20px; border-top: 1px solid rgba(76,201,122,0.1);
+        }
+        .inzending-kaart.open .inzending-body { display: block; }
+
+        /* Tekst blokken */
+        .tekst-blok { margin-top: 16px; }
+        .tekst-label {
+            font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 8px; color: rgba(167,196,181,0.45);
+        }
+        .tekst-inhoud {
+            background: rgba(0,0,0,0.25); border-radius: 12px; padding: 14px 16px;
+            font-size: 0.88rem; line-height: 1.75; color: rgba(167,196,181,0.8);
+            white-space: pre-wrap; word-break: break-word;
+        }
+
+        /* Feedback blok */
+        .feedback-blok {
+            margin-top: 16px; background: rgba(76,201,122,0.06);
+            border: 1px solid rgba(76,201,122,0.15); border-radius: 14px; padding: 14px 16px;
+        }
+        .feedback-compliment {
+            color: #4CC97A; font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;
+        }
+        .feedback-aanmoediging { color: rgba(167,196,181,0.6); font-size: 0.85rem; }
+
+        /* Lege staat */
+        .leeg-staat {
+            text-align: center; padding: 48px 20px;
+            color: rgba(167,196,181,0.4); font-size: 0.9rem;
+        }
+        .leeg-staat-emoji { font-size: 2.8rem; margin-bottom: 12px; }
+
+        /* Laad spinner */
+        .laad-staat { text-align: center; padding: 40px; color: rgba(167,196,181,0.4); }
+
+        /* ── TAALFOUTEN LEREN ── */
+        .fout-mark {
+            background: rgba(248,113,113,0.25); color: #FCA5A5;
+            border-bottom: 2px solid rgba(248,113,113,0.7);
+            border-radius: 3px; padding: 0 2px;
+            cursor: help; position: relative;
+        }
+        .goed-mark {
+            background: rgba(76,201,122,0.2); color: #6EE7B7;
+            border-bottom: 2px solid rgba(76,201,122,0.6);
+            border-radius: 3px; padding: 0 2px;
+        }
+
+        .vergelijk-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;
+        }
+        @media (max-width: 580px) { .vergelijk-grid { grid-template-columns: 1fr; } }
+
+        .vergelijk-blok { }
+        .vergelijk-label {
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+        }
+        .vergelijk-label.rood { color: rgba(248,113,113,0.7); }
+        .vergelijk-label.groen { color: rgba(76,201,122,0.7); }
+        .vergelijk-tekst {
+            background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px 16px;
+            font-size: 0.85rem; line-height: 1.8; white-space: pre-wrap; word-break: break-word;
+        }
+        .vergelijk-blok.rood .vergelijk-tekst { border: 1px solid rgba(248,113,113,0.15); color: rgba(167,196,181,0.75); }
+        .vergelijk-blok.groen .vergelijk-tekst { border: 1px solid rgba(76,201,122,0.15); color: rgba(167,196,181,0.75); }
+
+        /* Wijzigingen-lijst */
+        .wijzigingen-blok {
+            margin-top: 14px; background: rgba(247,201,72,0.05);
+            border: 1px solid rgba(247,201,72,0.15); border-radius: 14px; padding: 14px 16px;
+        }
+        .wijzigingen-titel {
+            color: #F7C948; font-weight: 800; font-size: 0.85rem; margin-bottom: 10px;
+        }
+        .wijziging-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.83rem; margin-bottom: 7px; color: rgba(167,196,181,0.8);
+        }
+        .wijziging-item:last-child { margin-bottom: 0; }
+        .wijziging-fout {
+            background: rgba(248,113,113,0.2); color: #FCA5A5;
+            padding: 2px 8px; border-radius: 6px; font-weight: 700;
+            text-decoration: line-through; white-space: nowrap;
+        }
+        .wijziging-pijl { color: rgba(167,196,181,0.35); font-size: 0.9rem; }
+        .wijziging-goed {
+            background: rgba(76,201,122,0.18); color: #6EE7B7;
+            padding: 2px 8px; border-radius: 6px; font-weight: 700; white-space: nowrap;
+        }
+        .wijziging-uitleg { color: rgba(167,196,181,0.5); font-size: 0.78rem; font-style: italic; }
+
+        /* Veelgemaakte fouten samenvatting */
+        .fouten-samenvatting {
+            background: rgba(13,43,26,0.6); border: 2px solid rgba(247,201,72,0.2);
+            border-radius: 20px; padding: 22px 24px; margin-bottom: 24px;
+        }
+        .fouten-samenvatting-kop {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+        }
+        .fouten-samenvatting-titel {
+            font-family: 'Grandstander', cursive; font-size: 1.1rem; color: #F7C948;
+        }
+        .fouten-samenvatting-sub { color: rgba(167,196,181,0.5); font-size: 0.82rem; margin-top: 2px; }
+        .fouten-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .fouten-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 50px; padding: 5px 14px;
+            font-size: 0.8rem; color: rgba(248,113,113,0.85);
+        }
+        .fouten-chip-getal {
+            background: rgba(248,113,113,0.2); border-radius: 50%;
+            width: 20px; height: 20px; display: inline-flex;
+            align-items: center; justify-content: center;
+            font-weight: 900; font-size: 0.72rem;
+        }
+        .geen-fouten-blij {
+            color: #4CC97A; font-weight: 700; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* ── PERSOONLIJKE VERHALEN ── */
+        .pverhaal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+        @media (max-width: 580px) { .pverhaal-grid { grid-template-columns: 1fr; } }
+
+        .pverhaal-kaart {
+            background: rgba(13,43,26,0.55); border: 2px solid rgba(124,58,237,0.2);
+            border-radius: 18px; padding: 20px; text-decoration: none;
+            display: flex; flex-direction: column; gap: 10px;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .pverhaal-kaart:hover {
+            border-color: rgba(124,58,237,0.5); transform: translateY(-4px);
+            box-shadow: 0 10px 32px rgba(124,58,237,0.2);
+        }
+        .pverhaal-kop { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+        .pverhaal-titel { font-family: 'Grandstander', cursive; font-size: 1rem; color: white; }
+        .pverhaal-status {
+            font-size: 0.7rem; font-weight: 800; padding: 3px 10px;
+            border-radius: 50px; white-space: nowrap; flex-shrink: 0;
+        }
+        .status-bezig { background: rgba(247,201,72,0.12); border: 1px solid rgba(247,201,72,0.3); color: #F7C948; }
+        .status-klaar { background: rgba(76,201,122,0.12); border: 1px solid rgba(76,201,122,0.3); color: #4CC97A; }
+
+        .pverhaal-voortgang { }
+        .pverhaal-balk-wrap { height: 5px; background: rgba(255,255,255,0.07); border-radius: 5px; overflow: hidden; margin-bottom: 4px; }
+        .pverhaal-balk { height: 100%; background: linear-gradient(90deg, #7c3aed, #c4b5fd); border-radius: 5px; transition: width 0.6s ease; }
+        .pverhaal-balk-label { color: rgba(167,196,181,0.45); font-size: 0.75rem; }
+
+        .pverhaal-preview {
+            color: rgba(167,196,181,0.6); font-size: 0.82rem; line-height: 1.6;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .pverhaal-leeg { color: rgba(167,196,181,0.3); font-style: italic; font-size: 0.82rem; }
+        .pverhaal-meta { color: rgba(167,196,181,0.35); font-size: 0.75rem; }
+
+        /* Knop stijlen */
+        .knop-goud {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 24px; background: linear-gradient(135deg, #F7C948, #f0a500);
+            color: #0D2B1A; border: none; border-radius: 50px;
+            font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 0.95rem;
+            cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .knop-goud:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(247,201,72,0.4); }
+
+        .knop-groen {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 24px; background: linear-gradient(135deg, #4CC97A, #34D399);
+            color: #0D2B1A; border: none; border-radius: 50px;
+            font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 0.95rem;
+            cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .knop-groen:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(76,201,122,0.4); }
+    </style>
+</head>
+<body>
+
+<div class="bg-canvas">
+    <div class="bg-orb" style="width:400px;height:400px;background:rgba(247,201,72,0.08);top:-100px;left:-80px;--d:14s;--tx:50px;--ty:40px;"></div>
+    <div class="bg-orb" style="width:350px;height:350px;background:rgba(76,201,122,0.07);bottom:-80px;right:-80px;--d:11s;--tx:-40px;--ty:-50px;"></div>
+    <div class="bg-orb" style="width:280px;height:280px;background:rgba(124,58,237,0.06);top:45%;left:55%;--d:9s;--tx:60px;--ty:-30px;"></div>
+</div>
+
+<!-- HEADER -->
+<header>
+    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <p class="site-subtitle">Schrijf mee aan het grote avontuur!</p>
+</header>
+
+<!-- NAV -->
+<nav>
+    <a href="index.html">🏠 Home</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="schrijfopdracht.html">✏️ Schrijfopdracht</a>
+    <a href="verhaal-overzicht.html">📚 Ons Verhaal</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-dossier.html" class="actief" id="navMijnVerhaalLink" style="display:none">🗂️ Mijn Dossier</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.35); border-radius:50px; padding:6px 16px;">🕵️ De Geheime Club</a>
+    <a href="login.html" class="nav-login" id="navLoginLink" style="float:right; display:inline-flex; align-items:center; gap:6px; padding:6px 16px; background:rgba(76,201,122,0.1); border:1px solid rgba(76,201,122,0.25); border-radius:50px; margin:8px 0;">👤 Login</a>
+</nav>
+
+<main>
+<div class="container">
+
+    <!-- Niet ingelogd -->
+    <div id="nietIngelogd" style="display:none;">
+        <div class="niet-ingelogd">
+            <div class="niet-ingelogd-emoji">🔒</div>
+            <h2>Jouw dossier is beveiligd</h2>
+            <p>Log in om jouw geheime dossier te openen.<br>Al jouw verhalen en feedback wachten op je!</p>
+            <a href="login.html" class="knop-goud">🕵️ Inloggen om verder te gaan</a>
+        </div>
+    </div>
+
+    <!-- Ingelogd content -->
+    <div id="dossierContent" style="display:none;">
+
+        <!-- ── AGENTENPROFIEL ── -->
+        <div class="agent-profiel">
+            <div class="agent-profiel-inner">
+                <div class="agent-avatar" id="agentAvatar">🕵️</div>
+                <div class="agent-info">
+                    <div class="agent-tag">🔐 Geheim Agent</div>
+                    <div class="agent-naam" id="agentNaam">Laden...</div>
+                    <div class="agent-groep" id="agentGroep"></div>
+                </div>
+            </div>
+            <div class="agent-stats">
+                <div class="stat-blok">
+                    <div class="stat-getal goud" id="statWinsten">0</div>
+                    <div class="stat-label">🏆 Keer gewonnen</div>
+                </div>
+                <div class="stat-blok">
+                    <div class="stat-getal" id="statInzendingen">0</div>
+                    <div class="stat-label">✏️ Inzendingen</div>
+                </div>
+                <div class="stat-blok">
+                    <div class="stat-getal" id="statWoorden">0</div>
+                    <div class="stat-label">📝 Woorden geschreven</div>
+                </div>
+                <div class="stat-blok">
+                    <div class="stat-getal" id="statReeks">0</div>
+                    <div class="stat-label">🔥 Dagen op rij</div>
+                </div>
+            </div>
+            <div class="badge-rij" id="badgeRij"></div>
+        </div>
+
+        <!-- ── VEELGEMAAKTE FOUTEN ── -->
+        <div class="sectie-label">🔍 Mijn leerpunten</div>
+        <div class="fouten-samenvatting" id="foutenSamenvatting" style="display:none;">
+            <div class="fouten-samenvatting-kop">
+                <span style="font-size:1.6rem;">🧠</span>
+                <div>
+                    <div class="fouten-samenvatting-titel">Jouw meest gemaakte fouten</div>
+                    <div class="fouten-samenvatting-sub">Over al jouw inzendingen heen — leer er van!</div>
+                </div>
+            </div>
+            <div class="fouten-chips" id="foutenChips"></div>
+        </div>
+
+        <!-- ── INZENDINGEN ── -->
+        <div class="sectie-label">📋 Mijn inzendingen voor De Grote Operatie</div>
+        <div id="inzendingenLijst">
+            <div class="laad-staat">⏳ Dossier wordt geladen...</div>
+        </div>
+
+        <div style="text-align:center; margin-top:24px; margin-bottom:40px;">
+            <a href="schrijfopdracht.html" class="knop-groen">✏️ Nieuwe inzending schrijven →</a>
+        </div>
+
+        <!-- ── PERSOONLIJKE VERHALEN ── -->
+        <div class="sectie-label">📝 Mijn persoonlijke verhalen</div>
+        <div id="persoonlijkeLijst">
+            <div class="laad-staat">⏳ Laden...</div>
+        </div>
+        <div style="text-align:center; margin-top:20px;">
+            <a href="mijn-verhalen-overzicht.html" class="knop-groen" style="background:linear-gradient(135deg,#7c3aed,#a78bfa); box-shadow:none;">✍️ Nieuw persoonlijk verhaal starten →</a>
+        </div>
+
+    </div>
+
+</div>
+</main>
+
+<footer>
+    <div class="quote">"Elk groot verhaal begon met één zin."</div>
+    <div class="quote-auteur">— Depeterpost Verhalen Club</div>
+</footer>
+
+<script>
+const BADGE_NAMEN = {
+    eerste_verhaal:   '✏️ Eerste verhaal',
+    op_dreef:         '🚀 Op dreef',
+    verhaalmeester:   '📚 Verhaalmeester',
+    kampioen:         '🏆 Kampioen',
+    super_kampioen:   '👑 Super Kampioen',
+    trouwe_schrijver: '🔥 Trouwe schrijver',
+    legenda:          '⭐ Legende',
+};
+
+const GROEP_NAMEN = { A: 'Groep A · 6–8 jaar', B: 'Groep B · 9–11 jaar', C: 'Groep C · 12+ jaar' };
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+    const userToken = localStorage.getItem('userToken');
+
+    // Nav update
+    if (userInfo) {
+        const link = document.getElementById('navLoginLink');
+        if (link) {
+            const badge = document.createElement('span');
+            badge.style.cssText = 'float:right; display:inline-flex; align-items:center; gap:8px; padding:6px 16px; background:rgba(247,201,72,0.1); border:1px solid rgba(247,201,72,0.3); border-radius:50px; margin:8px 0; color:#F7C948; font-weight:800; font-size:0.9rem; cursor:default;';
+            badge.title = 'Je bent ingelogd als ' + userInfo.gebruikersnaam;
+            badge.textContent = '🕵️ Agent ' + userInfo.gebruikersnaam;
+            const uitlogLink = document.createElement('a');
+            uitlogLink.style.cssText = 'float:right; display:inline-flex; align-items:center; padding:6px 14px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:50px; margin:8px 4px 8px 0; color:rgba(248,113,113,0.7); font-size:0.82rem; font-weight:700; text-decoration:none; cursor:pointer;';
+            uitlogLink.href = '#';
+            uitlogLink.textContent = '🚪 Uitloggen';
+            uitlogLink.addEventListener('click', e => { e.preventDefault(); localStorage.removeItem('userInfo'); localStorage.removeItem('userToken'); window.location.href = 'index.html'; });
+            link.replaceWith(badge);
+            badge.insertAdjacentElement('beforebegin', uitlogLink);
+        }
+        const mijnLink = document.getElementById('navMijnVerhaalLink');
+        if (mijnLink) mijnLink.style.display = '';
+        const clubLink = document.getElementById('navGeheimeClubLink');
+        if (clubLink) clubLink.style.display = 'inline-flex';
+    }
+
+    if (!userInfo || !userToken) {
+        document.getElementById('nietIngelogd').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('dossierContent').style.display = 'block';
+    laadDossier(userToken);
+});
+
+async function laadDossier(userToken) {
+    try {
+        const r = await fetch('/api/mijn-dossier', {
+            headers: { 'x-user-token': userToken }
+        });
+        const data = await r.json();
+
+        if (!data.succes) {
+            document.getElementById('nietIngelogd').style.display = 'block';
+            document.getElementById('dossierContent').style.display = 'none';
+            return;
+        }
+
+        const { gebruiker, inzendingen, persoonlijkeVerhalen } = data;
+        vulProfiel(gebruiker, inzendingen);
+        vulFoutenSamenvatting(inzendingen);
+        vulInzendingen(inzendingen);
+        vulPersoonlijkeVerhalen(persoonlijkeVerhalen);
+
+    } catch(e) {
+        document.getElementById('inzendingenLijst').innerHTML =
+            '<div class="laad-staat">😕 Kon dossier niet laden. Controleer je verbinding.</div>';
+    }
+}
+
+function vulProfiel(g, inzendingen) {
+    document.getElementById('agentAvatar').textContent = g.avatar || '🕵️';
+    document.getElementById('agentNaam').textContent = g.gebruikersnaam;
+    document.getElementById('agentGroep').textContent = GROEP_NAMEN[g.leeftijdsgroep] || '';
+
+    const winsten = inzendingen.filter(i => i.winnaar).length;
+    const woorden = inzendingen.reduce((t, i) => {
+        if (i.feedback?.woordAantal) return t + i.feedback.woordAantal;
+        return t + (i.tekst || '').split(/\s+/).filter(Boolean).length;
+    }, 0);
+
+    document.getElementById('statWinsten').textContent = winsten;
+    document.getElementById('statInzendingen').textContent = inzendingen.length;
+    document.getElementById('statWoorden').textContent = woorden.toLocaleString('nl');
+    document.getElementById('statReeks').textContent = g.aaneengeslotenDagen || 0;
+
+    const badgeRij = document.getElementById('badgeRij');
+    (g.badges || []).forEach(b => {
+        if (!BADGE_NAMEN[b]) return;
+        const span = document.createElement('span');
+        span.className = 'badge' + (b.includes('kampioen') || b === 'legenda' ? ' goud' : '');
+        span.textContent = BADGE_NAMEN[b];
+        badgeRij.appendChild(span);
+    });
+}
+
+// Parseer 'fout'→'goed' paren uit een wijzigingen-string
+function parseerWijzigingen(tekst) {
+    if (!tekst) return [];
+    const paren = [];
+    const regex = /'([^']+)'[→\->\s]+['']([^'']+)['']/g;
+    let m;
+    while ((m = regex.exec(tekst)) !== null) {
+        if (m[1] && m[2] && m[1] !== m[2]) {
+            paren.push({ fout: m[1], goed: m[2] });
+        }
+    }
+    return paren;
+}
+
+// Highlight foute woorden in originele tekst
+function highlightFouten(tekst, paren) {
+    if (!tekst || !paren.length) return escapeHTML(tekst);
+    let html = escapeHTML(tekst);
+    paren.forEach(({ fout, goed }) => {
+        const veiligFout = fout.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp('(?<![\\w])('+veiligFout+')(?![\\w])', 'g');
+        html = html.replace(re, `<mark class="fout-mark" title="Moet zijn: ${escapeAttr(goed)}">$1</mark>`);
+    });
+    return html;
+}
+
+// Highlight verbeterde woorden in gecorrigeerde tekst
+function highlightGoed(tekst, paren) {
+    if (!tekst || !paren.length) return escapeHTML(tekst);
+    let html = escapeHTML(tekst);
+    paren.forEach(({ goed }) => {
+        const veiligGoed = goed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp('(?<![\\w])('+veiligGoed+')(?![\\w])', 'g');
+        html = html.replace(re, `<mark class="goed-mark">$1</mark>`);
+    });
+    return html;
+}
+
+function escapeAttr(t) {
+    return (t || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Aggregeer fouten over alle inzendingen en toon samenvatting
+function vulFoutenSamenvatting(inzendingen) {
+    const tellingen = {};
+    inzendingen.forEach(inz => {
+        parseerWijzigingen(inz.wijzigingen).forEach(({ fout, goed }) => {
+            const sleutel = fout + '→' + goed;
+            tellingen[sleutel] = (tellingen[sleutel] || 0) + 1;
+        });
+    });
+
+    const gesorteerd = Object.entries(tellingen).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const container = document.getElementById('foutenSamenvatting');
+    const chips = document.getElementById('foutenChips');
+
+    if (!gesorteerd.length) {
+        chips.innerHTML = '<span class="geen-fouten-blij">🎉 Geen herhalende fouten gevonden — geweldig!</span>';
+    } else {
+        chips.innerHTML = gesorteerd.map(([sleutel, n]) => {
+            const [fout, goed] = sleutel.split('→');
+            return `<span class="fouten-chip">
+                <span class="fouten-chip-getal">${n}×</span>
+                <span style="text-decoration:line-through; opacity:0.7;">${escapeHTML(fout)}</span>
+                <span style="opacity:0.4">→</span>
+                <span>${escapeHTML(goed)}</span>
+            </span>`;
+        }).join('');
+    }
+    container.style.display = 'block';
+}
+
+function vulInzendingen(inzendingen) {
+    const container = document.getElementById('inzendingenLijst');
+
+    if (!inzendingen.length) {
+        container.innerHTML = `
+            <div class="leeg-staat">
+                <div class="leeg-staat-emoji">📭</div>
+                <div>Je hebt nog geen inzendingen.<br>Schrijf vandaag mee aan De Grote Operatie!</div>
+            </div>`;
+        return;
+    }
+
+    // Nieuwste eerst
+    const gesorteerd = [...inzendingen].sort((a, b) => new Date(b.tijdstip) - new Date(a.tijdstip));
+
+    container.innerHTML = gesorteerd.map((inz, idx) => {
+        const datum = new Date(inz.tijdstip).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
+        const score = inz.feedback?.opdrachtvolgingScore;
+        const scoreKlasse = score >= 80 ? 'score-hoog' : score >= 50 ? 'score-midden' : 'score-laag';
+        const preview = escapeHTML((inz.tekst || '').replace(/\n/g, ' ').substring(0, 90)) + '...';
+        const heeftFeedback = inz.feedback || inz.wijzigingen || inz.gecorrigeerdeTekst;
+
+        return `
+        <div class="inzending-kaart ${inz.winnaar ? 'winnaar-kaart' : ''}" id="inz-${idx}">
+            <div class="inzending-kop" onclick="toggleInzending(${idx})">
+                ${inz.winnaar ? '<span class="winnaar-lint">🏆 Winnaar!</span>' : ''}
+                <span class="inzending-datum">${datum}</span>
+                <span class="inzending-preview">${preview}</span>
+                ${score != null ? `<span class="inzending-score ${scoreKlasse}">${score}%</span>` : ''}
+                <span class="inzending-chevron">▼</span>
+            </div>
+            <div class="inzending-body">
+                ${maakInzendingBody(inz)}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function maakInzendingBody(inz) {
+    const paren = parseerWijzigingen(inz.wijzigingen);
+    const heeftCorrectie = inz.gecorrigeerdeTekst && paren.length > 0;
+    const delen = [];
+
+    // ── Tekst vergelijking ──
+    if (heeftCorrectie) {
+        delen.push(`
+        <div class="vergelijk-grid">
+            <div class="vergelijk-blok rood">
+                <div class="vergelijk-label rood">❌ Jouw originele tekst</div>
+                <div class="vergelijk-tekst">${highlightFouten(inz.tekst, paren)}</div>
+            </div>
+            <div class="vergelijk-blok groen">
+                <div class="vergelijk-label groen">✅ Gecorrigeerd door de AI</div>
+                <div class="vergelijk-tekst">${highlightGoed(inz.gecorrigeerdeTekst, paren)}</div>
+            </div>
+        </div>`);
+    } else {
+        delen.push(`
+        <div class="tekst-blok">
+            <div class="tekst-label">✏️ Jouw verhaal</div>
+            <div class="tekst-inhoud">${escapeHTML(inz.tekst || '')}</div>
+        </div>`);
+    }
+
+    // ── Wijzigingen als leerpunten ──
+    if (paren.length) {
+        const items = paren.map(({ fout, goed }) => `
+            <div class="wijziging-item">
+                <span class="wijziging-fout">${escapeHTML(fout)}</span>
+                <span class="wijziging-pijl">→</span>
+                <span class="wijziging-goed">${escapeHTML(goed)}</span>
+            </div>`).join('');
+
+        delen.push(`
+        <div class="wijzigingen-blok">
+            <div class="wijzigingen-titel">🧠 Wat je hebt geleerd — ${paren.length} correctie${paren.length !== 1 ? 's' : ''}</div>
+            ${items}
+        </div>`);
+    } else if (inz.wijzigingen) {
+        // Geen paren geparseerd maar er is wel een wijzigingen-tekst — toon als vrije tekst
+        delen.push(`
+        <div class="wijzigingen-blok">
+            <div class="wijzigingen-titel">🧠 AI-feedback op jouw tekst</div>
+            <div style="color:rgba(167,196,181,0.7); font-size:0.85rem; line-height:1.7;">${escapeHTML(inz.wijzigingen)}</div>
+        </div>`);
+    }
+
+    // ── Geen fouten? Feliciteer! ──
+    if (!paren.length && !inz.wijzigingen && inz.gecorrigeerdeTekst) {
+        delen.push(`
+        <div class="wijzigingen-blok">
+            <div class="geen-fouten-blij">🎉 Geen taalfouten gevonden — perfect geschreven!</div>
+        </div>`);
+    }
+
+    // ── AI-compliment en aanmoediging ──
+    if (inz.feedback?.algemeenCompliment || inz.feedback?.aanmoediging) {
+        const fb = [];
+        if (inz.feedback.algemeenCompliment) fb.push(`<div class="feedback-compliment">💬 ${escapeHTML(inz.feedback.algemeenCompliment)}</div>`);
+        if (inz.feedback.aanmoediging) fb.push(`<div class="feedback-aanmoediging">✨ ${escapeHTML(inz.feedback.aanmoediging)}</div>`);
+        if (inz.feedback.woordAantal) fb.push(`<div style="margin-top:8px; color:rgba(167,196,181,0.45); font-size:0.78rem;">📝 ${inz.feedback.woordAantal} woorden geschreven</div>`);
+        delen.push(`<div class="feedback-blok">${fb.join('')}</div>`);
+    }
+
+    return delen.join('');
+}
+
+function toggleInzending(idx) {
+    const kaart = document.getElementById('inz-' + idx);
+    kaart.classList.toggle('open');
+}
+
+function vulPersoonlijkeVerhalen(verhalen) {
+    const container = document.getElementById('persoonlijkeLijst');
+
+    if (!verhalen || !verhalen.length) {
+        container.innerHTML = `
+            <div class="leeg-staat">
+                <div class="leeg-staat-emoji">📭</div>
+                <div>Je hebt nog geen persoonlijke verhalen.<br>Begin vandaag met jouw eigen geheim avontuur!</div>
+            </div>`;
+        return;
+    }
+
+    // Nieuwste eerst
+    const gesorteerd = [...verhalen].sort((a, b) => new Date(b.bijgewerkt) - new Date(a.bijgewerkt));
+
+    container.innerHTML = '<div class="pverhaal-grid">' + gesorteerd.map(v => {
+        const voltooideDelenAantal = (v.delen || []).filter(d => d.tekst && d.tekst.trim().length > 0).length;
+        const totaalDelen = v.aantalDelen || v.delen?.length || 1;
+        const pct = Math.round((voltooideDelenAantal / totaalDelen) * 100);
+        const isKlaar = v.status === 'klaar' || voltooideDelenAantal === totaalDelen;
+        const bijgewerkt = new Date(v.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' });
+
+        // Eerste niet-lege tekst als preview
+        const eersteDeelMetTekst = (v.delen || []).find(d => d.tekst && d.tekst.trim());
+        const preview = eersteDeelMetTekst
+            ? escapeHTML(eersteDeelMetTekst.tekst.substring(0, 140)) + '…'
+            : null;
+
+        // Onderwerp als context
+        const context = v.onderwerp ? `<div class="pverhaal-meta" style="margin-top:4px;">📖 ${escapeHTML(v.onderwerp.substring(0, 80))}${v.onderwerp.length > 80 ? '…' : ''}</div>` : '';
+
+        return `
+        <a href="mijn-verhalen-overzicht.html" class="pverhaal-kaart">
+            <div class="pverhaal-kop">
+                <div class="pverhaal-titel">${escapeHTML(v.titel)}</div>
+                <span class="pverhaal-status ${isKlaar ? 'status-klaar' : 'status-bezig'}">${isKlaar ? '✅ Klaar' : '✏️ Bezig'}</span>
+            </div>
+            <div class="pverhaal-voortgang">
+                <div class="pverhaal-balk-wrap">
+                    <div class="pverhaal-balk" style="width:${pct}%"></div>
+                </div>
+                <div class="pverhaal-balk-label">${voltooideDelenAantal} van ${totaalDelen} deel${totaalDelen !== 1 ? 'en' : ''} geschreven</div>
+            </div>
+            ${preview
+                ? `<div class="pverhaal-preview">${preview}</div>`
+                : `<div class="pverhaal-leeg">Nog niets geschreven — begin jouw verhaal!</div>`
+            }
+            ${context}
+            <div class="pverhaal-meta">🕒 Laatst bijgewerkt: ${bijgewerkt}</div>
+        </a>`;
+    }).join('') + '</div>';
+}
+
+function escapeHTML(t) {
+    if (!t) return '';
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(t));
+    return d.innerHTML;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schrijf jouw hoofdstuk | Depeterpost Verhalen Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0f0f1a;
+            color: #f0f0ff;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            padding: 20px 16px 40px;
+        }
+
+        h1, h2, h3 { font-family: 'Fredoka One', cursive; }
+
+        .scherm { display: none; }
+        .scherm.actief { display: block; }
+
+        /* ── Hoofd layout ── */
+        .container { max-width: 720px; margin: 0 auto; }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        .header-links { font-size: 13px; color: #888; }
+        .header-links strong { color: #a78bfa; }
+        .header-titel { font-size: 20px; color: #a78bfa; }
+
+        /* ── Context blok ── */
+        .context-blok {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid #4c1d95;
+        }
+        .context-label {
+            font-size: 11px;
+            color: #888;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .context-tekst { font-size: 15px; color: #c4b5fd; line-height: 1.5; }
+
+        /* ── Opdracht ── */
+        .opdracht-blok {
+            background: linear-gradient(135deg, #1e1040, #1a1a2e);
+            border: 2px solid #7c3aed;
+            border-radius: 18px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+        }
+        .opdracht-label {
+            font-size: 12px;
+            color: #a78bfa;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .opdracht-tekst {
+            font-size: 17px;
+            line-height: 1.6;
+            color: #e0e0ff;
+            font-weight: 600;
+        }
+
+        /* ── Sleutelwoorden ── */
+        .sw-sectie { margin-bottom: 20px; }
+        .sw-label {
+            font-size: 13px;
+            color: #888;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .sw-label span { color: #e8197d; }
+
+        .sw-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        .sw-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #1a1a2e;
+            border: 2px solid #333;
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .sw-chip.gevonden {
+            border-color: #10b981;
+            background: #062b1a;
+            color: #6ee7b7;
+        }
+        .sw-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #333;
+            transition: background 0.3s, box-shadow 0.3s;
+            flex-shrink: 0;
+        }
+        .sw-chip.gevonden .sw-dot {
+            background: #10b981;
+            box-shadow: 0 0 8px #10b98188;
+        }
+
+        /* ── Textarea ── */
+        .schrijf-sectie { margin-bottom: 16px; }
+        .schrijf-label {
+            font-size: 13px;
+            color: #888;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .woord-teller {
+            font-family: 'Fredoka One', cursive;
+            font-size: 15px;
+            color: #555;
+            transition: color 0.3s;
+        }
+        .woord-teller.genoeg { color: #10b981; }
+        .woord-teller.bijna  { color: #f59e0b; }
+
+        textarea {
+            width: 100%;
+            min-height: 280px;
+            background: #0f0f1a;
+            border: 2px solid #333;
+            border-radius: 16px;
+            color: #f0f0ff;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            padding: 16px 18px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        textarea:focus { outline: none; border-color: #7c3aed; }
+        textarea::placeholder { color: #444; }
+
+        /* ── Validatie bar ── */
+        .validatie-balk {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .val-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #555;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+        .val-item.ok { color: #10b981; }
+        .val-item .val-icoon {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: #222;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .val-item.ok .val-icoon { background: #10b981; }
+
+        /* ── Instuur knop ── */
+        .instuur-knop {
+            width: 100%;
+            padding: 17px;
+            background: linear-gradient(135deg, #7c3aed, #e8197d);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 22px;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .instuur-knop:hover:not(:disabled) { opacity: 0.9; transform: translateY(-2px); }
+        .instuur-knop:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .instuur-hint {
+            text-align: center;
+            font-size: 13px;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        /* ── Wachtscherm ── */
+        .wacht-kaart {
+            max-width: 500px;
+            margin: 80px auto;
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 48px 40px;
+            text-align: center;
+            border: 1px solid #2a2a3e;
+        }
+        .wacht-icoon { font-size: 64px; margin-bottom: 16px; animation: schommel 3s ease-in-out infinite; }
+        @keyframes schommel {
+            0%, 100% { transform: rotate(-5deg); }
+            50%       { transform: rotate(5deg); }
+        }
+        .wacht-kaart h2 { font-size: 28px; color: #10b981; margin-bottom: 10px; }
+        .wacht-kaart p  { color: #888; font-size: 16px; margin-bottom: 28px; }
+
+        .klaar-balk {
+            background: #0f0f1a;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+        .klaar-teller { font-family: 'Fredoka One', cursive; font-size: 20px; color: #a78bfa; }
+        .klaar-names  { font-size: 13px; color: #888; margin-top: 4px; }
+
+        .voortgang-bg { background: #222; border-radius: 999px; height: 10px; margin-top: 10px; overflow: hidden; }
+        .voortgang-fg {
+            height: 100%;
+            background: linear-gradient(90deg, #7c3aed, #10b981);
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        .montage-knop {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 20px;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+        }
+
+        /* ── Foutscherm ── */
+        .fout-kaart {
+            max-width: 460px;
+            margin: 100px auto;
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Dots animatie ── */
+        .dots { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
+        .dot  {
+            width: 10px; height: 10px;
+            border-radius: 50%; background: #333;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.7); background: #333; }
+            40%            { transform: scale(1.1); background: #7c3aed; }
+        }
+
+        @media (max-width: 480px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 6px; }
+            textarea { min-height: 220px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCHERM: Laden
+══════════════════════════════════ -->
+<div id="scherm-laden" class="scherm actief">
+    <div class="fout-kaart">
+        <div style="font-size:48px;margin-bottom:16px;">📖</div>
+        <h2 style="font-size:24px;color:#a78bfa;margin-bottom:8px;">Opdracht laden...</h2>
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM: Fout
+══════════════════════════════════ -->
+<div id="scherm-fout" class="scherm">
+    <div class="fout-kaart">
+        <div style="font-size:48px;margin-bottom:16px;">😕</div>
+        <h2 style="font-size:22px;color:#fca5a5;margin-bottom:10px;">Oeps!</h2>
+        <p id="fout-tekst" style="color:#888;margin-bottom:20px;">Er ging iets mis.</p>
+        <button onclick="location.href='sessie-join.html'"
+            style="padding:12px 24px;background:#7c3aed;color:white;border:none;border-radius:12px;font-family:'Fredoka One',cursive;font-size:16px;cursor:pointer;">
+            Terug naar begin
+        </button>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM: Schrijven
+══════════════════════════════════ -->
+<div id="scherm-schrijf" class="scherm">
+    <div class="container">
+
+        <div class="header">
+            <div class="header-titel">✍️ Samen Schrijven</div>
+            <div class="header-links">
+                Code: <strong id="hdr-code"></strong> &nbsp;·&nbsp;
+                <span id="hdr-naam"></span> &nbsp;·&nbsp;
+                H<strong id="hdr-hst"></strong>
+            </div>
+        </div>
+
+        <!-- Verhaaltitel + setting -->
+        <div class="context-blok">
+            <div class="context-label">📖 Het verhaal</div>
+            <div class="context-tekst" id="ctx-titel" style="font-weight:800;font-size:17px;color:white;margin-bottom:4px;"></div>
+            <div class="context-tekst" id="ctx-setting"></div>
+        </div>
+
+        <!-- Beginpunt -->
+        <div class="context-blok" style="border-left-color:#e8197d;">
+            <div class="context-label">🎯 Hier begin jij</div>
+            <div class="context-tekst" id="ctx-beginpunt" style="color:#f9a8d4;"></div>
+        </div>
+
+        <!-- Opdracht -->
+        <div class="opdracht-blok">
+            <div class="opdracht-label">✏️ Jouw opdracht — Hoofdstuk <span id="opr-hst"></span></div>
+            <div class="opdracht-tekst" id="opr-tekst"></div>
+        </div>
+
+        <!-- Sleutelwoorden -->
+        <div class="sw-sectie">
+            <div class="sw-label">
+                🔑 Verplichte woorden — <span>gebruik ze allemaal in jouw tekst!</span>
+            </div>
+            <div class="sw-chips" id="sw-chips"></div>
+        </div>
+
+        <!-- Schrijfveld -->
+        <div class="schrijf-sectie">
+            <div class="schrijf-label">
+                <span>Schrijf hier jouw hoofdstuk</span>
+                <span class="woord-teller" id="woord-teller">0 woorden</span>
+            </div>
+            <textarea id="tekstveld"
+                placeholder="Begin hier met schrijven... maak het spannend! 🚀"
+                oninput="bijwerkLive()"></textarea>
+        </div>
+
+        <!-- Validatie -->
+        <div class="validatie-balk" id="val-balk"></div>
+
+        <!-- Insturen -->
+        <button class="instuur-knop" id="instuur-knop" onclick="stuurIn()" disabled>
+            📨 Insturen
+        </button>
+        <div class="instuur-hint" id="instuur-hint">
+            Schrijf minimaal 50 woorden en gebruik alle sleutelwoorden.
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM: Wachten (na insturen)
+══════════════════════════════════ -->
+<div id="scherm-wacht" class="scherm">
+    <div class="wacht-kaart">
+        <div class="wacht-icoon">📝</div>
+        <h2>Hoofdstuk ingestuurd!</h2>
+        <p>Super gedaan! Wacht tot iedereen klaar is...</p>
+
+        <div class="klaar-balk">
+            <div class="klaar-teller">
+                <span id="wacht-klaar">0</span> / <span id="wacht-totaal">0</span> klaar
+            </div>
+            <div class="klaar-names" id="wacht-names"></div>
+            <div class="voortgang-bg">
+                <div class="voortgang-fg" id="wacht-voortgang" style="width:0%"></div>
+            </div>
+        </div>
+
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+
+        <div id="wacht-montage" style="display:none;">
+            <p style="color:#10b981;margin-bottom:16px;font-weight:700;">
+                🎉 Alle hoofdstukken zijn binnen!
+            </p>
+            <button class="montage-knop" onclick="gaNaarMontage()">
+                📚 Stel het verhaal samen
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── State ──
+    let sessiecode    = null;
+    let mijnHoofdstuk = null;
+    let mijnNaam      = null;
+    let sleutelwoorden = [];
+    let minWoorden    = 50;
+    let sessieData    = null;
+    let pollingInterval = null;
+    let eventSource     = null;
+    let ingestuurd      = false;
+
+    // ── Init ──
+    (async function init() {
+        const p = new URLSearchParams(location.search);
+        sessiecode    = p.get('code')?.toUpperCase()
+                     || sessionStorage.getItem('samenCode');
+        mijnHoofdstuk = parseInt(p.get('hoofdstuk') || sessionStorage.getItem('samenHoofdstuk'), 10);
+        mijnNaam      = sessionStorage.getItem('samenNaam') || '?';
+
+        if (!sessiecode || !mijnHoofdstuk) {
+            toonFout('Geen sessie gevonden. Ga terug en log opnieuw in.');
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/sessie/${sessiecode}`);
+            const data = await resp.json();
+            if (!data.succes) { toonFout(data.bericht); return; }
+
+            sessieData = data.sessie;
+
+            if (data.sessie.status === 'wachten') {
+                toonFout('De sessie is nog niet gestart. Wacht op je juf of meester.');
+                return;
+            }
+
+            // Markeer als schrijvend
+            fetch(`/api/sessie/${sessiecode}/schrijft`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hoofdstukNummer: mijnHoofdstuk })
+            }).catch(() => {});
+
+            vulSchrijfScherm(data.sessie);
+            toonScherm('scherm-schrijf');
+
+        } catch (_) {
+            toonFout('Verbindingsfout. Controleer je internet en herlaad de pagina.');
+        }
+    })();
+
+    // ── Schrijfscherm vullen ──
+    function vulSchrijfScherm(sessie) {
+        const bp  = sessie.blueprint || {};
+        const hst = (bp.hoofdstukken || []).find(h => h.nummer === mijnHoofdstuk) || {};
+        const groep = sessie.groep || 'B';
+        const maxWoorden = { A: 100, B: 200, C: 350 };
+        minWoorden = groep === 'A' ? 30 : 50;
+
+        // Header
+        document.getElementById('hdr-code').textContent = sessiecode;
+        document.getElementById('hdr-naam').textContent = mijnNaam;
+        document.getElementById('hdr-hst').textContent  = mijnHoofdstuk;
+
+        // Context
+        document.getElementById('ctx-titel').textContent   = bp.titel   || '';
+        document.getElementById('ctx-setting').textContent = bp.setting  || '';
+        document.getElementById('ctx-beginpunt').textContent = hst.beginpunt || '';
+
+        // Opdracht
+        document.getElementById('opr-hst').textContent  = mijnHoofdstuk;
+        document.getElementById('opr-tekst').textContent = hst.opdracht || 'Schrijf jouw deel van het verhaal!';
+
+        // Sleutelwoorden
+        sleutelwoorden = hst.sleutelwoorden || [];
+        const chipsEl = document.getElementById('sw-chips');
+        chipsEl.innerHTML = '';
+        sleutelwoorden.forEach((w, i) => {
+            const chip = document.createElement('div');
+            chip.className = 'sw-chip';
+            chip.id = `sw-${i}`;
+            chip.innerHTML = `<div class="sw-dot" id="dot-${i}"></div> ${w}`;
+            chipsEl.appendChild(chip);
+        });
+
+        // Max woorden hint
+        const max = maxWoorden[groep] || 200;
+        document.getElementById('instuur-hint').textContent =
+            `Gebruik alle ${sleutelwoorden.length} sleutelwoorden en schrijf minimaal ${minWoorden} woorden (max ~${max}).`;
+
+        bijwerkLive();
+    }
+
+    // ── Live validatie ──
+    function bijwerkLive() {
+        const tekst   = document.getElementById('tekstveld').value;
+        const woorden = telWoorden(tekst);
+        const genoegWoorden = woorden >= minWoorden;
+
+        // Woordteller
+        const tellerEl = document.getElementById('woord-teller');
+        tellerEl.textContent = `${woorden} woorden`;
+        tellerEl.className   = 'woord-teller' +
+            (genoegWoorden ? ' genoeg' : woorden >= Math.floor(minWoorden * 0.7) ? ' bijna' : '');
+
+        // Sleutelwoorden
+        const tekstLower = tekst.toLowerCase();
+        const swStatus   = sleutelwoorden.map((w, i) => {
+            const gevonden = tekstLower.includes(w.toLowerCase());
+            document.getElementById(`sw-${i}`)?.classList.toggle('gevonden', gevonden);
+            return gevonden;
+        });
+        const alleSwGevonden = swStatus.every(Boolean);
+
+        // Validatie items
+        const valBalk = document.getElementById('val-balk');
+        valBalk.innerHTML = [
+            { ok: genoegWoorden,   tekst: `${minWoorden}+ woorden` },
+            { ok: alleSwGevonden,  tekst: 'Alle sleutelwoorden gebruikt' }
+        ].map(item => `
+            <div class="val-item ${item.ok ? 'ok' : ''}">
+                <div class="val-icoon">${item.ok ? '✓' : ''}</div>
+                ${item.tekst}
+            </div>
+        `).join('');
+
+        // Knop
+        const klaar = genoegWoorden && alleSwGevonden;
+        document.getElementById('instuur-knop').disabled = !klaar;
+        if (klaar) {
+            document.getElementById('instuur-hint').textContent = '✅ Klaar! Druk op insturen.';
+        }
+    }
+
+    function telWoorden(tekst) {
+        return tekst.trim().split(/\s+/).filter(w => w.length > 0).length;
+    }
+
+    // ── Insturen ──
+    async function stuurIn() {
+        if (ingestuurd) return;
+        const tekst = document.getElementById('tekstveld').value.trim();
+        const knop  = document.getElementById('instuur-knop');
+        knop.disabled = true;
+        knop.innerHTML = '<span class="spinner"></span> Insturen...';
+
+        try {
+            const resp = await fetch(`/api/sessie/${sessiecode}/hoofdstuk`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hoofdstukNummer: mijnHoofdstuk, tekst })
+            });
+            const data = await resp.json();
+
+            if (!data.succes) {
+                knop.disabled = false;
+                knop.textContent = '📨 Insturen';
+                alert(data.bericht);
+                return;
+            }
+
+            ingestuurd = true;
+            sessieData = data.sessie;
+            vulWachtScherm(data.sessie);
+            toonScherm('scherm-wacht');
+
+            if (!data.alleKlaar) verbindSSE();
+
+        } catch (_) {
+            knop.disabled = false;
+            knop.textContent = '📨 Insturen';
+            alert('Verbindingsfout. Probeer opnieuw.');
+        }
+    }
+
+    // ── Wachtscherm bijwerken ──
+    function vulWachtScherm(sessie) {
+        const klaar  = sessie.deelnemers.filter(d => d.klaar).length;
+        const totaal = sessie.deelnemers.length;
+        const pct    = totaal > 0 ? Math.round((klaar / totaal) * 100) : 0;
+
+        document.getElementById('wacht-klaar').textContent    = klaar;
+        document.getElementById('wacht-totaal').textContent   = totaal;
+        document.getElementById('wacht-voortgang').style.width = pct + '%';
+
+        const klaarNamen = sessie.deelnemers
+            .filter(d => d.klaar)
+            .map(d => d.naam)
+            .join(', ');
+        document.getElementById('wacht-names').textContent =
+            klaarNamen ? `Klaar: ${klaarNamen}` : '';
+
+        const alleKlaar = klaar >= totaal;
+        document.getElementById('wacht-montage').style.display = alleKlaar ? 'block' : 'none';
+        if (alleKlaar) stopVerbinding();
+    }
+
+    // ── SSE verbinding ──
+    function verbindSSE() {
+        if (eventSource) return;
+        eventSource = new EventSource(`/api/sessie/${sessiecode}/status-stream`);
+
+        eventSource.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                if (data.type !== 'staat') return;
+                sessieData = data.sessie;
+                vulWachtScherm(data.sessie);
+            } catch (_) {}
+        };
+
+        eventSource.onerror = () => {
+            eventSource.close();
+            eventSource = null;
+            startPolling(); // fallback
+        };
+    }
+
+    // ── Polling (fallback) ──
+    function startPolling() {
+        if (pollingInterval || eventSource) return;
+        pollingInterval = setInterval(async () => {
+            try {
+                const resp = await fetch(`/api/sessie/${sessiecode}`);
+                const data = await resp.json();
+                if (!data.succes) return;
+                sessieData = data.sessie;
+                vulWachtScherm(data.sessie);
+            } catch (_) {}
+        }, 3000);
+    }
+
+    function stopVerbinding() {
+        if (eventSource)     { eventSource.close(); eventSource = null; }
+        if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+    }
+
+    // ── Hulpfuncties ──
+    function toonScherm(id) {
+        document.querySelectorAll('.scherm').forEach(s => s.classList.remove('actief'));
+        document.getElementById(id).classList.add('actief');
+    }
+
+    function toonFout(tekst) {
+        document.getElementById('fout-tekst').textContent = tekst;
+        toonScherm('scherm-fout');
+    }
+
+    function gaNaarMontage() {
+        window.location.href = `sessie-verhaal.html?code=${sessiecode}`;
+    }
+</script>
+</body>
+</html>

@@ -49,8 +49,29 @@
         .opdracht-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 8px 14px; }
         .chip-label { color: rgba(167,196,181,0.5); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .chip-waarde { color: white; font-size: 0.9rem; font-weight: 700; }
+        /* ── VERHAAL VERLOOP ── */
+        .verhaal-verloop { margin: 16px 0 12px; display: flex; flex-direction: column; gap: 0; }
+        .verloop-item { background: rgba(13,43,26,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 16px; }
+        .verloop-item.verloop-nu { border-color: rgba(76,201,122,0.3); background: rgba(76,201,122,0.07); }
+        .verloop-label { display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(167,196,181,0.45); margin-bottom: 4px; }
+        .verloop-nu .verloop-label { color: rgba(76,201,122,0.7); }
+        .verloop-tekst { color: rgba(167,196,181,0.9); font-size: 0.9rem; line-height: 1.5; }
+        .verloop-nu .verloop-tekst { color: white; font-weight: 600; }
+        .verloop-pijl { text-align: center; color: rgba(76,201,122,0.4); font-size: 1.1rem; line-height: 1.6; }
+
+        /* ── IDEEËN ── */
+        .ideeen-sectie { margin: 14px 0 4px; }
+        .ideeen-kop { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(167,196,181,0.45); margin-bottom: 8px; }
+        .ideeen-lijst { display: flex; flex-direction: column; gap: 6px; }
+        .idee-item { background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.18); border-radius: 10px; padding: 9px 14px; color: rgba(167,196,181,0.75); font-size: 0.88rem; line-height: 1.5; }
+        .idee-item::before { content: '💡 '; }
+
+        /* ── SLEUTELWOORDEN MET BOLLETJE ── */
         .sleutelwoorden { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-        .sleutelwoord { background: rgba(247,201,72,0.12); border: 1px solid rgba(247,201,72,0.25); color: #F7C948; font-size: 0.8rem; font-weight: 700; padding: 4px 14px; border-radius: 50px; }
+        .sleutelwoord { display: inline-flex; align-items: center; gap: 6px; background: rgba(247,201,72,0.12); border: 1px solid rgba(247,201,72,0.25); color: #F7C948; font-size: 0.8rem; font-weight: 700; padding: 4px 14px; border-radius: 50px; transition: background 0.3s, border-color 0.3s; }
+        .sleutelwoord.gevonden { background: rgba(76,201,122,0.18); border-color: rgba(76,201,122,0.5); color: #4CC97A; }
+        .sw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(247,201,72,0.35); flex-shrink: 0; transition: background 0.3s, box-shadow 0.3s; }
+        .sleutelwoord.gevonden .sw-dot { background: #4CC97A; box-shadow: 0 0 6px rgba(76,201,122,0.7); }
 
         /* ── SCHRIJF SECTIE ── */
         .schrijf-sectie {
@@ -234,7 +255,7 @@
             </div>
             <div class="bolletje-rij">
                 <div class="bolletje" id="bolletjeGebeurtenis"></div>
-                <span class="bolletje-label" id="labelGebeurtenis">Gebeurtenis verwerkt</span>
+                <span class="bolletje-label" id="labelGebeurtenis">Beginpunt verwerkt</span>
             </div>
             <div class="checker-feedback" id="checkerFeedback"></div>
         </div>
@@ -369,7 +390,7 @@ async function laadOpdracht() {
             // Labels updaten
             document.getElementById('labelPersonage').textContent = `Personage: ${data.opdracht.personage}`;
             document.getElementById('labelOmgeving').textContent = `Omgeving: ${data.opdracht.omgeving}`;
-            document.getElementById('labelGebeurtenis').textContent = `Gebeurtenis: ${data.opdracht.gebeurtenis}`;
+            document.getElementById('labelGebeurtenis').textContent = `Beginpunt: ${data.opdracht.beginpunt || data.opdracht.gebeurtenis}`;
         } else {
             container.innerHTML = `
                 <div class="geen-opdracht">
@@ -386,6 +407,59 @@ async function laadOpdracht() {
 function toonOpdracht(o) {
     const groepNamen = { A: '6-8 jaar', B: '9-11 jaar', C: '12+ jaar' };
     const maxWoorden = { A: 100, B: 200, C: 350 };
+
+    // Verhaal verloop sectie (verhaaleinde + beginpunt)
+    let verloopHTML = '';
+    if (o.verhaaleinde || o.beginpunt) {
+        verloopHTML = `
+        <div class="verhaal-verloop">
+            ${o.verhaaleinde ? `
+            <div class="verloop-item">
+                <span class="verloop-label">📖 Vorig verhaal eindigde bij</span>
+                <span class="verloop-tekst">${escapeHTML(o.verhaaleinde)}</span>
+            </div>
+            <div class="verloop-pijl">↓</div>` : ''}
+            ${o.beginpunt ? `
+            <div class="verloop-item verloop-nu">
+                <span class="verloop-label">✏️ Vandaag begin jij hier</span>
+                <span class="verloop-tekst">${escapeHTML(o.beginpunt)}</span>
+            </div>` : ''}
+        </div>`;
+    } else if (o.gebeurtenis) {
+        // Fallback voor oude opdrachten zonder verhaaleinde/beginpunt
+        verloopHTML = `
+        <div class="verhaal-verloop">
+            <div class="verloop-item verloop-nu">
+                <span class="verloop-label">✏️ Vandaag begin jij hier</span>
+                <span class="verloop-tekst">${escapeHTML(o.gebeurtenis)}</span>
+            </div>
+        </div>`;
+    }
+
+    // Ideeën sectie
+    let ideeeenHTML = '';
+    if (o.ideeen && o.ideeen.length) {
+        ideeeenHTML = `
+        <div class="ideeen-sectie">
+            <div class="ideeen-kop">🎲 Twee ideeën — gebruik ze of niet, jij kiest!</div>
+            <div class="ideeen-lijst">
+                ${o.ideeen.map(i => `<div class="idee-item">${escapeHTML(i)}</div>`).join('')}
+            </div>
+        </div>`;
+    }
+
+    // Sleutelwoorden met bolletjes
+    let sleutelwoordenHTML = '';
+    if (o.sleutelwoorden && o.sleutelwoorden.length) {
+        sleutelwoordenHTML = `
+        <div style="margin-top:14px;">
+            <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:rgba(167,196,181,0.45); margin-bottom:6px;">🔑 Deze 3 woorden moet je verwerken in je verhaal</div>
+            <div class="sleutelwoorden">
+                ${o.sleutelwoorden.map((w, i) => `<span class="sleutelwoord" id="sw-chip-${i}"><span class="sw-dot" id="sw-dot-${i}"></span>${escapeHTML(w)}</span>`).join('')}
+            </div>
+        </div>`;
+    }
+
     document.getElementById('opdrachtContainer').innerHTML = `
         <div class="opdracht-kaart">
             <div class="opdracht-datum-tag">📅 ${o.datum} · ${groepNamen[o.leeftijdsgroep] || ''}</div>
@@ -399,15 +473,10 @@ function toonOpdracht(o) {
                     <span class="chip-label">🌍 Omgeving</span>
                     <span class="chip-waarde">${escapeHTML(o.omgeving)}</span>
                 </div>
-                <div class="opdracht-chip">
-                    <span class="chip-label">⚡ Gebeurtenis</span>
-                    <span class="chip-waarde">${escapeHTML(o.gebeurtenis)}</span>
-                </div>
             </div>
-            ${o.sleutelwoorden && o.sleutelwoorden.length ? `
-            <div class="sleutelwoorden">
-                ${o.sleutelwoorden.map(w => `<span class="sleutelwoord">🔑 ${escapeHTML(w)}</span>`).join('')}
-            </div>` : ''}
+            ${verloopHTML}
+            ${ideeeenHTML}
+            ${sleutelwoordenHTML}
             ${o.aansluitingsTip ? `<p style="color:rgba(255,255,255,0.4); font-size:0.82rem; margin-top:14px;">💡 ${escapeHTML(o.aansluitingsTip)}</p>` : ''}
         </div>
     `;
@@ -429,6 +498,20 @@ function bijwerkTeller() {
     allesGroen = false;
     document.getElementById('insturenKnop').disabled = true;
     document.getElementById('bolletjesSectie').style.display = 'none';
+    // Live sleutelwoorden bolletjes bijwerken
+    bijwerkSleutelwoordBolletjes(tekst);
+}
+
+function bijwerkSleutelwoordBolletjes(tekst) {
+    if (!huidigeOpdracht?.sleutelwoorden) return;
+    const tekstLager = tekst.toLowerCase();
+    huidigeOpdracht.sleutelwoorden.forEach((woord, i) => {
+        const chip = document.getElementById('sw-chip-' + i);
+        const dot  = document.getElementById('sw-dot-' + i);
+        if (!chip || !dot) return;
+        const gevonden = tekstLager.includes(woord.toLowerCase());
+        chip.className = 'sleutelwoord' + (gevonden ? ' gevonden' : '');
+    });
 }
 
 async function checkVerhaal() {

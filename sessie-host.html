@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samen Schrijven — Host | Depeterpost Verhalen Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0f0f1a;
+            color: #f0f0ff;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        h1, h2, h3 { font-family: 'Fredoka One', cursive; }
+
+        .scherm { display: none; }
+        .scherm.actief { display: block; }
+
+        /* ── Setup ── */
+        .setup-kaart {
+            max-width: 500px;
+            margin: 60px auto;
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid #333;
+        }
+
+        .logo { text-align: center; font-size: 48px; margin-bottom: 8px; }
+        .setup-kaart h1 { text-align: center; font-size: 32px; color: #a78bfa; margin-bottom: 6px; }
+        .setup-kaart .subtitel { text-align: center; color: #888; margin-bottom: 32px; }
+
+        label { display: block; font-weight: 700; margin-bottom: 6px; color: #c4b5fd; font-size: 15px; }
+
+        input[type=number] {
+            width: 100%;
+            background: #0f0f1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            color: #f0f0ff;
+            padding: 12px 16px;
+            font-size: 20px;
+            font-family: 'Nunito', sans-serif;
+            margin-bottom: 24px;
+        }
+        input[type=number]:focus { outline: none; border-color: #7c3aed; }
+
+        .groep-knoppen { display: flex; gap: 12px; margin-bottom: 24px; }
+
+        .groep-knop {
+            flex: 1;
+            padding: 14px 8px;
+            border-radius: 14px;
+            border: 2px solid #333;
+            background: #0f0f1a;
+            color: #888;
+            font-family: 'Fredoka One', cursive;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .groep-knop .groep-label { font-size: 12px; font-family: 'Nunito', sans-serif; display: block; }
+        .groep-knop.gekozen { border-color: #7c3aed; background: #2d1b69; color: #c4b5fd; }
+        .groep-knop:hover:not(.gekozen) { border-color: #555; color: #ccc; }
+
+        .knop {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #7c3aed, #e8197d);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 20px;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .knop:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+        .knop:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+        .knop.groen { background: linear-gradient(135deg, #059669, #10b981); }
+        .knop.blauw { background: linear-gradient(135deg, #1d4ed8, #2563eb); }
+
+        /* ── Lobby ── */
+        .lobby-header { text-align: center; margin-bottom: 28px; }
+        .lobby-header h1 { font-size: 36px; color: #a78bfa; }
+
+        .code-blok {
+            background: linear-gradient(135deg, #7c3aed, #e8197d);
+            border-radius: 24px;
+            padding: 28px 40px;
+            text-align: center;
+            margin: 0 auto 28px;
+            max-width: 640px;
+        }
+        .code-label { font-size: 17px; color: rgba(255,255,255,0.85); margin-bottom: 6px; font-weight: 700; }
+        .code-tekst {
+            font-family: 'Fredoka One', cursive;
+            font-size: 86px;
+            letter-spacing: 14px;
+            color: white;
+            line-height: 1;
+        }
+        .code-url { font-size: 15px; color: rgba(255,255,255,0.65); margin-top: 10px; }
+
+        .teller-balk {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 14px 24px;
+            margin: 0 auto 24px;
+            max-width: 800px;
+        }
+        .teller-tekst { font-family: 'Fredoka One', cursive; font-size: 22px; }
+        .teller-tekst span { color: #a78bfa; font-size: 28px; }
+
+        /* ── Deelnemers grid ── */
+        .deelnemers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            max-width: 1100px;
+            margin: 0 auto 28px;
+        }
+
+        .deelnemer-kaart {
+            background: #1a1a2e;
+            border: 2px solid #333;
+            border-radius: 14px;
+            padding: 14px 12px;
+            text-align: center;
+            transition: all 0.35s;
+        }
+        .deelnemer-kaart.aanwezig { border-color: #7c3aed; background: #1e1040; }
+        .deelnemer-kaart.klaar    { border-color: #10b981; background: #062b1a; }
+        .deelnemer-kaart.schrijft {
+            border-color: #f59e0b;
+            background: #1f1507;
+            animation: puls 2s ease-in-out infinite;
+        }
+        .deelnemer-kaart.leeg { border-style: dashed; opacity: 0.35; }
+
+        @keyframes puls {
+            0%, 100% { border-color: #f59e0b; }
+            50%       { border-color: #fcd34d; box-shadow: 0 0 12px #f59e0b55; }
+        }
+
+        .deelnemer-icoon  { font-size: 30px; margin-bottom: 4px; }
+        .deelnemer-naam   { font-weight: 800; font-size: 14px; word-break: break-word; line-height: 1.3; }
+        .deelnemer-hst    { font-size: 12px; color: #888; margin-top: 3px; }
+
+        .start-sectie { text-align: center; max-width: 600px; margin: 0 auto; }
+
+        /* ── Meldingen ── */
+        .melding { padding: 14px 18px; border-radius: 12px; margin-bottom: 16px; font-weight: 700; }
+        .melding.info   { background: #1e3a5f; color: #93c5fd; }
+        .melding.fout   { background: #3b0a0a; color: #fca5a5; }
+        .melding.succes { background: #064e3b; color: #6ee7b7; }
+
+        /* ── Laden ── */
+        .laden-scherm { text-align: center; padding: 80px 24px; }
+        .laden-scherm .groot { font-size: 64px; margin-bottom: 20px; }
+
+        /* ── Whiteboard (actief) ── */
+        .whiteboard-header { text-align: center; margin-bottom: 20px; }
+        .whiteboard-header h1 { font-size: 34px; color: #a78bfa; }
+        .verhaal-titel  { font-size: 26px; color: white; margin: 6px 0 4px; }
+        .setting-tekst  { color: #888; max-width: 720px; margin: 0 auto 20px; font-size: 15px; }
+
+        .klaar-teller { text-align: center; margin-bottom: 16px; }
+        .klaar-teller .getal { font-family: 'Fredoka One', cursive; font-size: 52px; color: #a78bfa; line-height: 1; }
+        .klaar-teller .label { color: #888; font-size: 16px; margin-top: 2px; }
+
+        .voortgang-wrap { max-width: 800px; margin: 0 auto 24px; }
+        .voortgang-bg { background: #1a1a2e; border-radius: 999px; height: 14px; overflow: hidden; }
+        .voortgang-fg {
+            height: 100%;
+            background: linear-gradient(90deg, #7c3aed, #10b981);
+            border-radius: 999px;
+            transition: width 0.6s ease;
+            min-width: 0;
+        }
+
+        .hst-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 14px;
+            max-width: 1200px;
+            margin: 0 auto 28px;
+        }
+        .hst-kaart {
+            background: #1a1a2e;
+            border: 2px solid #333;
+            border-radius: 16px;
+            padding: 18px 16px;
+            transition: all 0.35s;
+            position: relative;
+        }
+        .hst-kaart.klaar    { border-color: #10b981; background: #062b1a; }
+        .hst-kaart.schrijft { border-color: #f59e0b; background: #1f1507; animation: puls 2s infinite; }
+
+        .hst-nummer        { font-size: 12px; color: #888; margin-bottom: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .hst-naam          { font-weight: 800; font-size: 16px; padding-right: 36px; }
+        .hst-status-icoon  { position: absolute; top: 16px; right: 16px; font-size: 22px; }
+        .hst-sleutelwoorden { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+        .sw-chip {
+            background: #2d1b69;
+            color: #c4b5fd;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .montage-sectie { text-align: center; max-width: 520px; margin: 0 auto; }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 3px solid rgba(255,255,255,0.25);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 640px) {
+            .code-tekst { font-size: 52px; letter-spacing: 6px; }
+            .deelnemers-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            .hst-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCHERM 1: Setup
+══════════════════════════════════ -->
+<div id="scherm-setup" class="scherm actief">
+    <div class="setup-kaart">
+        <div class="logo">✍️</div>
+        <h1>Samen Schrijven</h1>
+        <p class="subtitel">Start een klassikale schrijfsessie</p>
+
+        <label>Leeftijdsgroep</label>
+        <div class="groep-knoppen">
+            <button class="groep-knop" data-groep="A" onclick="kiesGroep('A')">
+                🟠 A<span class="groep-label">6–8 jaar</span>
+            </button>
+            <button class="groep-knop gekozen" data-groep="B" onclick="kiesGroep('B')">
+                🔵 B<span class="groep-label">9–11 jaar</span>
+            </button>
+            <button class="groep-knop" data-groep="C" onclick="kiesGroep('C')">
+                🟢 C<span class="groep-label">12+ jaar</span>
+            </button>
+        </div>
+
+        <label for="aantal">Aantal deelnemers (2–32)</label>
+        <input type="number" id="aantal" min="2" max="32" value="4">
+
+        <button class="knop" onclick="maakSessie()">✨ Sessie aanmaken</button>
+        <div id="setup-melding" style="margin-top:16px;"></div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM 2: Lobby
+══════════════════════════════════ -->
+<div id="scherm-lobby" class="scherm">
+    <div class="lobby-header">
+        <h1>✍️ Samen Schrijven</h1>
+        <p style="color:#888;margin-top:4px;">Wacht tot alle kinderen zijn ingelogd</p>
+    </div>
+
+    <div class="code-blok">
+        <div class="code-label">📱 Ga naar de site → "Samen Schrijven" → vul in:</div>
+        <div class="code-tekst" id="lobby-code">——</div>
+        <div class="code-url" id="lobby-url"></div>
+    </div>
+
+    <div class="teller-balk">
+        <div class="teller-tekst">
+            Aanwezig: <span id="lobby-teller">0</span> / <span id="lobby-totaal">0</span>
+        </div>
+        <div id="lobby-status-tekst" style="color:#888;font-size:15px;font-weight:700;">
+            Wachten op deelnemers...
+        </div>
+    </div>
+
+    <div class="deelnemers-grid" id="lobby-grid"></div>
+
+    <div class="start-sectie">
+        <div id="lobby-melding"></div>
+        <button class="knop" id="start-knop" onclick="startSessie()" disabled>
+            ▶ Start het verhaal
+        </button>
+        <p style="color:#555;font-size:13px;margin-top:10px;">
+            Actief zodra minstens 2 kinderen aanwezig zijn
+        </p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM 3: Laden (blueprint)
+══════════════════════════════════ -->
+<div id="scherm-laden" class="scherm">
+    <div class="laden-scherm">
+        <div class="groot">📖</div>
+        <h2 style="font-size:36px;color:#a78bfa;margin-bottom:14px;">Het verhaal wordt bedacht...</h2>
+        <p style="color:#888;font-size:18px;">De AI maakt voor elk kind een eigen hoofdstukopdracht.</p>
+        <p style="color:#555;font-size:14px;margin-top:8px;">Dit duurt meestal 10–20 seconden.</p>
+        <div style="margin-top:36px;font-size:16px;color:#888;">
+            <span class="spinner"></span>
+            <span id="laden-tekst">Even geduld...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCHERM 4: Actief — Whiteboard
+══════════════════════════════════ -->
+<div id="scherm-actief" class="scherm">
+    <div class="whiteboard-header">
+        <h1>📖 Samen Schrijven</h1>
+        <div class="verhaal-titel" id="verhaal-titel"></div>
+        <div class="setting-tekst" id="verhaal-setting"></div>
+    </div>
+
+    <div class="klaar-teller">
+        <div class="getal">
+            <span id="klaar-aantal">0</span> / <span id="klaar-totaal">0</span>
+        </div>
+        <div class="label">hoofdstukken klaar</div>
+    </div>
+
+    <div class="voortgang-wrap">
+        <div class="voortgang-bg">
+            <div class="voortgang-fg" id="voortgang-fg" style="width:0%"></div>
+        </div>
+    </div>
+
+    <div class="hst-grid" id="hst-grid"></div>
+
+    <div class="montage-sectie" id="montage-sectie" style="display:none;">
+        <div class="melding succes">
+            🎉 Alle hoofdstukken zijn binnen! Het verhaal kan nu worden samengesteld.
+        </div>
+        <button class="knop groen" onclick="gaNaarMontage()">
+            📚 Stel het verhaal samen
+        </button>
+    </div>
+</div>
+
+<script>
+    let gekozenGroep = 'B';
+    let sessiecode   = null;
+    let huidigeSessie = null;
+    let pollingInterval = null;
+    let eventSource = null;
+
+    // ── Groep kiezen ──
+    function kiesGroep(g) {
+        gekozenGroep = g;
+        document.querySelectorAll('.groep-knop').forEach(k => k.classList.remove('gekozen'));
+        document.querySelector(`[data-groep="${g}"]`).classList.add('gekozen');
+    }
+
+    // ── Scherm wisselen ──
+    function toonScherm(id) {
+        document.querySelectorAll('.scherm').forEach(s => s.classList.remove('actief'));
+        document.getElementById(id).classList.add('actief');
+    }
+
+    function toonMelding(el, html, type = 'info') {
+        el.innerHTML = `<div class="melding ${type}">${html}</div>`;
+    }
+
+    // ── Sessie aanmaken ──
+    async function maakSessie() {
+        const aantal = parseInt(document.getElementById('aantal').value, 10);
+        const meldEl = document.getElementById('setup-melding');
+
+        if (isNaN(aantal) || aantal < 2 || aantal > 32) {
+            toonMelding(meldEl, 'Vul een aantal in tussen 2 en 32.', 'fout');
+            return;
+        }
+
+        toonMelding(meldEl, '<span class="spinner"></span> Sessie aanmaken...', 'info');
+
+        try {
+            const resp = await fetch('/api/sessie/nieuw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ groep: gekozenGroep, aantalDeelnemers: aantal })
+            });
+            const data = await resp.json();
+            if (!data.succes) { toonMelding(meldEl, data.bericht, 'fout'); return; }
+
+            sessiecode    = data.code;
+            huidigeSessie = data.sessie;
+
+            document.getElementById('lobby-code').textContent  = sessiecode;
+            document.getElementById('lobby-totaal').textContent = aantal;
+            document.getElementById('lobby-url').textContent   =
+                `${location.origin}/sessie-join.html — code: ${sessiecode}`;
+
+            toonScherm('scherm-lobby');
+            tekenLobbyGrid(data.sessie);
+            verbindSSE();
+        } catch (_) {
+            toonMelding(meldEl, 'Verbindingsfout. Probeer opnieuw.', 'fout');
+        }
+    }
+
+    // ── Lobby grid tekenen ──
+    function tekenLobbyGrid(sessie) {
+        const grid    = document.getElementById('lobby-grid');
+        const aanwezig = sessie.deelnemers.length;
+        const totaal   = sessie.aantalDeelnemers;
+        grid.innerHTML = '';
+
+        sessie.deelnemers.forEach(d => {
+            grid.appendChild(maakDeelnemerKaart(d.naam, d.hoofdstukNummer, 'aanwezig', '✅'));
+        });
+
+        for (let i = aanwezig; i < totaal; i++) {
+            grid.appendChild(maakDeelnemerKaart('Wacht...', i + 1, 'leeg', '⬜', true));
+        }
+
+        document.getElementById('lobby-teller').textContent = aanwezig;
+        document.getElementById('start-knop').disabled = aanwezig < 2;
+
+        const statusEl = document.getElementById('lobby-status-tekst');
+        if (aanwezig >= totaal) {
+            statusEl.textContent = '🎉 Iedereen is er! Je kunt starten.';
+            statusEl.style.color = '#10b981';
+        } else {
+            const wacht = totaal - aanwezig;
+            statusEl.textContent = `Wachten op ${wacht} deelnemer${wacht !== 1 ? 's' : ''}...`;
+            statusEl.style.color = '#888';
+        }
+    }
+
+    function maakDeelnemerKaart(naam, hstNr, klasse, icoon, leeg = false) {
+        const el = document.createElement('div');
+        el.className = `deelnemer-kaart ${klasse}`;
+        el.innerHTML = `
+            <div class="deelnemer-icoon">${icoon}</div>
+            <div class="deelnemer-naam" ${leeg ? 'style="color:#555"' : ''}>${naam}</div>
+            <div class="deelnemer-hst">Hoofdstuk ${hstNr}</div>
+        `;
+        return el;
+    }
+
+    // ── Sessie starten (blueprint genereren) ──
+    async function startSessie() {
+        const startKnop = document.getElementById('start-knop');
+        startKnop.disabled = true;
+        document.getElementById('lobby-melding').innerHTML = '';
+        stopPolling();
+        toonScherm('scherm-laden');
+
+        const ladenTexten = [
+            'Even geduld...',
+            'De AI bedenkt een spannend verhaalplan...',
+            'Opdrachten worden verdeeld...',
+            'Sleutelwoorden worden gekozen...',
+            'Bijna klaar!'
+        ];
+        let li = 0;
+        const ladenTimer = setInterval(() => {
+            li = (li + 1) % ladenTexten.length;
+            document.getElementById('laden-tekst').textContent = ladenTexten[li];
+        }, 2500);
+
+        try {
+            const resp = await fetch(`/api/sessie/${sessiecode}/blueprint`, { method: 'POST' });
+            clearInterval(ladenTimer);
+            const data = await resp.json();
+
+            if (!data.succes) {
+                toonScherm('scherm-lobby');
+                toonMelding(document.getElementById('lobby-melding'), data.bericht, 'fout');
+                startKnop.disabled = false;
+                verbindSSE();
+                return;
+            }
+
+            huidigeSessie = data.sessie;
+            bouwWhiteboard(data.sessie);
+            toonScherm('scherm-actief');
+            verbindSSE();
+
+        } catch (_) {
+            clearInterval(ladenTimer);
+            toonScherm('scherm-lobby');
+            toonMelding(document.getElementById('lobby-melding'), 'Verbindingsfout bij starten.', 'fout');
+            startKnop.disabled = false;
+            verbindSSE();
+        }
+    }
+
+    // ── Whiteboard opbouwen ──
+    function bouwWhiteboard(sessie) {
+        const bp = sessie.blueprint || {};
+        document.getElementById('verhaal-titel').textContent  = bp.titel   || '';
+        document.getElementById('verhaal-setting').textContent = bp.setting || '';
+        bijwerkWhiteboard(sessie);
+    }
+
+    function bijwerkWhiteboard(sessie) {
+        const grid     = document.getElementById('hst-grid');
+        const bp       = sessie.blueprint || {};
+        const totaal   = sessie.deelnemers.length;
+        const klaarN   = sessie.deelnemers.filter(d => d.klaar).length;
+
+        grid.innerHTML = '';
+
+        sessie.deelnemers.forEach(d => {
+            const hst      = (bp.hoofdstukken || []).find(h => h.nummer === d.hoofdstukNummer) || {};
+            const klasse   = d.klaar ? 'klaar' : '';
+            const icoon    = d.klaar ? '✅' : '✏️';
+            const swChips  = (hst.sleutelwoorden || [])
+                .map(w => `<span class="sw-chip">${w}</span>`).join('');
+
+            const el = document.createElement('div');
+            el.className = `hst-kaart ${klasse}`;
+            el.innerHTML = `
+                <div class="hst-nummer">Hoofdstuk ${d.hoofdstukNummer}</div>
+                <div class="hst-naam">${d.naam}<span class="hst-status-icoon">${icoon}</span></div>
+                ${swChips ? `<div class="hst-sleutelwoorden">${swChips}</div>` : ''}
+            `;
+            grid.appendChild(el);
+        });
+
+        document.getElementById('klaar-aantal').textContent = klaarN;
+        document.getElementById('klaar-totaal').textContent = totaal;
+        const pct = totaal > 0 ? Math.round((klaarN / totaal) * 100) : 0;
+        document.getElementById('voortgang-fg').style.width = pct + '%';
+
+        document.getElementById('montage-sectie').style.display =
+            (klaarN >= totaal && totaal >= 2) ? 'block' : 'none';
+
+        if (klaarN >= totaal && totaal >= 2) stopVerbinding();
+    }
+
+    // ── SSE verbinding ──
+    function verbindSSE() {
+        if (eventSource) return;
+        eventSource = new EventSource(`/api/sessie/${sessiecode}/status-stream`);
+
+        eventSource.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                if (data.type !== 'staat') return;
+                huidigeSessie = data.sessie;
+                const actief = document.querySelector('.scherm.actief')?.id;
+                if (data.sessie.status === 'wachten' && actief === 'scherm-lobby') {
+                    tekenLobbyGrid(data.sessie);
+                } else if (actief === 'scherm-actief') {
+                    bijwerkWhiteboard(data.sessie);
+                }
+            } catch (_) {}
+        };
+
+        eventSource.onerror = () => {
+            eventSource.close();
+            eventSource = null;
+            // Fallback: polling
+            startPolling();
+        };
+    }
+
+    // ── Polling (fallback) ──
+    function startPolling() {
+        if (pollingInterval || eventSource) return;
+        pollingInterval = setInterval(peilSessie, 3000);
+    }
+
+    function stopVerbinding() {
+        if (eventSource)      { eventSource.close(); eventSource = null; }
+        if (pollingInterval)  { clearInterval(pollingInterval); pollingInterval = null; }
+    }
+
+    async function peilSessie() {
+        if (!sessiecode) return;
+        try {
+            const resp = await fetch(`/api/sessie/${sessiecode}`);
+            const data = await resp.json();
+            if (!data.succes) return;
+            huidigeSessie = data.sessie;
+            const actief = document.querySelector('.scherm.actief')?.id;
+            if (data.sessie.status === 'wachten' && actief === 'scherm-lobby') {
+                tekenLobbyGrid(data.sessie);
+            } else if (actief === 'scherm-actief') {
+                bijwerkWhiteboard(data.sessie);
+            }
+        } catch (_) {}
+    }
+
+    // ── Naar montage ──
+    function gaNaarMontage() {
+        window.location.href = `sessie-montage.html?code=${sessiecode}`;
+    }
+</script>
+</body>
+</html>
