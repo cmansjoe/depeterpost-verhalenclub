@@ -222,6 +222,43 @@
 
         .montage-sectie { text-align: center; max-width: 520px; margin: 0 auto; }
 
+        /* ── Host meedoen toggle ── */
+        .meedoen-toggle {
+            background: rgba(124,58,237,0.12);
+            border: 2px solid rgba(124,58,237,0.3);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: left;
+        }
+        .meedoen-toggle:hover { background: rgba(124,58,237,0.22); }
+        .meedoen-toggle input[type="checkbox"] {
+            width: 20px; height: 20px; flex-shrink: 0;
+            accent-color: #7c3aed; cursor: pointer;
+        }
+        .meedoen-toggle-info strong { display: block; font-size: 15px; color: white; }
+        .meedoen-toggle-info span   { font-size: 13px; color: #888; }
+        .meedoen-naam-veld { display: none; margin-top: 10px; }
+        .meedoen-naam-veld.zichtbaar { display: block; }
+        .meedoen-naam-veld input {
+            width: 100%; background: #1a1040;
+            border: 2px solid rgba(124,58,237,0.4); border-radius: 12px;
+            color: white; padding: 10px 14px;
+            font-family: inherit; font-size: 15px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .meedoen-naam-veld input:focus { border-color: #7c3aed; }
+        .hst-kaart.host-actief { border-color: #7c3aed; background: #1e1040; }
+        .knop-sm {
+            margin-top: 10px; width: 100%; padding: 8px 12px;
+            font-size: 13px; border-radius: 10px;
+        }
+
         /* ── Spinner ── */
         .spinner {
             display: inline-block;
@@ -266,10 +303,21 @@
             </button>
         </div>
 
-        <label for="aantal">Aantal deelnemers (2–32)</label>
+        <label for="aantal">Aantal deelnemers (2–32) <span style="color:#888;font-weight:400;font-size:13px;">— inclusief jezelf als je meedoet</span></label>
         <input type="number" id="aantal" min="2" max="32" value="4">
 
-        <button class="knop" onclick="maakSessie()">✨ Sessie aanmaken</button>
+        <label class="meedoen-toggle" onclick="toggleMeedoen(event)">
+            <input type="checkbox" id="hostMeedoenCheck" onchange="toggleMeedoen(null)">
+            <div class="meedoen-toggle-info">
+                <strong>✍️ Ik doe ook mee als schrijver</strong>
+                <span>Jij schrijft ook een hoofdstuk — zo kan jij samen met de kinderen schrijven</span>
+            </div>
+        </label>
+        <div class="meedoen-naam-veld" id="hostNaamVeld">
+            <input type="text" id="hostNaamInput" placeholder="Jouw naam (bijv. Mama, Papa, Juf...)" maxlength="30">
+        </div>
+
+        <button class="knop" onclick="maakSessie()" style="margin-top:20px;">✨ Sessie aanmaken</button>
         <div id="setup-melding" style="margin-top:16px;"></div>
     </div>
 </div>
@@ -363,11 +411,25 @@
 </div>
 
 <script>
-    let gekozenGroep = 'B';
-    let sessiecode   = null;
-    let huidigeSessie = null;
-    let pollingInterval = null;
-    let eventSource = null;
+    let gekozenGroep          = 'B';
+    let sessiecode            = null;
+    let huidigeSessie         = null;
+    let pollingInterval       = null;
+    let eventSource           = null;
+    let hostDoetMee           = false;
+    let hostNaamWaarde        = null;
+    let hostHoofdstukNummer   = null;
+
+    // ── Host meedoen toggle ──
+    function toggleMeedoen(e) {
+        if (e) e.preventDefault();
+        const check = document.getElementById('hostMeedoenCheck');
+        // Als aangeroepen via label-click: toggle handmatig
+        if (e) check.checked = !check.checked;
+        hostDoetMee = check.checked;
+        document.getElementById('hostNaamVeld').classList.toggle('zichtbaar', hostDoetMee);
+        if (hostDoetMee) document.getElementById('hostNaamInput').focus();
+    }
 
     // ── Groep kiezen ──
     function kiesGroep(g) {
@@ -410,13 +472,32 @@
             sessiecode    = data.code;
             huidigeSessie = data.sessie;
 
+            // Als host meedoet: direct joinen als deelnemer
+            if (hostDoetMee) {
+                hostNaamWaarde = document.getElementById('hostNaamInput').value.trim() || 'Begeleider';
+                const joinResp = await fetch(`/api/sessie/${sessiecode}/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ naam: hostNaamWaarde })
+                });
+                const joinData = await joinResp.json();
+                if (joinData.succes) {
+                    hostHoofdstukNummer = joinData.hoofdstukNummer;
+                    huidigeSessie = joinData.sessie;
+                    // Opslaan zodat sessie-schrijf.html het herkent
+                    sessionStorage.setItem('samenNaam',      hostNaamWaarde);
+                    sessionStorage.setItem('samenHoofdstuk', hostHoofdstukNummer);
+                    sessionStorage.setItem('samenCode',      sessiecode);
+                }
+            }
+
             document.getElementById('lobby-code').textContent  = sessiecode;
             document.getElementById('lobby-totaal').textContent = aantal;
             document.getElementById('lobby-url').textContent   =
                 `${location.origin}/sessie-join.html — code: ${sessiecode}`;
 
             toonScherm('scherm-lobby');
-            tekenLobbyGrid(data.sessie);
+            tekenLobbyGrid(huidigeSessie);
             verbindSSE();
         } catch (_) {
             toonMelding(meldEl, 'Verbindingsfout. Probeer opnieuw.', 'fout');
@@ -529,17 +610,22 @@
 
         sessie.deelnemers.forEach(d => {
             const hst      = (bp.hoofdstukken || []).find(h => h.nummer === d.hoofdstukNummer) || {};
-            const klasse   = d.klaar ? 'klaar' : '';
-            const icoon    = d.klaar ? '✅' : '✏️';
+            const isHostHst = hostDoetMee && hostHoofdstukNummer !== null && d.hoofdstukNummer === hostHoofdstukNummer;
+            const klasse   = d.klaar ? 'klaar' : (isHostHst ? 'host-actief' : '');
+            const icoon    = d.klaar ? '✅' : (isHostHst ? '✍️' : '⏳');
             const swChips  = (hst.sleutelwoorden || [])
                 .map(w => `<span class="sw-chip">${w}</span>`).join('');
+            const schrijfKnop = isHostHst && !d.klaar
+                ? `<button class="knop knop-sm" onclick="gaSchrijven()">✍️ Schrijf jouw hoofdstuk</button>`
+                : '';
 
             const el = document.createElement('div');
             el.className = `hst-kaart ${klasse}`;
             el.innerHTML = `
-                <div class="hst-nummer">Hoofdstuk ${d.hoofdstukNummer}</div>
+                <div class="hst-nummer">Hoofdstuk ${d.hoofdstukNummer}${isHostHst ? ' — jij' : ''}</div>
                 <div class="hst-naam">${d.naam}<span class="hst-status-icoon">${icoon}</span></div>
                 ${swChips ? `<div class="hst-sleutelwoorden">${swChips}</div>` : ''}
+                ${schrijfKnop}
             `;
             grid.appendChild(el);
         });
@@ -612,6 +698,11 @@
     // ── Naar montage ──
     function gaNaarMontage() {
         window.location.href = `sessie-montage.html?code=${sessiecode}`;
+    }
+
+    // ── Host gaat zijn/haar hoofdstuk schrijven ──
+    function gaSchrijven() {
+        window.location.href = `sessie-schrijf.html?code=${sessiecode}&hoofdstuk=${hostHoofdstukNummer}`;
     }
 </script>
 </body>
