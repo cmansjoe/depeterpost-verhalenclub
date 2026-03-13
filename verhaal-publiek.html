@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verhaal lezen — Depeterpost Verhalen Club</title>
+    <title>Verhaal lezen — VerhalenPost</title>
     <link rel="stylesheet" href="style.css">
     <style>
         main { padding: 36px 0 60px; }
@@ -137,7 +137,7 @@
 <body>
 
 <header>
-    <h1 class="site-title">📬 Depeterpost Verhalen Club</h1>
+    <h1 class="site-title">📬 VerhalenPost</h1>
     <p class="site-subtitle">Lees een persoonlijk verhaal</p>
 </header>
 <!-- NAV -->
@@ -162,7 +162,7 @@
 </main>
 
 <footer>
-    <p>Gemaakt met <span style="color:#E8197D;">❤️</span> voor de Depeterpost Verhalen Club</p>
+    <p>Gemaakt met <span style="color:#E8197D;">❤️</span> voor de VerhalenPost</p>
 </footer>
 
 <script>
@@ -221,7 +221,7 @@ async function laadVerhaal(id) {
 }
 
 function toonVerhaal(v) {
-    document.title = `${v.titel} — Depeterpost Verhalen Club`;
+    document.title = `${v.titel} — VerhalenPost`;
     const url = window.location.href;
     const geschrevenDelen = v.delen.filter(d => d.tekst.trim()).length;
 

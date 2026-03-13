@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin — Depeterpost Verhalen Club</title>
+    <title>Admin — VerhalenPost</title>
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── LOGIN SCHERM ── */
@@ -107,7 +107,7 @@
     <div class="login-kaart">
         <div class="login-logo">🔐</div>
         <h2 class="login-titel">Admin Paneel</h2>
-        <p class="login-sub">Depeterpost Verhalen Club</p>
+        <p class="login-sub">VerhalenPost</p>
 
         <input type="password" class="login-input" id="adminWachtwoord"
                placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')adminLogin()">
@@ -129,10 +129,11 @@
     <div class="admin-topbar">
         <div>
             <h1>🛡️ Admin Paneel</h1>
-            <p>Depeterpost Verhalen Club</p>
+            <p>VerhalenPost</p>
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <a href="index.html" style="color:rgba(255,255,255,0.5); text-decoration:none; font-size:0.85rem;">🏠 Naar de site</a>
+            <button class="uitlog-knop" onclick="exporteerGebruikers()" style="background:rgba(76,201,122,0.2); border-color:rgba(76,201,122,0.4);">📥 Exporteer gebruikers</button>
             <button class="uitlog-knop" onclick="adminUitloggen()">🚪 Uitloggen</button>
         </div>
     </div>
@@ -425,6 +426,23 @@ async function adminUitloggen() {
     localStorage.removeItem('adminToken');
     adminToken = null;
     location.reload();
+}
+
+function exporteerGebruikers() {
+    const link = document.createElement('a');
+    link.href = '/api/admin/export-gebruikers';
+    link.setAttribute('download', 'gebruikers.csv');
+    // Header meesturen via een verborgen fetch + blob (want fetch kan header meesturen)
+    fetch('/api/admin/export-gebruikers', { headers: { 'x-admin-token': adminToken } })
+        .then(r => r.blob())
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
 }
 
 function adminFetch(url, opties = {}) {

@@ -1,5 +1,5 @@
 // ============================================
-// Depeterpost Verhalen Club - Dagelijks Script
+// VerhalenPost - Dagelijks Script
 // ============================================
 // Dit script draai je elke avond (bijv. om 20:00)
 // om automatisch:

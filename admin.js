@@ -1,5 +1,5 @@
 // ============================================
-// Depeterpost Verhalen Club - Admin Script
+// VerhalenPost - Admin Script
 // ============================================
 // Beheert de admin pagina voor moderatie.
 // Geen AI, alles handmatig!

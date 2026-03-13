@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inloggen — Depeterpost Verhalen Club</title>
+    <title>Inloggen — VerhalenPost</title>
     <style>
 @import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@700;900&family=Baloo+2:wght@400;700;800&family=Lora:ital,wght@0,400;1,400&display=swap');
 
@@ -27,14 +27,18 @@
             font-family: 'Baloo 2', sans-serif;
             color: var(--tekst);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            justify-content: flex-start;
+            padding: 40px 20px;
             background: #1B4D2E;
             position: relative;
+            overflow-y: auto;
         }
+
+        html { height: -webkit-fill-available; }
 
         body::before {
             content: '';
@@ -225,8 +229,8 @@
 
     <div class="login-logo">
         <span class="emoji">📬</span>
-        <h1>Depeterpost Verhalen Club</h1>
-        <p>Schrijf mee aan het grote avontuur!</p>
+        <h1>VerhalenPost</h1>
+        <p>Stop scrollen, start sturen! ✉️</p>
     </div>
 
     <div class="tabs" id="loginTabs">
@@ -322,7 +326,7 @@
         <div class="regels-vak">
             <input type="checkbox" id="regelsCheck">
             <label for="regelsCheck">
-                Ik ga akkoord met de <a href="regels.html" target="_blank">gebruiksregels</a> van de Depeterpost Verhalen Club ✅
+                Ik ga akkoord met de <a href="regels.html" target="_blank">gebruiksregels</a> van VerhalenPost ✅
             </label>
         </div>
         <button class="knop-vol" id="regKnop" onclick="doeRegistreren()">🎉 Account aanmaken!</button>
@@ -434,11 +438,13 @@
     } catch(e) {}
 })();
 
-let huidigGebruikerId = null;
-let huidigEmail       = null;
-let resetToken        = null;
-let gekozenAvatar     = '🦁';
-let gekozenGroep      = 'B';
+let huidigGebruikerId  = null;
+let huidigEmail        = null;
+let resetToken         = null;
+let tijdelijkToken     = null;
+let tijdelijkGebruiker = null;
+let gekozenAvatar      = '🦁';
+let gekozenGroep       = 'B';
 
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
@@ -503,18 +509,21 @@ async function doeInloggen() {
     const naam = document.getElementById('inlogNaam').value.trim();
     const ww   = document.getElementById('inlogWw').value;
     if (!naam || !ww) { toonMelding('inlogMelding','fout','⚠️ Vul je naam en wachtwoord in.'); return; }
-    const knop = setKnopLaden('inlogKnop', true, '⏳ Bezig...');
+    setKnopLaden('inlogKnop', true, '⏳ Bezig...');
     try {
         const data = await postAPI('/api/auth/login', { gebruikersnaam: naam, wachtwoord: ww });
         if (!data.succes) {
             toonMelding('inlogMelding','fout','❌ ' + data.bericht);
         } else {
-            slaSessionOp(data);
             if (data.verificatieVereist) {
+                // Token bewaren maar nog NIET in localStorage — wacht op verificatie
+                tijdelijkToken = data.token;
+                tijdelijkGebruiker = data.gebruiker;
                 huidigGebruikerId = data.gebruiker.id;
                 huidigEmail = data.gebruiker.email;
                 toonVerificatie();
             } else {
+                slaSessionOp(data);
                 toonSucces('👋', 'Welkom terug!', `Hallo ${data.gebruiker.gebruikersnaam}! Je bent ingelogd.`);
             }
         }
@@ -530,7 +539,7 @@ async function doeRegistreren() {
     if (!document.getElementById('regelsCheck').checked) {
         toonMelding('regMelding','fout','⚠️ Je moet de gebruiksregels accepteren om mee te doen.'); return;
     }
-    const knop = setKnopLaden('regKnop', true, '⏳ Account aanmaken...');
+    setKnopLaden('regKnop', true, '⏳ Account aanmaken...');
     try {
         const data = await postAPI('/api/auth/registreer', {
             gebruikersnaam: naam, email, wachtwoord: ww,
@@ -539,9 +548,14 @@ async function doeRegistreren() {
         if (!data.succes) {
             toonMelding('regMelding','fout','❌ ' + data.bericht);
         } else {
-            slaSessionOp(data);
+            // Token bewaren maar nog NIET in localStorage — wacht op verificatie
+            tijdelijkToken = data.token;
+            tijdelijkGebruiker = data.gebruiker;
             huidigGebruikerId = data.gebruiker.id;
             huidigEmail = data.gebruiker.email;
+            if (!data.emailVerstuurd) {
+                toonMelding('regMelding','info','⚠️ Account aangemaakt, maar de bevestigingsmail kon niet verstuurd worden. Gebruik "Stuur opnieuw" op het volgende scherm.');
+            }
             toonVerificatie();
         }
     } catch(e) { toonMelding('regMelding','fout','❌ Kan geen verbinding maken.'); }
@@ -583,7 +597,12 @@ async function verifieerCode() {
             document.querySelectorAll('.code-input').forEach(i => { i.value=''; i.style.borderColor='rgba(248,113,113,0.5)'; });
             document.querySelector('.code-input').focus();
         } else {
-            toonSucces('🎉','E-mail bevestigd!','Super! Je kunt nu meedoen aan de Verhalen Club!');
+            // Nu pas token opslaan — e-mail is bevestigd
+            if (tijdelijkToken && tijdelijkGebruiker) {
+                tijdelijkGebruiker.emailGeverifieerd = true;
+                slaSessionOp({ token: tijdelijkToken, gebruiker: tijdelijkGebruiker });
+            }
+            toonSucces('🎉','E-mail bevestigd!','Super! Je kunt nu meedoen aan VerhalenPost!');
         }
     } catch(e) { toonMelding('verMelding','fout','❌ Kan geen verbinding maken.'); }
     setKnopLaden('verKnop', false, '✅ Bevestigen');
@@ -600,6 +619,10 @@ async function stuurOpnieuw() {
 }
 
 function slaVerOver() {
+    // Ook bij overslaan token opslaan zodat ze wel ingelogd zijn
+    if (tijdelijkToken && tijdelijkGebruiker) {
+        slaSessionOp({ token: tijdelijkToken, gebruiker: tijdelijkGebruiker });
+    }
     toonSucces('✨','Je bent erbij!','Je kunt je e-mail later nog bevestigen.');
 }
 

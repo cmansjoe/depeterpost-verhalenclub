@@ -2,8 +2,8 @@ const express   = require('express');
 const fs        = require('fs');
 const path      = require('path');
 const crypto    = require('crypto');
+const https     = require('https');
 const Anthropic = require('@anthropic-ai/sdk');
-const nodemailer = require('nodemailer');
 
 require('dotenv').config();
 
@@ -38,35 +38,53 @@ const sseVerbindingen = new Map();
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-// ── E-mail transporter (Gmail) ──
-function maakTransporter() {
-    // Spaties verwijderen uit app-wachtwoord (Google toont het met spaties, maar code heeft ze niet nodig)
-    const wachtwoord = (process.env.EMAIL_WACHTWOORD || '').replace(/\s/g, '');
-    return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_GEBRUIKER,
-            pass: wachtwoord  // App-wachtwoord van Gmail (zonder spaties)
-        }
-    });
-}
-
+// ── E-mail via Resend API ──
 async function stuurMail(naar, onderwerp, html) {
-    try {
-        const transporter = maakTransporter();
-        await transporter.sendMail({
-            from: `"Depeterpost Verhalen Club" <${process.env.EMAIL_GEBRUIKER}>`,
-            to: naar,
+    return new Promise((resolve) => {
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            console.error('❌ E-mail fout: RESEND_API_KEY ontbreekt in .env');
+            resolve(false);
+            return;
+        }
+        const vanAdres = process.env.EMAIL_VAN || 'onboarding@resend.dev';
+        const body = JSON.stringify({
+            from: `VerhalenPost <${vanAdres}>`,
+            to: [naar],
             subject: onderwerp,
             html
         });
-        console.log(`📧 E-mail verstuurd naar: ${naar}`);
-        return true;
-    } catch (err) {
-        console.error('❌ E-mail fout:', err.message);
-        console.error('   Controleer EMAIL_GEBRUIKER en EMAIL_WACHTWOORD in .env');
-        return false;
-    }
+        const opties = {
+            hostname: 'api.resend.com',
+            port: 443,
+            path: '/emails',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(body)
+            }
+        };
+        const req = https.request(opties, (res) => {
+            let antwoord = '';
+            res.on('data', (stuk) => { antwoord += stuk; });
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log(`📧 E-mail verstuurd naar: ${naar}`);
+                    resolve(true);
+                } else {
+                    console.error(`❌ Resend fout (${res.statusCode}): ${antwoord}`);
+                    resolve(false);
+                }
+            });
+        });
+        req.on('error', (err) => {
+            console.error('❌ E-mail verbindingsfout:', err.message);
+            resolve(false);
+        });
+        req.write(body);
+        req.end();
+    });
 }
 
 // ── Hulpfuncties ──
@@ -165,7 +183,7 @@ function maakCode(lengte = 6) {
 // ── Initialiseer databestanden ──
 if (!fs.existsSync(VERHAAL_PAD)) {
     schrijfJSON(VERHAAL_PAD, {
-        titel: "Het Grote Avontuur van de Verhalen Club",
+        titel: "Het Grote Avontuur van VerhalenPost",
         samenvatting: "Dit is het begin van een groot doorlopend verhaal, geschreven door alle kinderen samen.",
         hoofdstukken: [],
         personages: ["Blauwje de draak", "Tina de wolkenmaker", "Dapper de hond"],
@@ -186,8 +204,8 @@ if (!fs.existsSync(RESET_PAD))       schrijfJSON(RESET_PAD, []);
 if (!fs.existsSync(VIDEOS_PAD)) {
     schrijfJSON(VIDEOS_PAD, [{
         id: "video-1",
-        titel: "Welkom bij de Verhalen Club!",
-        beschrijving: "De eerste video van de Depeterpost Verhalen Club.",
+        titel: "Welkom bij VerhalenPost!",
+        beschrijving: "De eerste video van de VerhalenPost.",
         type: "youtube",
         bronUrl: "https://www.youtube.com/embed/cEbgBSsMKj0",
         youtubeId: "cEbgBSsMKj0",
@@ -220,6 +238,10 @@ function checkGebruiker(req, res, next) {
     const sessies = leesJSON(SESSIES_PAD, []);
     const sessie = sessies.find(s => s.token === token && s.type === 'gebruiker');
     if (!sessie) return res.status(401).json({ succes: false, bericht: 'Ongeldige sessie.' });
+    if (Date.now() - sessie.aangemaakt > 8 * 60 * 60 * 1000) {
+        schrijfJSON(SESSIES_PAD, sessies.filter(s => s.token !== token));
+        return res.status(401).json({ succes: false, bericht: 'Sessie verlopen. Log opnieuw in.' });
+    }
     req.gebruikerId = sessie.gebruikerId;
     next();
 }
@@ -272,8 +294,8 @@ app.post('/api/auth/registreer', async (req, res) => {
 
     const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
 
-    // Unieke gebruikersnaam
-    if (gebruikers.find(g => g.gebruikersnaam.toLowerCase() === gebruikersnaam.toLowerCase().trim())) {
+    // Unieke gebruikersnaam (null-safe: sla kapotte entries over)
+    if (gebruikers.find(g => g.gebruikersnaam?.toLowerCase() === gebruikersnaam.toLowerCase().trim())) {
         return res.json({ succes: false, bericht: 'Deze gebruikersnaam is al bezet. Kies een andere!' });
     }
     // Uniek e-mail
@@ -320,10 +342,10 @@ app.post('/api/auth/registreer', async (req, res) => {
     // Stuur e-mail (maar ga door ook als e-mail mislukt)
     const emailVerstuurd = await stuurMail(
         email.trim(),
-        '✉️ Bevestig je e-mailadres — Depeterpost Verhalen Club',
+        '✉️ Bevestig je e-mailadres — VerhalenPost',
         `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #7C3AED; font-size: 28px;">📬 Welkom bij de Verhalen Club!</h1>
+            <h1 style="color: #7C3AED; font-size: 28px;">📬 Welkom bij VerhalenPost!</h1>
             <p style="font-size: 16px; color: #333;">Hallo <strong>${gebruikersnaam}</strong>! 👋</p>
             <p style="font-size: 16px; color: #333;">Super dat je meedoet! Vul deze code in om je e-mailadres te bevestigen:</p>
             <div style="background: linear-gradient(135deg, #7C3AED, #E8197D); color: white; font-size: 36px; font-weight: bold; text-align: center; padding: 20px; border-radius: 16px; letter-spacing: 8px; margin: 24px 0;">
@@ -332,7 +354,7 @@ app.post('/api/auth/registreer', async (req, res) => {
             <p style="font-size: 14px; color: #888;">⏰ Deze code is 30 minuten geldig.</p>
             <p style="font-size: 14px; color: #888;">Als jij je niet hebt aangemeld, kun je deze e-mail negeren.</p>
             <hr style="border: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 12px; color: #aaa;">Depeterpost Verhalen Club 📚</p>
+            <p style="font-size: 12px; color: #aaa;">VerhalenPost 📚</p>
         </div>
         `
     );
@@ -410,7 +432,7 @@ app.post('/api/auth/stuur-verificatie-opnieuw', async (req, res) => {
 
     const ok = await stuurMail(
         gebruiker.email,
-        '🔢 Nieuwe verificatiecode — Depeterpost Verhalen Club',
+        '🔢 Nieuwe verificatiecode — VerhalenPost',
         `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;">
             <h2 style="color:#7C3AED;">Nieuwe verificatiecode</h2>
             <p>Hallo <strong>${gebruiker.gebruikersnaam}</strong>! Hier is je nieuwe code:</p>
@@ -482,7 +504,7 @@ app.post('/api/auth/wachtwoord-vergeten', async (req, res) => {
 
     await stuurMail(
         gebruiker.email,
-        '🔑 Wachtwoord opnieuw instellen — Depeterpost Verhalen Club',
+        '🔑 Wachtwoord opnieuw instellen — VerhalenPost',
         `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;">
             <h2 style="color:#7C3AED;">🔑 Wachtwoord vergeten?</h2>
             <p>Hallo <strong>${gebruiker.gebruikersnaam}</strong>!</p>
@@ -1855,6 +1877,31 @@ Geef ALLEEN geldig JSON terug (geen markdown):
 });
 
 // ════════════════════════════════════════
+// ADMIN: Export gebruikers als CSV
+// ════════════════════════════════════════
+app.get('/api/admin/export-gebruikers', checkAdmin, (_req, res) => {
+    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
+    const regels = [
+        'Naam,E-mailadres,Leeftijdsgroep,Aangemeld op,E-mail geverifieerd,Punten,Inzendingen,Winsten'
+    ];
+    gebruikers.forEach(g => {
+        const naam    = `"${(g.gebruikersnaam || '').replace(/"/g, '""')}"`;
+        const email   = `"${(g.email || '').replace(/"/g, '""')}"`;
+        const groep   = g.leeftijdsgroep || '';
+        const datum   = g.aangemeldOp ? new Date(g.aangemeldOp).toLocaleDateString('nl-NL') : '';
+        const verif   = g.emailGeverifieerd ? 'Ja' : 'Nee';
+        const punten  = g.punten || 0;
+        const inzend  = g.aantalInzendingen || 0;
+        const winsten = g.aantalWinsten || 0;
+        regels.push(`${naam},${email},${groep},${datum},${verif},${punten},${inzend},${winsten}`);
+    });
+    const csv = regels.join('\r\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="gebruikers.csv"');
+    res.send('\uFEFF' + csv); // BOM zodat Excel Nederlandse tekens correct toont
+});
+
+// ════════════════════════════════════════
 // START SERVER
 // ════════════════════════════════════════
 const PORT = process.env.PORT || 3000;
@@ -1864,5 +1911,5 @@ app.listen(PORT, () => {
     console.log(`👤 Login pagina:    http://localhost:${PORT}/login.html`);
     console.log(`🎬 Video pagina:    http://localhost:${PORT}/videos.html`);
     console.log(`📜 Gebruiksregels: http://localhost:${PORT}/regels.html`);
-    console.log(`\n💡 Zorg dat ADMIN_WACHTWOORD en EMAIL_GEBRUIKER in je .env staan!\n`);
+    console.log(`\n💡 Zorg dat RESEND_API_KEY in je .env staat!\n`);
 });

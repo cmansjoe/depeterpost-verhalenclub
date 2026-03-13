@@ -1,5 +1,5 @@
 // ============================================
-// Depeterpost Verhalen Club - Frontend Script
+// VerhalenPost - Frontend Script
 // ============================================
 // Dit bestand regelt alles op de homepage
 // en de verhalenpagina voor bezoekers.

@@ -1,11 +1,11 @@
 
-# Depeterpost Verhalen Club — Project Context
+# VerhalenPost — Project Context
 
-Dit is de officiële context voor het Depeterpost Verhalen Club project. Alle assistenten gebruiken dit bestand als referentie.
+Dit is de officiële context voor het VerhalenPost project. Alle assistenten gebruiken dit bestand als referentie.
 
 ## Over het project
 
-**Depeterpost Verhalen Club** is een creatieve schrijfclub voor kinderen waar elke dag een nieuwe schrijfopdracht verschijnt. Kinderen schrijven delen van een groot doorlopend verhaal, en de AI selecteert de beste inzending voor het echte verhaal.
+**VerhalenPost** is een creatieve schrijfclub voor kinderen waar elke dag een nieuwe schrijfopdracht verschijnt. Kinderen schrijven delen van een groot doorlopend verhaal, en de AI selecteert de beste inzending voor het echte verhaal.
 
 ### Doelgroep
 
