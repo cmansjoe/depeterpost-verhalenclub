@@ -109,6 +109,8 @@
         <h2 class="login-titel">Admin Paneel</h2>
         <p class="login-sub">VerhalenPost</p>
 
+        <input type="email" class="login-input" id="adminEmail"
+               placeholder="E-mailadres" onkeydown="if(event.key==='Enter')adminLogin()">
         <input type="password" class="login-input" id="adminWachtwoord"
                placeholder="Wachtwoord" onkeydown="if(event.key==='Enter')adminLogin()">
         <button class="login-knop" onclick="adminLogin()" id="loginKnop">
@@ -382,6 +384,7 @@ async function controleerToken() {
 }
 
 async function adminLogin() {
+    const email = document.getElementById('adminEmail').value.trim();
     const ww = document.getElementById('adminWachtwoord').value;
     const knop = document.getElementById('loginKnop');
     const fout = document.getElementById('loginFout');
@@ -393,7 +396,7 @@ async function adminLogin() {
         const r = await fetch('/api/auth/admin/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ wachtwoord: ww })
+            body: JSON.stringify({ email, wachtwoord: ww })
         });
         const data = await r.json();
         if (data.succes) {
