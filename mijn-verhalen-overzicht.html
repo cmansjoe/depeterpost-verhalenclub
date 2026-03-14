@@ -203,42 +203,9 @@
     <p>Gemaakt met <span style="color:#E8197D;">❤️</span> voor de VerhalenPost</p>
 </footer>
 
+<script src="auth.js"></script>
 <script>
-// ── Navigatie: actieve link + inlogstatus ──
-(function() {
-    const p = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
-    document.querySelectorAll('#hoofdNav a[href]').forEach(a => {
-        if (a.getAttribute('href').split('?')[0] === p) a.classList.add('actief');
-    });
-    const ui = localStorage.getItem('userInfo');
-    if (!ui) return;
-    try {
-        const u = JSON.parse(ui);
-        const ll = document.getElementById('navLoginLink');
-        if (ll) {
-            const badge = document.createElement('span');
-            badge.className = 'nav-agent';
-            badge.title = 'Ingelogd als ' + u.gebruikersnaam;
-            badge.textContent = (u.avatar || '🕵️') + ' ' + u.gebruikersnaam;
-            const ul = document.createElement('a');
-            ul.className = 'nav-agent-uitloggen';
-            ul.href = '#';
-            ul.textContent = '🚪 Uitloggen';
-            ul.addEventListener('click', e => {
-                e.preventDefault();
-                localStorage.removeItem('userInfo');
-                localStorage.removeItem('authToken');
-                window.location.href = 'index.html';
-            });
-            ll.replaceWith(badge);
-            badge.insertAdjacentElement('afterend', ul);
-        }
-        const md = document.getElementById('navMijnDossierLink');
-        if (md) md.style.display = '';
-        const gc = document.getElementById('navGeheimeClubLink');
-        if (gc) gc.style.display = 'inline-flex';
-    } catch(e) {}
-})();
+AUTH.initNav();
 
 let huidigDeelUrl = '';
 let verwijderId = null;

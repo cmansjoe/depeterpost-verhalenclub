@@ -1,11 +1,12 @@
+require('dotenv').config();
+
 const express   = require('express');
 const fs        = require('fs');
 const path      = require('path');
 const crypto    = require('crypto');
 const https     = require('https');
 const Anthropic = require('@anthropic-ai/sdk');
-
-require('dotenv').config();
+const { supabase } = require('./supabase');
 
 const app    = express();
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -22,12 +23,8 @@ const PENDING_PAD       = path.join(DATA_DIR, 'pending.json');
 const VIEWS_PAD         = path.join(DATA_DIR, 'views.json');
 const VERHALEN_PAD      = path.join(DATA_DIR, 'verhalen.json');
 const RATINGS_PAD       = path.join(DATA_DIR, 'ratings.json');
-const GEBRUIKERS_PAD    = path.join(DATA_DIR, 'gebruikers.json');
-const SESSIES_PAD       = path.join(DATA_DIR, 'sessies.json');
 const PROJECTEN_PAD     = path.join(DATA_DIR, 'projecten.json');
 const VIDEOS_PAD        = path.join(DATA_DIR, 'videos.json');
-const VERIFICATIE_PAD   = path.join(DATA_DIR, 'verificatie.json');
-const RESET_PAD                  = path.join(DATA_DIR, 'wachtwoord_reset.json');
 const PERSOONLIJKE_VERHALEN_PAD  = path.join(DATA_DIR, 'persoonlijke-verhalen.json');
 const INGEZONDEN_VERHALEN_PAD    = path.join(DATA_DIR, 'ingezonden-verhalen.json');
 const INSPIRATIE_PAD             = path.join(DATA_DIR, 'inspiratie-bibliotheek.json');
@@ -168,18 +165,6 @@ function kiesInspiratie(groep) {
     return { gekozenThemas, gekozenOmgeving, gekozenPersonage, gekozenObject, gekozenDier, gekozenHook, gekozenQuest };
 }
 
-function hashWachtwoord(ww) {
-    return crypto.createHash('sha256').update(ww + 'depeterpost-salt-2024').digest('hex');
-}
-
-function maakToken() {
-    return crypto.randomBytes(32).toString('hex');
-}
-
-function maakCode(lengte = 6) {
-    return crypto.randomInt(100000, 999999).toString();
-}
-
 // ── Initialiseer databestanden ──
 if (!fs.existsSync(VERHAAL_PAD)) {
     schrijfJSON(VERHAAL_PAD, {
@@ -196,11 +181,7 @@ if (!fs.existsSync(PENDING_PAD))     schrijfJSON(PENDING_PAD, []);
 if (!fs.existsSync(VIEWS_PAD))       schrijfJSON(VIEWS_PAD, {});
 if (!fs.existsSync(VERHALEN_PAD))    schrijfJSON(VERHALEN_PAD, []);
 if (!fs.existsSync(RATINGS_PAD))     schrijfJSON(RATINGS_PAD, {});
-if (!fs.existsSync(GEBRUIKERS_PAD))  schrijfJSON(GEBRUIKERS_PAD, []);
-if (!fs.existsSync(SESSIES_PAD))     schrijfJSON(SESSIES_PAD, []);
 if (!fs.existsSync(PROJECTEN_PAD))   schrijfJSON(PROJECTEN_PAD, []);
-if (!fs.existsSync(VERIFICATIE_PAD)) schrijfJSON(VERIFICATIE_PAD, []);
-if (!fs.existsSync(RESET_PAD))       schrijfJSON(RESET_PAD, []);
 if (!fs.existsSync(VIDEOS_PAD)) {
     schrijfJSON(VIDEOS_PAD, [{
         id: "video-1",
@@ -219,66 +200,100 @@ if (!fs.existsSync(VIDEOS_PAD)) {
 // ════════════════════════════════════════
 // MIDDLEWARE
 // ════════════════════════════════════════
-function checkAdmin(req, res, next) {
-    const token = req.headers['x-admin-token'];
-    if (!token) return res.status(401).json({ succes: false, bericht: 'Niet ingelogd.' });
-    const sessies = leesJSON(SESSIES_PAD, []);
-    const sessie = sessies.find(s => s.token === token && s.type === 'admin');
-    if (!sessie) return res.status(401).json({ succes: false, bericht: 'Ongeldige sessie.' });
-    if (Date.now() - sessie.aangemaakt > 8 * 60 * 60 * 1000) {
-        schrijfJSON(SESSIES_PAD, sessies.filter(s => s.token !== token));
-        return res.status(401).json({ succes: false, bericht: 'Sessie verlopen.' });
+async function checkGebruiker(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader?.startsWith('Bearer ')) {
+        return res.status(401).json({ succes: false, bericht: 'Niet ingelogd.' });
     }
+    const token = authHeader.split(' ')[1];
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+        return res.status(401).json({ succes: false, bericht: 'Ongeldige of verlopen sessie. Log opnieuw in.' });
+    }
+    req.gebruikerId = user.id;
     next();
 }
 
-function checkGebruiker(req, res, next) {
-    const token = req.headers['x-user-token'];
-    if (!token) return res.status(401).json({ succes: false, bericht: 'Niet ingelogd.' });
-    const sessies = leesJSON(SESSIES_PAD, []);
-    const sessie = sessies.find(s => s.token === token && s.type === 'gebruiker');
-    if (!sessie) return res.status(401).json({ succes: false, bericht: 'Ongeldige sessie.' });
-    if (Date.now() - sessie.aangemaakt > 8 * 60 * 60 * 1000) {
-        schrijfJSON(SESSIES_PAD, sessies.filter(s => s.token !== token));
-        return res.status(401).json({ succes: false, bericht: 'Sessie verlopen. Log opnieuw in.' });
+async function checkAdmin(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader?.startsWith('Bearer ')) {
+        return res.status(401).json({ succes: false, bericht: 'Niet ingelogd.' });
     }
-    req.gebruikerId = sessie.gebruikerId;
+    const token = authHeader.split(' ')[1];
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+        return res.status(401).json({ succes: false, bericht: 'Ongeldige of verlopen sessie.' });
+    }
+    const { data: profiel } = await supabase
+        .from('gebruikers')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+    if (!profiel?.is_admin) {
+        return res.status(403).json({ succes: false, bericht: 'Geen beheerdersrechten.' });
+    }
+    req.gebruikerId = user.id;
     next();
 }
 
 // ════════════════════════════════════════
-// AUTH: Admin
+// AUTH: Admin (tijdelijke stub — wordt vervangen in Prompt 6)
 // ════════════════════════════════════════
-app.post('/api/auth/admin/login', (req, res) => {
-    const { wachtwoord } = req.body;
-    if (wachtwoord !== (process.env.ADMIN_WACHTWOORD || 'admin123')) {
-        return res.json({ succes: false, bericht: 'Verkeerd wachtwoord.' });
+// AUTH: Admin login / logout via Supabase
+// ════════════════════════════════════════
+app.post('/api/auth/admin/login', async (req, res) => {
+    const { email, wachtwoord } = req.body;
+    if (!email || !wachtwoord) {
+        return res.json({ succes: false, bericht: 'E-mail en wachtwoord zijn verplicht.' });
     }
-    const token = maakToken();
-    const sessies = leesJSON(SESSIES_PAD, []);
-    sessies.push({ token, type: 'admin', aangemaakt: Date.now() });
-    schrijfJSON(SESSIES_PAD, sessies);
-    res.json({ succes: true, token });
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password: wachtwoord
+    });
+
+    if (error) {
+        return res.json({ succes: false, bericht: 'E-mail of wachtwoord klopt niet.' });
+    }
+
+    // Controleer of dit account admin-rechten heeft
+    const { data: profiel } = await supabase
+        .from('gebruikers')
+        .select('is_admin, gebruikersnaam')
+        .eq('id', data.user.id)
+        .single();
+
+    if (!profiel?.is_admin) {
+        return res.json({ succes: false, bericht: 'Geen beheerdersrechten.' });
+    }
+
+    res.json({
+        succes: true,
+        token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        gebruiker: { id: data.user.id, gebruikersnaam: profiel.gebruikersnaam, is_admin: true }
+    });
 });
 
-app.post('/api/auth/admin/logout', (req, res) => {
-    const token = req.headers['x-admin-token'];
-    if (token) schrijfJSON(SESSIES_PAD, leesJSON(SESSIES_PAD, []).filter(s => s.token !== token));
+app.post('/api/auth/admin/logout', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        const { data: { user } } = await supabase.auth.getUser(token);
+        if (user) await supabase.auth.admin.signOut(user.id);
+    }
     res.json({ succes: true });
 });
 
 // ════════════════════════════════════════
-// AUTH: Registratie met e-mailverificatie
+// AUTH: Registratie via Supabase
 // ════════════════════════════════════════
 app.post('/api/auth/registreer', async (req, res) => {
-    const { gebruikersnaam, wachtwoord, email, avatar, leeftijdsgroep, regelsGeaccepteerd } = req.body;
+    const { gebruikersnaam, wachtwoord, email, leeftijdsgroep, toestemming_type, ouder_email } = req.body;
 
     // Validatie
-    if (!gebruikersnaam || !wachtwoord || !email) {
-        return res.json({ succes: false, bericht: 'Gebruikersnaam, e-mailadres en wachtwoord zijn verplicht.' });
-    }
-    if (!regelsGeaccepteerd) {
-        return res.json({ succes: false, bericht: 'Je moet de gebruiksregels accepteren om mee te doen.' });
+    if (!gebruikersnaam || !wachtwoord || !email || !leeftijdsgroep || !toestemming_type) {
+        return res.json({ succes: false, bericht: 'Alle velden zijn verplicht.' });
     }
     if (gebruikersnaam.trim().length < 2) {
         return res.json({ succes: false, bericht: 'Gebruikersnaam moet minstens 2 tekens lang zijn.' });
@@ -286,335 +301,332 @@ app.post('/api/auth/registreer', async (req, res) => {
     if (wachtwoord.length < 6) {
         return res.json({ succes: false, bericht: 'Wachtwoord moet minstens 6 tekens lang zijn.' });
     }
-    // E-mail validatie
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-        return res.json({ succes: false, bericht: 'Voer een geldig e-mailadres in.' });
+    if (!['A', 'B', 'C'].includes(leeftijdsgroep)) {
+        return res.json({ succes: false, bericht: 'Kies een geldige schrijfgroep (A, B of C).' });
+    }
+    if (!['school', 'ouder'].includes(toestemming_type)) {
+        return res.json({ succes: false, bericht: 'Geef aan of je via school of via een ouder meedoet.' });
+    }
+    if (toestemming_type === 'ouder' && !ouder_email) {
+        return res.json({ succes: false, bericht: 'Het e-mailadres van je ouder is verplicht.' });
     }
 
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
+    // Controleer of gebruikersnaam al bezet is
+    const { data: bestaand } = await supabase
+        .from('gebruikers')
+        .select('id')
+        .ilike('gebruikersnaam', gebruikersnaam.trim())
+        .maybeSingle();
 
-    // Unieke gebruikersnaam (null-safe: sla kapotte entries over)
-    if (gebruikers.find(g => g.gebruikersnaam?.toLowerCase() === gebruikersnaam.toLowerCase().trim())) {
-        return res.json({ succes: false, bericht: 'Deze gebruikersnaam is al bezet. Kies een andere!' });
-    }
-    // Uniek e-mail
-    if (gebruikers.find(g => g.email?.toLowerCase() === email.toLowerCase().trim())) {
-        return res.json({ succes: false, bericht: 'Dit e-mailadres is al in gebruik.' });
+    if (bestaand) {
+        return res.json({ succes: false, bericht: 'Deze gebruikersnaam is al bezet. Kies een andere! 😊' });
     }
 
-    const nieuweGebruiker = {
-        id: `user-${Date.now()}`,
-        gebruikersnaam: gebruikersnaam.trim(),
-        wachtwoordHash: hashWachtwoord(wachtwoord),
+    // Maak Supabase Auth gebruiker aan
+    const { data: authData, error: authFout } = await supabase.auth.admin.createUser({
         email: email.toLowerCase().trim(),
-        emailGeverifieerd: false,
-        avatar: avatar || '🦁',
-        leeftijdsgroep: leeftijdsgroep || 'B',
-        punten: 0,
-        badges: [],
-        aangemeldOp: new Date().toISOString(),
-        aantalInzendingen: 0,
-        aantalWinsten: 0,
-        aaneengeslotenDagen: 0,
-        laasteInzending: null,
-        regelsGeaccepteerd: true,
-        regelsGeaccepteerdOp: new Date().toISOString()
-    };
-
-    gebruikers.push(nieuweGebruiker);
-    schrijfJSON(GEBRUIKERS_PAD, gebruikers);
-
-    // Stuur verificatiecode
-    const code = maakCode();
-    const verificaties = leesJSON(VERIFICATIE_PAD, []);
-    // Verwijder oude codes van dit e-mail
-    const gefilterd = verificaties.filter(v => v.email !== email.toLowerCase().trim());
-    gefilterd.push({
-        email: email.toLowerCase().trim(),
-        gebruikerId: nieuweGebruiker.id,
-        code,
-        aangemaakt: Date.now(),
-        verlopen: Date.now() + 30 * 60 * 1000 // 30 minuten geldig
+        password: wachtwoord,
+        email_confirm: false
     });
-    schrijfJSON(VERIFICATIE_PAD, gefilterd);
 
-    // Stuur e-mail (maar ga door ook als e-mail mislukt)
-    const emailVerstuurd = await stuurMail(
-        email.trim(),
-        '✉️ Bevestig je e-mailadres — VerhalenPost',
-        `
-        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #7C3AED; font-size: 28px;">📬 Welkom bij VerhalenPost!</h1>
-            <p style="font-size: 16px; color: #333;">Hallo <strong>${gebruikersnaam}</strong>! 👋</p>
-            <p style="font-size: 16px; color: #333;">Super dat je meedoet! Vul deze code in om je e-mailadres te bevestigen:</p>
-            <div style="background: linear-gradient(135deg, #7C3AED, #E8197D); color: white; font-size: 36px; font-weight: bold; text-align: center; padding: 20px; border-radius: 16px; letter-spacing: 8px; margin: 24px 0;">
-                ${code}
-            </div>
-            <p style="font-size: 14px; color: #888;">⏰ Deze code is 30 minuten geldig.</p>
-            <p style="font-size: 14px; color: #888;">Als jij je niet hebt aangemeld, kun je deze e-mail negeren.</p>
-            <hr style="border: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 12px; color: #aaa;">VerhalenPost 📚</p>
-        </div>
-        `
-    );
+    if (authFout) {
+        if (authFout.message?.toLowerCase().includes('already registered')) {
+            return res.json({ succes: false, bericht: 'Dit e-mailadres is al in gebruik.' });
+        }
+        console.error('Supabase registratie fout:', authFout);
+        return res.json({ succes: false, bericht: 'Er ging iets mis. Probeer het opnieuw.' });
+    }
 
-    // Geef token terug voor direct inloggen (voor als verificatie later kan)
-    const token = maakToken();
-    const sessies = leesJSON(SESSIES_PAD, []);
-    sessies.push({ token, type: 'gebruiker', gebruikerId: nieuweGebruiker.id, aangemaakt: Date.now() });
-    schrijfJSON(SESSIES_PAD, sessies);
+    const userId = authData.user.id;
 
-    const { wachtwoordHash, ...veiligeProfiel } = nieuweGebruiker;
-    res.json({
-        succes: true,
-        token,
-        gebruiker: veiligeProfiel,
-        verificatieVereist: true,
-        emailVerstuurd,
-        bericht: emailVerstuurd
-            ? `We hebben een verificatiecode gestuurd naar ${email}`
-            : 'Account aangemaakt! E-mail kon niet verstuurd worden, vraag de beheerder om verificatie.'
-    });
+    // Genereer ouder-toestemmingstoken
+    const ouder_token = toestemming_type === 'ouder'
+        ? crypto.randomBytes(32).toString('hex')
+        : null;
+
+    // Sla profiel op in gebruikers tabel
+    const { error: profielFout } = await supabase
+        .from('gebruikers')
+        .insert({
+            id: userId,
+            gebruikersnaam: gebruikersnaam.trim(),
+            leeftijdsgroep,
+            toestemming_type,
+            toestemming_gegeven: false,
+            ouder_email: ouder_email ? ouder_email.toLowerCase().trim() : null,
+            ouder_token
+        });
+
+    if (profielFout) {
+        // Ruim auth gebruiker op als profiel aanmaken mislukt
+        await supabase.auth.admin.deleteUser(userId);
+        console.error('Profiel aanmaken mislukt:', profielFout);
+        return res.json({ succes: false, bericht: 'Er ging iets mis bij het aanmaken van je profiel.' });
+    }
+
+    // Stuur ouder-toestemmingsmail
+    if (toestemming_type === 'ouder') {
+        const siteUrl = process.env.SITE_URL || 'http://localhost:5500';
+        const toestemmingLink = `${siteUrl}/toestemming.html?token=${ouder_token}`;
+        await stuurMail(
+            ouder_email.trim(),
+            '✋ Toestemming geven voor VerhalenPost',
+            `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;">
+                <h1 style="color:#7C3AED;font-size:24px;">📚 Toestemming geven voor VerhalenPost</h1>
+                <p style="font-size:16px;color:#333;">Uw kind <strong>${gebruikersnaam}</strong> wil meedoen met VerhalenPost, een creatieve schrijfclub voor kinderen.</p>
+                <p style="font-size:16px;color:#333;">Klik op de knop hieronder om toestemming te geven:</p>
+                <a href="${toestemmingLink}" style="display:inline-block;background:linear-gradient(135deg,#7C3AED,#E8197D);color:white;font-size:18px;font-weight:bold;padding:16px 32px;border-radius:12px;text-decoration:none;margin:16px 0;">
+                    ✅ Toestemming geven
+                </a>
+                <p style="font-size:14px;color:#888;">Als u geen toestemming wilt geven, hoeft u niets te doen. Het account blijft inactief.</p>
+                <p style="font-size:12px;color:#aaa;">VerhalenPost voldoet aan de AVG-richtlijnen voor scholen in Nederland en België.</p>
+            </div>`
+        );
+    }
+
+    const bericht = toestemming_type === 'ouder'
+        ? `Account aangemaakt! We hebben een toestemmingsmail gestuurd naar ${ouder_email}. Zodra je ouder toestemming geeft, kun je inloggen. 🎉`
+        : 'Account aangemaakt! Je school-beheerder activeert je account. Je hoort het snel! 🎉';
+
+    res.json({ succes: true, bericht, wacht_op_toestemming: true });
 });
 
-// ── Verifieer e-mail code ──
-app.post('/api/auth/verifieer-email', (req, res) => {
-    const { code, gebruikerId } = req.body;
-    if (!code || !gebruikerId) {
-        return res.json({ succes: false, bericht: 'Code en gebruiker zijn verplicht.' });
-    }
-
-    const verificaties = leesJSON(VERIFICATIE_PAD, []);
-    const verificatie = verificaties.find(v => v.gebruikerId === gebruikerId && v.code === code.trim());
-
-    if (!verificatie) {
-        return res.json({ succes: false, bericht: 'Onjuiste code. Probeer het opnieuw.' });
-    }
-    if (Date.now() > verificatie.verlopen) {
-        schrijfJSON(VERIFICATIE_PAD, verificaties.filter(v => v.gebruikerId !== gebruikerId));
-        return res.json({ succes: false, bericht: 'Code verlopen. Vraag een nieuwe code aan.' });
-    }
-
-    // Markeer e-mail als geverifieerd
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const idx = gebruikers.findIndex(g => g.id === gebruikerId);
-    if (idx !== -1) {
-        gebruikers[idx].emailGeverifieerd = true;
-        schrijfJSON(GEBRUIKERS_PAD, gebruikers);
-    }
-
-    // Verwijder verificatiecode
-    schrijfJSON(VERIFICATIE_PAD, verificaties.filter(v => v.gebruikerId !== gebruikerId));
-
-    res.json({ succes: true, bericht: 'E-mail bevestigd! Welkom bij de club! 🎉' });
-});
-
-// ── Stuur verificatiecode opnieuw ──
+// ── Stuur verificatiemail opnieuw via Supabase ──
 app.post('/api/auth/stuur-verificatie-opnieuw', async (req, res) => {
-    const { gebruikerId } = req.body;
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const gebruiker = gebruikers.find(g => g.id === gebruikerId);
-    if (!gebruiker) return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
-    if (gebruiker.emailGeverifieerd) return res.json({ succes: false, bericht: 'E-mail is al bevestigd.' });
+    const { email } = req.body;
+    if (!email) return res.json({ succes: false, bericht: 'E-mailadres is verplicht.' });
 
-    const code = maakCode();
-    const verificaties = leesJSON(VERIFICATIE_PAD, []);
-    const gefilterd = verificaties.filter(v => v.gebruikerId !== gebruikerId);
-    gefilterd.push({
-        email: gebruiker.email,
-        gebruikerId,
-        code,
-        aangemaakt: Date.now(),
-        verlopen: Date.now() + 30 * 60 * 1000
+    const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email.toLowerCase().trim()
     });
-    schrijfJSON(VERIFICATIE_PAD, gefilterd);
 
-    const ok = await stuurMail(
-        gebruiker.email,
-        '🔢 Nieuwe verificatiecode — VerhalenPost',
-        `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;">
-            <h2 style="color:#7C3AED;">Nieuwe verificatiecode</h2>
-            <p>Hallo <strong>${gebruiker.gebruikersnaam}</strong>! Hier is je nieuwe code:</p>
-            <div style="background:linear-gradient(135deg,#7C3AED,#E8197D);color:white;font-size:36px;font-weight:bold;text-align:center;padding:20px;border-radius:16px;letter-spacing:8px;margin:24px 0;">${code}</div>
-            <p style="color:#888;font-size:14px;">⏰ Geldig voor 30 minuten.</p>
-        </div>`
-    );
+    if (error) {
+        return res.json({ succes: false, bericht: 'E-mail kon niet verstuurd worden. Probeer het later opnieuw.' });
+    }
+    res.json({ succes: true, bericht: 'Verificatiemail opnieuw verstuurd! Controleer je inbox. 📬' });
+});
 
-    res.json({ succes: ok, bericht: ok ? 'Nieuwe code verstuurd!' : 'E-mail kon niet verstuurd worden.' });
+// ── Ouder bevestigt toestemming via link in e-mail ──
+app.get('/api/auth/ouder-toestemming/:token', async (req, res) => {
+    const { token } = req.params;
+    const siteUrl = process.env.SITE_URL || 'http://localhost:5500';
+
+    const { data: profiel, error } = await supabase
+        .from('gebruikers')
+        .select('id, gebruikersnaam, toestemming_gegeven')
+        .eq('ouder_token', token)
+        .maybeSingle();
+
+    if (error || !profiel) {
+        return res.redirect(`${siteUrl}/login.html?melding=toestemming-ongeldig`);
+    }
+    if (profiel.toestemming_gegeven) {
+        return res.redirect(`${siteUrl}/login.html?melding=toestemming-al-gegeven`);
+    }
+
+    // Activeer account: toestemming + e-mail bevestigen
+    await supabase.from('gebruikers').update({ toestemming_gegeven: true, ouder_token: null }).eq('id', profiel.id);
+    await supabase.auth.admin.updateUserById(profiel.id, { email_confirm: true });
+
+    res.redirect(`${siteUrl}/login.html?melding=toestemming-gelukt&naam=${encodeURIComponent(profiel.gebruikersnaam)}`);
+});
+
+// ── Admin activeert school-account ──
+app.post('/api/admin/activeer-school-account', checkAdmin, async (req, res) => {
+    const { gebruikerId } = req.body;
+    if (!gebruikerId) return res.json({ succes: false, bericht: 'gebruikerId is verplicht.' });
+
+    const { data: profiel } = await supabase
+        .from('gebruikers')
+        .select('toestemming_type, toestemming_gegeven')
+        .eq('id', gebruikerId)
+        .single();
+
+    if (!profiel) return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
+    if (profiel.toestemming_type !== 'school') {
+        return res.json({ succes: false, bericht: 'Dit account vereist geen school-activatie.' });
+    }
+    if (profiel.toestemming_gegeven) {
+        return res.json({ succes: false, bericht: 'Account is al actief.' });
+    }
+
+    await supabase.from('gebruikers').update({ toestemming_gegeven: true }).eq('id', gebruikerId);
+    await supabase.auth.admin.updateUserById(gebruikerId, { email_confirm: true });
+
+    res.json({ succes: true, bericht: 'Account geactiveerd. Het kind kan nu inloggen. 🎉' });
+});
+
+// ── Admin: lijst van accounts die wachten op activatie ──
+app.get('/api/admin/wachtende-accounts', checkAdmin, async (_req, res) => {
+    const { data, error } = await supabase
+        .from('gebruikers')
+        .select('id, gebruikersnaam, leeftijdsgroep, toestemming_type, aangemaakt_op')
+        .eq('toestemming_gegeven', false)
+        .order('aangemaakt_op', { ascending: true });
+
+    if (error) return res.json({ succes: false, bericht: 'Fout bij ophalen.' });
+    res.json({ succes: true, accounts: data });
 });
 
 // ════════════════════════════════════════
-// AUTH: Login
+// AUTH: Login via Supabase
 // ════════════════════════════════════════
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
     const { gebruikersnaam, wachtwoord } = req.body;
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    // Login met gebruikersnaam OF e-mail
-    const gebruiker = gebruikers.find(g =>
-        g.gebruikersnaam.toLowerCase() === gebruikersnaam?.toLowerCase().trim() ||
-        g.email?.toLowerCase() === gebruikersnaam?.toLowerCase().trim()
-    );
-    if (!gebruiker || gebruiker.wachtwoordHash !== hashWachtwoord(wachtwoord)) {
+    if (!gebruikersnaam || !wachtwoord) {
+        return res.json({ succes: false, bericht: 'Gebruikersnaam en wachtwoord zijn verplicht.' });
+    }
+
+    // Supabase werkt alleen met e-mail — zoek email op als gebruikersnaam gegeven is
+    let inlogEmail = gebruikersnaam.trim();
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inlogEmail);
+
+    if (!isEmail) {
+        const { data: profiel } = await supabase
+            .from('gebruikers')
+            .select('id')
+            .ilike('gebruikersnaam', inlogEmail)
+            .maybeSingle();
+
+        if (!profiel) {
+            return res.json({ succes: false, bericht: 'Gebruikersnaam of wachtwoord klopt niet.' });
+        }
+
+        const { data: authGebruiker } = await supabase.auth.admin.getUserById(profiel.id);
+        if (!authGebruiker?.user?.email) {
+            return res.json({ succes: false, bericht: 'Gebruikersnaam of wachtwoord klopt niet.' });
+        }
+        inlogEmail = authGebruiker.user.email;
+    }
+
+    // Inloggen via Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email: inlogEmail.toLowerCase(),
+        password: wachtwoord
+    });
+
+    if (error) {
         return res.json({ succes: false, bericht: 'Gebruikersnaam of wachtwoord klopt niet.' });
     }
 
-    const token = maakToken();
-    const sessies = leesJSON(SESSIES_PAD, []);
-    sessies.push({ token, type: 'gebruiker', gebruikerId: gebruiker.id, aangemaakt: Date.now() });
-    schrijfJSON(SESSIES_PAD, sessies);
+    // Controleer of toestemming gegeven is
+    const { data: profiel } = await supabase
+        .from('gebruikers')
+        .select('gebruikersnaam, leeftijdsgroep, toestemming_gegeven, toestemming_type, is_admin')
+        .eq('id', data.user.id)
+        .single();
 
-    const { wachtwoordHash, ...veiligeProfiel } = gebruiker;
+    if (!profiel?.toestemming_gegeven) {
+        const bericht = profiel?.toestemming_type === 'ouder'
+            ? 'Je account wacht nog op toestemming van je ouder. Controleer of de toestemmingsmail al geopend is. 📬'
+            : 'Je account wacht nog op activatie door je school-beheerder. 🏫';
+        return res.json({ succes: false, bericht });
+    }
+
     res.json({
         succes: true,
-        token,
-        gebruiker: veiligeProfiel,
-        verificatieVereist: !gebruiker.emailGeverifieerd
+        token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        gebruiker: {
+            id: data.user.id,
+            gebruikersnaam: profiel.gebruikersnaam,
+            leeftijdsgroep: profiel.leeftijdsgroep,
+            is_admin: profiel.is_admin
+        }
     });
 });
 
 // ════════════════════════════════════════
-// AUTH: Wachtwoord vergeten / resetten
+// AUTH: Wachtwoord vergeten / resetten via Supabase
 // ════════════════════════════════════════
 app.post('/api/auth/wachtwoord-vergeten', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.json({ succes: false, bericht: 'E-mailadres is verplicht.' });
 
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const gebruiker = gebruikers.find(g => g.email?.toLowerCase() === email.toLowerCase().trim());
+    const siteUrl = process.env.SITE_URL || 'http://localhost:5500';
 
-    // Altijd succes teruggeven (veiligheid: nooit verklappen of e-mail bestaat)
-    if (!gebruiker) {
-        return res.json({ succes: true, bericht: 'Als dit e-mailadres bekend is, ontvang je een reset-e-mail.' });
-    }
-
-    const token = maakToken();
-    const resets = leesJSON(RESET_PAD, []);
-    const gefilterd = resets.filter(r => r.gebruikerId !== gebruiker.id);
-    gefilterd.push({
-        token,
-        gebruikerId: gebruiker.id,
-        email: gebruiker.email,
-        aangemaakt: Date.now(),
-        verlopen: Date.now() + 60 * 60 * 1000 // 1 uur geldig
+    // Stuur reset-link via Supabase (nooit verklappen of e-mail bestaat)
+    await supabase.auth.resetPasswordForEmail(email.toLowerCase().trim(), {
+        redirectTo: `${siteUrl}/login.html?actie=reset`
     });
-    schrijfJSON(RESET_PAD, gefilterd);
 
-    const resetLink = `${process.env.SITE_URL || 'http://localhost:5500'}/login.html?reset=${token}`;
-
-    await stuurMail(
-        gebruiker.email,
-        '🔑 Wachtwoord opnieuw instellen — VerhalenPost',
-        `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;">
-            <h2 style="color:#7C3AED;">🔑 Wachtwoord vergeten?</h2>
-            <p>Hallo <strong>${gebruiker.gebruikersnaam}</strong>!</p>
-            <p>Klik op de knop om een nieuw wachtwoord in te stellen. Deze link is 1 uur geldig.</p>
-            <div style="text-align:center;margin:28px 0;">
-                <a href="${resetLink}" style="background:linear-gradient(135deg,#7C3AED,#E8197D);color:white;text-decoration:none;padding:14px 32px;border-radius:30px;font-size:16px;font-weight:bold;display:inline-block;">
-                    🔑 Nieuw wachtwoord instellen
-                </a>
-            </div>
-            <p style="color:#888;font-size:13px;">Als jij dit niet hebt aangevraagd, is er niets aan de hand. Negeer deze e-mail gewoon.</p>
-            <p style="color:#aaa;font-size:12px;">Of kopieer deze link: ${resetLink}</p>
-        </div>`
-    );
-
-    res.json({ succes: true, bericht: 'Als dit e-mailadres bekend is, ontvang je een reset-e-mail.' });
+    res.json({ succes: true, bericht: 'Als dit e-mailadres bekend is, ontvang je een reset-e-mail. 📧' });
 });
 
-// ── Stel nieuw wachtwoord in via reset-token ──
-app.post('/api/auth/reset-wachtwoord', (req, res) => {
-    const { token, nieuwWachtwoord } = req.body;
-    if (!token || !nieuwWachtwoord) {
+// ── Stel nieuw wachtwoord in via Supabase access token ──
+app.post('/api/auth/reset-wachtwoord', async (req, res) => {
+    const { accessToken, nieuwWachtwoord } = req.body;
+    if (!accessToken || !nieuwWachtwoord) {
         return res.json({ succes: false, bericht: 'Token en nieuw wachtwoord zijn verplicht.' });
     }
     if (nieuwWachtwoord.length < 6) {
         return res.json({ succes: false, bericht: 'Wachtwoord moet minstens 6 tekens lang zijn.' });
     }
 
-    const resets = leesJSON(RESET_PAD, []);
-    const reset = resets.find(r => r.token === token);
-
-    if (!reset) return res.json({ succes: false, bericht: 'Ongeldige resetlink.' });
-    if (Date.now() > reset.verlopen) {
-        schrijfJSON(RESET_PAD, resets.filter(r => r.token !== token));
-        return res.json({ succes: false, bericht: 'Deze link is verlopen. Vraag een nieuwe aan.' });
+    // Valideer de token en haal de gebruiker op
+    const { data: { user }, error: tokenFout } = await supabase.auth.getUser(accessToken);
+    if (tokenFout || !user) {
+        return res.json({ succes: false, bericht: 'Ongeldige of verlopen resetlink. Vraag een nieuwe aan.' });
     }
 
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const idx = gebruikers.findIndex(g => g.id === reset.gebruikerId);
-    if (idx === -1) return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
+    // Stel nieuw wachtwoord in
+    const { error: updateFout } = await supabase.auth.admin.updateUserById(user.id, {
+        password: nieuwWachtwoord
+    });
 
-    gebruikers[idx].wachtwoordHash = hashWachtwoord(nieuwWachtwoord);
-    schrijfJSON(GEBRUIKERS_PAD, gebruikers);
-    schrijfJSON(RESET_PAD, resets.filter(r => r.token !== token));
-
-    res.json({ succes: true, bericht: 'Wachtwoord succesvol gewijzigd! Je kunt nu inloggen.' });
-});
-
-// ── Check reset token geldigheid ──
-app.get('/api/auth/check-reset/:token', (req, res) => {
-    const resets = leesJSON(RESET_PAD, []);
-    const reset = resets.find(r => r.token === req.params.token);
-    if (!reset || Date.now() > reset.verlopen) {
-        return res.json({ geldig: false });
+    if (updateFout) {
+        return res.json({ succes: false, bericht: 'Er ging iets mis. Probeer het opnieuw.' });
     }
-    res.json({ geldig: true });
+
+    res.json({ succes: true, bericht: 'Wachtwoord succesvol gewijzigd! Je kunt nu inloggen. 🎉' });
 });
 
-// ── Profiel ophalen ──
-app.get('/api/auth/profiel', checkGebruiker, (req, res) => {
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const gebruiker = gebruikers.find(g => g.id === req.gebruikerId);
-    if (!gebruiker) return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
+// ── Profiel ophalen via Supabase ──
+app.get('/api/auth/profiel', checkGebruiker, async (req, res) => {
+    const { data: profiel, error } = await supabase
+        .from('gebruikers')
+        .select('id, gebruikersnaam, leeftijdsgroep, is_admin, toestemming_gegeven, aangemaakt_op')
+        .eq('id', req.gebruikerId)
+        .single();
+
+    if (error || !profiel) {
+        return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
+    }
+
     const inzendingen = leesJSON(INZENDINGEN_PAD, []);
     const eigenInzendingen = inzendingen.filter(i => i.gebruikerId === req.gebruikerId);
-    const { wachtwoordHash, ...veiligeProfiel } = gebruiker;
-    res.json({ succes: true, gebruiker: veiligeProfiel, inzendingen: eigenInzendingen });
+
+    res.json({ succes: true, gebruiker: profiel, inzendingen: eigenInzendingen });
 });
 
 // ── Mijn Dossier: alles in één call ──
-app.get('/api/mijn-dossier', checkGebruiker, (req, res) => {
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const gebruiker = gebruikers.find(g => g.id === req.gebruikerId);
-    if (!gebruiker) return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
+app.get('/api/mijn-dossier', checkGebruiker, async (req, res) => {
+    const { data: profiel, error } = await supabase
+        .from('gebruikers')
+        .select('id, gebruikersnaam, leeftijdsgroep, is_admin, toestemming_gegeven, aangemaakt_op')
+        .eq('id', req.gebruikerId)
+        .single();
 
-    // Inzendingen: match op gebruikerId OF op naam (voor oudere inzendingen zonder userId)
+    if (error || !profiel) return res.json({ succes: false, bericht: 'Gebruiker niet gevonden.' });
+
     const alleInzendingen = leesJSON(INZENDINGEN_PAD, []);
     const eigenInzendingen = alleInzendingen.filter(i =>
         i.gebruikerId === req.gebruikerId ||
-        (!i.gebruikerId && i.naam === gebruiker.gebruikersnaam)
+        (!i.gebruikerId && i.naam === profiel.gebruikersnaam)
     );
 
     const persoonlijkeVerhalen = leesJSON(PERSOONLIJKE_VERHALEN_PAD, [])
         .filter(v => v.gebruikerId === req.gebruikerId);
 
-    const { wachtwoordHash, ...veiligeProfiel } = gebruiker;
     res.json({
         succes: true,
-        gebruiker: veiligeProfiel,
+        gebruiker: profiel,
         inzendingen: eigenInzendingen,
         persoonlijkeVerhalen
     });
 });
 
-// ── Badge toekenner ──
-function kenBadgesToe(gebruikerId) {
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const idx = gebruikers.findIndex(g => g.id === gebruikerId);
-    if (idx === -1) return;
-    const g = gebruikers[idx];
-    const badges = new Set(g.badges || []);
-    if (g.aantalInzendingen >= 1)   badges.add('eerste_verhaal');
-    if (g.aantalInzendingen >= 5)   badges.add('op_dreef');
-    if (g.aantalInzendingen >= 20)  badges.add('verhaalmeester');
-    if (g.aantalWinsten >= 1)       badges.add('kampioen');
-    if (g.aantalWinsten >= 5)       badges.add('super_kampioen');
-    if (g.aaneengeslotenDagen >= 7) badges.add('trouwe_schrijver');
-    if (g.aaneengeslotenDagen >= 30) badges.add('legenda');
-    gebruikers[idx].badges = [...badges];
-    schrijfJSON(GEBRUIKERS_PAD, gebruikers);
-}
 
 // ════════════════════════════════════════
 // PROJECTEN
@@ -887,18 +899,6 @@ Geef ALLEEN geldig JSON:
     inzendingen.push(nieuweInzending);
     schrijfJSON(INZENDINGEN_PAD, inzendingen);
 
-    if (gebruikerId) {
-        const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-        const idx = gebruikers.findIndex(g => g.id === gebruikerId);
-        if (idx !== -1) {
-            gebruikers[idx].punten = (gebruikers[idx].punten || 0) + 10;
-            gebruikers[idx].aantalInzendingen = (gebruikers[idx].aantalInzendingen || 0) + 1;
-            gebruikers[idx].laasteInzending = datum;
-            schrijfJSON(GEBRUIKERS_PAD, gebruikers);
-            kenBadgesToe(gebruikerId);
-        }
-    }
-
     res.json({ succes: true, bericht: 'Je verhaaltje is ontvangen!', feedback, inzendingId: nieuweInzending.id });
 });
 
@@ -965,16 +965,6 @@ Kies de beste. Geef ALLEEN geldig JSON:
         const resultaat = parseAIJson(message.content[0].text);
         schrijfJSON(INZENDINGEN_PAD, inzendingen.map(i => ({ ...i, winnaar: i.id === resultaat.winnaarId ? true : i.winnaar })));
         const winnaar = kandidaten.find(i => i.id === resultaat.winnaarId);
-        if (winnaar?.gebruikerId) {
-            const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-            const idx = gebruikers.findIndex(g => g.id === winnaar.gebruikerId);
-            if (idx !== -1) {
-                gebruikers[idx].punten = (gebruikers[idx].punten || 0) + 50;
-                gebruikers[idx].aantalWinsten = (gebruikers[idx].aantalWinsten || 0) + 1;
-                schrijfJSON(GEBRUIKERS_PAD, gebruikers);
-                kenBadgesToe(winnaar.gebruikerId);
-            }
-        }
         res.json({ succes: true, winnaar, reden: resultaat.reden });
     } catch (err) {
         res.json({ succes: false, bericht: err.message });
@@ -1269,13 +1259,17 @@ app.get('/api/mijn-verhalen', checkGebruiker, (req, res) => {
 });
 
 // Enkel verhaal ophalen (publiek)
-app.get('/api/verhaal/:id', (req, res) => {
+app.get('/api/verhaal/:id', async (req, res) => {
     const verhaal = leesJSON(PERSOONLIJKE_VERHALEN_PAD, []).find(v => v.id === req.params.id);
     if (!verhaal) return res.status(404).json({ succes: false, bericht: 'Verhaal niet gevonden.' });
     if (!verhaal.openbaar) return res.status(403).json({ succes: false, bericht: 'Dit verhaal is niet openbaar.' });
-    // Voeg gebruikersnaam toe
-    const gebruiker = leesJSON(GEBRUIKERS_PAD, []).find(g => g.id === verhaal.gebruikerId);
-    res.json({ ...verhaal, auteursnaam: gebruiker?.gebruikersnaam || 'Onbekend', auteurAvatar: gebruiker?.avatar || '📖' });
+    // Haal gebruikersnaam op uit Supabase
+    let auteursnaam = 'Onbekend';
+    if (verhaal.gebruikerId) {
+        const { data: auteur } = await supabase.from('gebruikers').select('gebruikersnaam').eq('id', verhaal.gebruikerId).single();
+        if (auteur) auteursnaam = auteur.gebruikersnaam;
+    }
+    res.json({ ...verhaal, auteursnaam, auteurAvatar: '📖' });
 });
 
 // Verhaal bijwerken
@@ -1879,22 +1873,24 @@ Geef ALLEEN geldig JSON terug (geen markdown):
 // ════════════════════════════════════════
 // ADMIN: Export gebruikers als CSV
 // ════════════════════════════════════════
-app.get('/api/admin/export-gebruikers', checkAdmin, (_req, res) => {
-    const gebruikers = leesJSON(GEBRUIKERS_PAD, []);
-    const regels = [
-        'Naam,E-mailadres,Leeftijdsgroep,Aangemeld op,E-mail geverifieerd,Punten,Inzendingen,Winsten'
-    ];
+app.get('/api/admin/export-gebruikers', checkAdmin, async (_req, res) => {
+    const { data: gebruikers, error } = await supabase
+        .from('gebruikers')
+        .select('gebruikersnaam, leeftijdsgroep, toestemming_type, toestemming_gegeven, aangemaakt_op')
+        .order('aangemaakt_op', { ascending: true });
+
+    if (error) return res.status(500).json({ succes: false, bericht: 'Fout bij ophalen gebruikers.' });
+
+    const regels = ['Naam,Leeftijdsgroep,Toestemming via,Toestemming gegeven,Aangemeld op'];
     gebruikers.forEach(g => {
-        const naam    = `"${(g.gebruikersnaam || '').replace(/"/g, '""')}"`;
-        const email   = `"${(g.email || '').replace(/"/g, '""')}"`;
-        const groep   = g.leeftijdsgroep || '';
-        const datum   = g.aangemeldOp ? new Date(g.aangemeldOp).toLocaleDateString('nl-NL') : '';
-        const verif   = g.emailGeverifieerd ? 'Ja' : 'Nee';
-        const punten  = g.punten || 0;
-        const inzend  = g.aantalInzendingen || 0;
-        const winsten = g.aantalWinsten || 0;
-        regels.push(`${naam},${email},${groep},${datum},${verif},${punten},${inzend},${winsten}`);
+        const naam   = `"${(g.gebruikersnaam || '').replace(/"/g, '""')}"`;
+        const groep  = g.leeftijdsgroep || '';
+        const type   = g.toestemming_type || '';
+        const toest  = g.toestemming_gegeven ? 'Ja' : 'Nee';
+        const datum  = g.aangemaakt_op ? new Date(g.aangemaakt_op).toLocaleDateString('nl-NL') : '';
+        regels.push(`${naam},${groep},${type},${toest},${datum}`);
     });
+
     const csv = regels.join('\r\n');
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="gebruikers.csv"');

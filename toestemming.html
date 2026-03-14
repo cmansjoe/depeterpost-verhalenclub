@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toestemming geven — VerhalenPost</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@700;900&family=Baloo+2:wght@400;700;800&display=swap');
+        body {
+            font-family: 'Baloo 2', sans-serif;
+            background: #1B4D2E;
+            color: #F0FDF4;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .kaart {
+            background: linear-gradient(145deg, #0E3520, #0A2416);
+            border-radius: 28px;
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+            border: 2px solid rgba(76,201,122,0.4);
+        }
+        .groot-emoji { font-size: 4rem; display: block; margin-bottom: 16px; }
+        h1 { font-family: 'Grandstander', cursive; font-size: 1.8rem; color: #4CC97A; margin-bottom: 12px; }
+        p  { color: #A7C4B5; font-size: 1rem; line-height: 1.6; margin-bottom: 12px; }
+        .lader { color: #A7C4B5; font-size: 0.9rem; margin-top: 12px; }
+    </style>
+</head>
+<body>
+<div class="kaart">
+    <span class="groot-emoji" id="emoji">⏳</span>
+    <h1 id="titel">Toestemming verwerken...</h1>
+    <p id="tekst">Even geduld, we verwerken de toestemming.</p>
+</div>
+<script>
+    // De toestemmingslink gaat via de server: GET /api/auth/ouder-toestemming/:token
+    // De server redirect daarna naar login.html?melding=...
+    // Deze pagina is alleen zichtbaar als de redirect mislukt of token ontbreekt.
+    const token = new URLSearchParams(window.location.search).get('token');
+    if (token) {
+        window.location.href = `/api/auth/ouder-toestemming/${token}`;
+    } else {
+        document.getElementById('emoji').textContent = '❌';
+        document.getElementById('titel').textContent = 'Ongeldige link';
+        document.getElementById('tekst').textContent = 'Deze toestemmingslink is niet geldig. Vraag het kind om opnieuw te registreren.';
+    }
+</script>
+</body>
+</html>

@@ -268,40 +268,10 @@
         <div class="veld">
             <label>📧 E-mailadres <span style="color:var(--rood)">*</span></label>
             <input type="email" id="regEmail" placeholder="jouw@email.nl" autocomplete="email">
-            <p style="font-size:0.76rem;color:var(--tekst-zacht);margin-top:4px;">Voor bevestiging en wachtwoord vergeten</p>
         </div>
         <div class="veld">
             <label>🔒 Wachtwoord <span style="color:var(--rood)">*</span></label>
             <input type="password" id="regWw" placeholder="Minstens 6 tekens" autocomplete="new-password">
-        </div>
-        <div class="veld">
-            <label>🎨 Kies je avatar</label>
-            <div class="avatar-grid">
-                <div class="avatar-optie" onclick="kiesAvatar(this,'👧')">👧</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'👩')">👩</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🧒')">🧒</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'👸')">👸</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🧕')">🧕</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🧜')">🧜</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'👦')">👦</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'👨')">👨</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🤴')">🤴</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🧙')">🧙</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🦸')">🦸</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🧚')">🧚</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🦁')">🦁</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🦊')">🦊</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🐼')">🐼</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🦄')">🦄</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🐉')">🐉</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🌟')">🌟</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🌈')">🌈</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🎨')">🎨</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'📚')">📚</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'✏️')">✏️</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🚀')">🚀</div>
-                <div class="avatar-optie" onclick="kiesAvatar(this,'🌺')">🌺</div>
-            </div>
         </div>
         <div class="veld">
             <label>🎯 Welke groep zit je in?</label>
@@ -323,6 +293,26 @@
                 </button>
             </div>
         </div>
+        <div class="veld">
+            <label>🏫 Hoe doe je mee? <span style="color:var(--rood)">*</span></label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+                <button type="button" class="groep-knop" id="toestViaSchool" onclick="kiesToestemming('school')" style="flex:1">
+                    <span class="groep-emoji">🏫</span>
+                    <span class="groep-naam">Via school</span>
+                    <span class="groep-leeft">Beheerder activeert</span>
+                </button>
+                <button type="button" class="groep-knop" id="toestViaOuder" onclick="kiesToestemming('ouder')" style="flex:1">
+                    <span class="groep-emoji">👨‍👩‍👧</span>
+                    <span class="groep-naam">Via ouder</span>
+                    <span class="groep-leeft">Ouder geeft toestemming</span>
+                </button>
+            </div>
+        </div>
+        <div class="veld" id="ouderEmailVeld" style="display:none">
+            <label>📧 E-mailadres ouder/verzorger <span style="color:var(--rood)">*</span></label>
+            <input type="email" id="ouderEmail" placeholder="ouder@email.nl">
+            <p style="font-size:0.76rem;color:var(--tekst-zacht);margin-top:4px;">Je ouder ontvangt een toestemmingsmail</p>
+        </div>
         <div class="regels-vak">
             <input type="checkbox" id="regelsCheck">
             <label for="regelsCheck">
@@ -335,29 +325,11 @@
         </p>
     </div>
 
-    <!-- ══ E-MAIL VERIFICATIE ══ -->
+    <!-- ══ WACHT OP TOESTEMMING ══ -->
     <div class="verificatie-scherm" id="verificatieScherm">
-        <div style="font-size:2.5rem;margin-bottom:12px;">📧</div>
-        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;">Bevestig je e-mail!</h2>
-        <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:4px;">We stuurden een 6-cijferige code naar:</p>
-        <p style="font-weight:800;color:var(--tekst);margin-bottom:4px;" id="verEmailToon"></p>
-        <p style="color:var(--tekst-zacht);font-size:0.82rem;margin-bottom:20px;">Kijk ook in je spam-map!</p>
-        <div id="verMelding" class="melding"></div>
-        <div class="code-vakjes">
-            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,0)" onkeydown="vorigeVakje(event,0)" inputmode="numeric">
-            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,1)" onkeydown="vorigeVakje(event,1)" inputmode="numeric">
-            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,2)" onkeydown="vorigeVakje(event,2)" inputmode="numeric">
-            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,3)" onkeydown="vorigeVakje(event,3)" inputmode="numeric">
-            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,4)" onkeydown="vorigeVakje(event,4)" inputmode="numeric">
-            <input type="text" maxlength="1" class="code-input" oninput="volgendeVakje(this,5)" onkeydown="vorigeVakje(event,5)" inputmode="numeric">
-        </div>
-        <button class="knop-vol" id="verKnop" onclick="verifieerCode()">✅ Bevestigen</button>
-        <p style="margin-top:14px;font-size:0.82rem;color:var(--tekst-zacht);">
-            Geen code ontvangen? <button class="link-knop" onclick="stuurOpnieuw()">Stuur opnieuw</button>
-        </p>
-        <p style="margin-top:8px;">
-            <button onclick="slaVerOver()" style="background:none;border:none;color:var(--tekst-zacht);font-family:'Baloo 2',cursive;font-size:0.8rem;cursor:pointer;text-decoration:underline;">Overslaan, doe ik later</button>
-        </p>
+        <div style="font-size:2.5rem;margin-bottom:12px;" id="wachtEmoji">🏫</div>
+        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;" id="wachtTitel">Account aangemaakt!</h2>
+        <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;" id="wachtTekst">Je account wacht op activatie.</p>
     </div>
 
     <!-- ══ WACHTWOORD VERGETEN ══ -->
@@ -401,73 +373,52 @@
 
 </div>
 
+<script src="auth.js"></script>
 <script>
-// ── Navigatie: actieve link + inlogstatus ──
-(function() {
-    const p = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
-    document.querySelectorAll('#hoofdNav a[href]').forEach(a => {
-        if (a.getAttribute('href').split('?')[0] === p) a.classList.add('actief');
-    });
-    const ui = localStorage.getItem('userInfo');
-    if (!ui) return;
-    try {
-        const u = JSON.parse(ui);
-        const ll = document.getElementById('navLoginLink');
-        if (ll) {
-            const badge = document.createElement('span');
-            badge.className = 'nav-agent';
-            badge.title = 'Ingelogd als ' + u.gebruikersnaam;
-            badge.textContent = (u.avatar || '🕵️') + ' ' + u.gebruikersnaam;
-            const ul = document.createElement('a');
-            ul.className = 'nav-agent-uitloggen';
-            ul.href = '#';
-            ul.textContent = '🚪 Uitloggen';
-            ul.addEventListener('click', e => {
-                e.preventDefault();
-                localStorage.removeItem('userInfo');
-                localStorage.removeItem('authToken');
-                window.location.href = 'index.html';
-            });
-            ll.replaceWith(badge);
-            badge.insertAdjacentElement('afterend', ul);
-        }
-        const md = document.getElementById('navMijnDossierLink');
-        if (md) md.style.display = '';
-        const gc = document.getElementById('navGeheimeClubLink');
-        if (gc) gc.style.display = 'inline-flex';
-    } catch(e) {}
-})();
-
-let huidigGebruikerId  = null;
-let huidigEmail        = null;
-let resetToken         = null;
-let tijdelijkToken     = null;
-let tijdelijkGebruiker = null;
-let gekozenAvatar      = '🦁';
 let gekozenGroep       = 'B';
+let gekozenToestemming = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    AUTH.initNav();
+
+    // Al ingelogd? → meteen door
+    if (AUTH.getToken()) { window.location.href = 'index.html'; return; }
+
     const params = new URLSearchParams(window.location.search);
-    resetToken = params.get('reset');
-    if (resetToken) { checkResetToken(resetToken); return; }
-    if (localStorage.getItem('userToken')) { window.location.href = 'index.html'; return; }
-    // Standaard selecties
-    const eersteAvatar = document.querySelector('.avatar-optie');
-    if (eersteAvatar) kiesAvatar(eersteAvatar, '👧');
+    const actie  = params.get('actie');
+    const melding = params.get('melding');
+    const naam   = params.get('naam');
+
+    // Supabase stuurt reset-token in URL hash
+    const hash = new URLSearchParams(window.location.hash.replace('#', ''));
+    const accessToken = hash.get('access_token');
+    const type        = hash.get('type');
+
+    if (accessToken && type === 'recovery') {
+        verbergAlles();
+        document.getElementById('loginTabs').style.display = 'none';
+        document.getElementById('nieuwWwScherm').style.display = 'block';
+        window._resetAccessToken = accessToken;
+        return;
+    }
+
+    if (melding === 'toestemming-gelukt') {
+        toonSucces('🎉', 'Toestemming gegeven!', `Super! ${naam ? naam + ' kan' : 'Je kind kan'} nu inloggen op VerhalenPost.`);
+        return;
+    }
+    if (melding === 'toestemming-ongeldig') {
+        toonTab('inloggen');
+        toonMelding('inlogMelding', 'fout', '❌ Deze toestemmingslink is ongeldig of al gebruikt.');
+        return;
+    }
+    if (melding === 'toestemming-al-gegeven') {
+        toonTab('inloggen');
+        toonMelding('inlogMelding', 'info', 'ℹ️ Toestemming was al eerder gegeven. Het kind kan inloggen.');
+        return;
+    }
+
     kiesGroep('B');
 });
-
-async function checkResetToken(token) {
-    verbergAlles();
-    document.getElementById('loginTabs').style.display = 'none';
-    document.getElementById('nieuwWwScherm').style.display = 'block';
-    const r = await fetch(`/api/auth/check-reset/${token}`);
-    const data = await r.json();
-    if (!data.geldig) {
-        toonMelding('nieuwWwMelding', 'fout', '❌ Deze resetlink is verlopen of ongeldig. Vraag een nieuwe aan.');
-        document.getElementById('nieuwWwKnop').disabled = true;
-    }
-}
 
 function toonTab(tab) {
     verbergAlles();
@@ -481,7 +432,8 @@ function toonTab(tab) {
 function verbergAlles() {
     document.querySelectorAll('.login-form').forEach(f => f.classList.remove('actief'));
     ['verificatieScherm','vergetenScherm','nieuwWwScherm','succesScherm'].forEach(id => {
-        document.getElementById(id).style.display = 'none';
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
     });
 }
 
@@ -491,18 +443,19 @@ function toonWachtwoordVergeten() {
     document.getElementById('vergetenScherm').style.display = 'block';
 }
 
-function kiesAvatar(el, avatar) {
-    document.querySelectorAll('.avatar-optie').forEach(a => a.classList.remove('gekozen'));
-    el.classList.add('gekozen');
-    gekozenAvatar = avatar;
-}
-
 function kiesGroep(groep) {
     gekozenGroep = groep;
     ['A','B','C'].forEach(g => {
         const btn = document.getElementById('groep' + g);
-        btn.className = 'groep-knop' + (g === groep ? ` gekozen-${g}` : '');
+        if (btn) btn.className = 'groep-knop' + (g === groep ? ` gekozen-${g}` : '');
     });
+}
+
+function kiesToestemming(type) {
+    gekozenToestemming = type;
+    document.getElementById('toestViaSchool').className = 'groep-knop' + (type === 'school' ? ' gekozen-B' : '');
+    document.getElementById('toestViaOuder').className  = 'groep-knop' + (type === 'ouder'  ? ' gekozen-B' : '');
+    document.getElementById('ouderEmailVeld').style.display = type === 'ouder' ? 'block' : 'none';
 }
 
 async function doeInloggen() {
@@ -515,27 +468,24 @@ async function doeInloggen() {
         if (!data.succes) {
             toonMelding('inlogMelding','fout','❌ ' + data.bericht);
         } else {
-            if (data.verificatieVereist) {
-                // Token bewaren maar nog NIET in localStorage — wacht op verificatie
-                tijdelijkToken = data.token;
-                tijdelijkGebruiker = data.gebruiker;
-                huidigGebruikerId = data.gebruiker.id;
-                huidigEmail = data.gebruiker.email;
-                toonVerificatie();
-            } else {
-                slaSessionOp(data);
-                toonSucces('👋', 'Welkom terug!', `Hallo ${data.gebruiker.gebruikersnaam}! Je bent ingelogd.`);
-            }
+            AUTH.slaOp(data.token, data.refresh_token, data.gebruiker);
+            toonSucces('👋', 'Welkom terug!', `Hallo ${data.gebruiker.gebruikersnaam}! Je bent ingelogd.`);
         }
     } catch(e) { toonMelding('inlogMelding','fout','❌ Kan geen verbinding maken.'); }
     setKnopLaden('inlogKnop', false, '🚀 Inloggen');
 }
 
 async function doeRegistreren() {
-    const naam  = document.getElementById('regNaam').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const ww    = document.getElementById('regWw').value;
+    const naam      = document.getElementById('regNaam').value.trim();
+    const email     = document.getElementById('regEmail').value.trim();
+    const ww        = document.getElementById('regWw').value;
+    const ouderMail = document.getElementById('ouderEmail').value.trim();
+
     if (!naam || !email || !ww) { toonMelding('regMelding','fout','⚠️ Vul alle velden in.'); return; }
+    if (!gekozenToestemming)    { toonMelding('regMelding','fout','⚠️ Kies hoe je meedoet: via school of via een ouder.'); return; }
+    if (gekozenToestemming === 'ouder' && !ouderMail) {
+        toonMelding('regMelding','fout','⚠️ Vul het e-mailadres van je ouder in.'); return;
+    }
     if (!document.getElementById('regelsCheck').checked) {
         toonMelding('regMelding','fout','⚠️ Je moet de gebruiksregels accepteren om mee te doen.'); return;
     }
@@ -543,87 +493,23 @@ async function doeRegistreren() {
     try {
         const data = await postAPI('/api/auth/registreer', {
             gebruikersnaam: naam, email, wachtwoord: ww,
-            avatar: gekozenAvatar, leeftijdsgroep: gekozenGroep, regelsGeaccepteerd: true
+            leeftijdsgroep: gekozenGroep,
+            toestemming_type: gekozenToestemming,
+            ouder_email: ouderMail || null
         });
         if (!data.succes) {
             toonMelding('regMelding','fout','❌ ' + data.bericht);
         } else {
-            // Token bewaren maar nog NIET in localStorage — wacht op verificatie
-            tijdelijkToken = data.token;
-            tijdelijkGebruiker = data.gebruiker;
-            huidigGebruikerId = data.gebruiker.id;
-            huidigEmail = data.gebruiker.email;
-            if (!data.emailVerstuurd) {
-                toonMelding('regMelding','info','⚠️ Account aangemaakt, maar de bevestigingsmail kon niet verstuurd worden. Gebruik "Stuur opnieuw" op het volgende scherm.');
-            }
-            toonVerificatie();
+            verbergAlles();
+            document.getElementById('loginTabs').style.display = 'none';
+            const isOuder = gekozenToestemming === 'ouder';
+            document.getElementById('wachtEmoji').textContent = isOuder ? '📬' : '🏫';
+            document.getElementById('wachtTitel').textContent = 'Account aangemaakt!';
+            document.getElementById('wachtTekst').textContent = data.bericht;
+            document.getElementById('verificatieScherm').style.display = 'block';
         }
     } catch(e) { toonMelding('regMelding','fout','❌ Kan geen verbinding maken.'); }
     setKnopLaden('regKnop', false, '🎉 Account aanmaken!');
-}
-
-function toonVerificatie() {
-    verbergAlles();
-    document.getElementById('loginTabs').style.display = 'none';
-    document.getElementById('verEmailToon').textContent = huidigEmail || '';
-    document.getElementById('verificatieScherm').style.display = 'block';
-    document.querySelector('.code-input').focus();
-}
-
-function volgendeVakje(input, idx) {
-    input.value = input.value.replace(/\D/g,'');
-    if (input.value && idx < 5) document.querySelectorAll('.code-input')[idx+1].focus();
-    if (leesCode().length === 6) verifieerCode();
-}
-
-function vorigeVakje(e, idx) {
-    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
-        document.querySelectorAll('.code-input')[idx-1].focus();
-    }
-}
-
-function leesCode() {
-    return [...document.querySelectorAll('.code-input')].map(i => i.value).join('');
-}
-
-async function verifieerCode() {
-    const code = leesCode();
-    if (code.length !== 6) { toonMelding('verMelding','fout','⚠️ Vul alle 6 cijfers in.'); return; }
-    setKnopLaden('verKnop', true, '⏳ Controleren...');
-    try {
-        const data = await postAPI('/api/auth/verifieer-email', { code, gebruikerId: huidigGebruikerId });
-        if (!data.succes) {
-            toonMelding('verMelding','fout','❌ ' + data.bericht);
-            document.querySelectorAll('.code-input').forEach(i => { i.value=''; i.style.borderColor='rgba(248,113,113,0.5)'; });
-            document.querySelector('.code-input').focus();
-        } else {
-            // Nu pas token opslaan — e-mail is bevestigd
-            if (tijdelijkToken && tijdelijkGebruiker) {
-                tijdelijkGebruiker.emailGeverifieerd = true;
-                slaSessionOp({ token: tijdelijkToken, gebruiker: tijdelijkGebruiker });
-            }
-            toonSucces('🎉','E-mail bevestigd!','Super! Je kunt nu meedoen aan VerhalenPost!');
-        }
-    } catch(e) { toonMelding('verMelding','fout','❌ Kan geen verbinding maken.'); }
-    setKnopLaden('verKnop', false, '✅ Bevestigen');
-}
-
-async function stuurOpnieuw() {
-    if (!huidigGebruikerId) return;
-    toonMelding('verMelding','info','⏳ Nieuwe code versturen...');
-    try {
-        const data = await postAPI('/api/auth/stuur-verificatie-opnieuw', { gebruikerId: huidigGebruikerId });
-        toonMelding('verMelding', data.succes ? 'succes' : 'fout',
-            data.succes ? '✅ Nieuwe code verstuurd!' : '❌ ' + data.bericht);
-    } catch(e) { toonMelding('verMelding','fout','❌ Kan geen verbinding maken.'); }
-}
-
-function slaVerOver() {
-    // Ook bij overslaan token opslaan zodat ze wel ingelogd zijn
-    if (tijdelijkToken && tijdelijkGebruiker) {
-        slaSessionOp({ token: tijdelijkToken, gebruiker: tijdelijkGebruiker });
-    }
-    toonSucces('✨','Je bent erbij!','Je kunt je e-mail later nog bevestigen.');
 }
 
 async function stuurResetMail() {
@@ -640,12 +526,15 @@ async function stuurResetMail() {
 async function stelWachtwoordIn() {
     const ww1 = document.getElementById('nieuwWw1').value;
     const ww2 = document.getElementById('nieuwWw2').value;
-    if (!ww1 || !ww2)  { toonMelding('nieuwWwMelding','fout','⚠️ Vul beide velden in.'); return; }
-    if (ww1 !== ww2)   { toonMelding('nieuwWwMelding','fout','⚠️ De wachtwoorden zijn niet gelijk.'); return; }
-    if (ww1.length < 6){ toonMelding('nieuwWwMelding','fout','⚠️ Wachtwoord moet minstens 6 tekens zijn.'); return; }
+    if (!ww1 || !ww2)   { toonMelding('nieuwWwMelding','fout','⚠️ Vul beide velden in.'); return; }
+    if (ww1 !== ww2)    { toonMelding('nieuwWwMelding','fout','⚠️ De wachtwoorden zijn niet gelijk.'); return; }
+    if (ww1.length < 6) { toonMelding('nieuwWwMelding','fout','⚠️ Wachtwoord moet minstens 6 tekens zijn.'); return; }
     setKnopLaden('nieuwWwKnop', true, '⏳ Opslaan...');
     try {
-        const data = await postAPI('/api/auth/reset-wachtwoord', { token: resetToken, nieuwWachtwoord: ww1 });
+        const data = await postAPI('/api/auth/reset-wachtwoord', {
+            accessToken: window._resetAccessToken,
+            nieuwWachtwoord: ww1
+        });
         if (!data.succes) {
             toonMelding('nieuwWwMelding','fout','❌ ' + data.bericht);
         } else {
@@ -662,22 +551,12 @@ function toonSucces(emoji, titel, tekst) {
     document.getElementById('succesTitel').textContent = titel;
     document.getElementById('succesTekst').textContent = tekst;
     document.getElementById('succesScherm').style.display = 'block';
-    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
-}
-
-function slaSessionOp(data) {
-    if (data.token) localStorage.setItem('userToken', data.token);
-    if (data.gebruiker) localStorage.setItem('userInfo', JSON.stringify({
-        id: data.gebruiker.id,
-        gebruikersnaam: data.gebruiker.gebruikersnaam,
-        avatar: data.gebruiker.avatar,
-        leeftijdsgroep: data.gebruiker.leeftijdsgroep,
-        emailGeverifieerd: data.gebruiker.emailGeverifieerd
-    }));
+    setTimeout(() => { window.location.href = 'index.html'; }, 3000);
 }
 
 function toonMelding(id, type, tekst) {
     const el = document.getElementById(id);
+    if (!el) return;
     el.className = `melding ${type}`;
     el.textContent = tekst;
     el.style.display = 'block';

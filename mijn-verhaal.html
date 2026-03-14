@@ -443,44 +443,11 @@
     <div class="quote-auteur">— VerhalenPost</div>
 </footer>
 
+<script src="auth.js"></script>
 <script>
-// ── Navigatie: actieve link + inlogstatus ──
-(function() {
-    const p = (location.pathname.split('/').pop() || 'index.html').split('?')[0];
-    document.querySelectorAll('#hoofdNav a[href]').forEach(a => {
-        if (a.getAttribute('href').split('?')[0] === p) a.classList.add('actief');
-    });
-    const ui = localStorage.getItem('userInfo');
-    if (!ui) return;
-    try {
-        const u = JSON.parse(ui);
-        const ll = document.getElementById('navLoginLink');
-        if (ll) {
-            const badge = document.createElement('span');
-            badge.className = 'nav-agent';
-            badge.title = 'Ingelogd als ' + u.gebruikersnaam;
-            badge.textContent = (u.avatar || '🕵️') + ' ' + u.gebruikersnaam;
-            const ul = document.createElement('a');
-            ul.className = 'nav-agent-uitloggen';
-            ul.href = '#';
-            ul.textContent = '🚪 Uitloggen';
-            ul.addEventListener('click', e => {
-                e.preventDefault();
-                localStorage.removeItem('userInfo');
-                localStorage.removeItem('authToken');
-                window.location.href = 'index.html';
-            });
-            ll.replaceWith(badge);
-            badge.insertAdjacentElement('afterend', ul);
-        }
-        const md = document.getElementById('navMijnDossierLink');
-        if (md) md.style.display = '';
-        const gc = document.getElementById('navGeheimeClubLink');
-        if (gc) gc.style.display = 'inline-flex';
-    } catch(e) {}
-})();
+AUTH.initNav();
 
-let userToken  = null;
+let userToken  = AUTH.getToken();
 let verhaalId  = null;
 let verhaalData = null;
 let huidigDeelNr = 1;
@@ -495,7 +462,7 @@ let bollen = [false, false, false];
 document.addEventListener('DOMContentLoaded', () => {
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) { window.location.href = 'login.html'; return; }
-    userToken = localStorage.getItem('userToken');
+    userToken = AUTH.getToken();
 
     const params = new URLSearchParams(window.location.search);
     verhaalId = params.get('id');
@@ -522,7 +489,7 @@ async function genereerOnderwerp() {
     try {
         const r = await fetch('/api/mijn-verhaal/genereer-onderwerp', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken }
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() }
         });
         const data = await r.json();
         if (data.succes) {
@@ -553,7 +520,7 @@ async function startVerhaal() {
     try {
         const r = await fetch('/api/mijn-verhaal', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() },
             body: JSON.stringify({
                 titel, aantalDelen: parseInt(document.getElementById('setupAantalDelen').value),
                 onderwerpKeuze: keuze, onderwerp, personages
@@ -754,7 +721,7 @@ async function checkDot3() {
     try {
         const r = await fetch(`/api/mijn-verhaal/${verhaalId}/check-deel`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() },
             body: JSON.stringify({ deelNummer: huidigDeelNr, tekst })
         });
         const data = await r.json();
@@ -788,7 +755,7 @@ async function vraagAiHulp() {
     try {
         const r = await fetch(`/api/mijn-verhaal/${verhaalId}/ai-suggest`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() },
             body: JSON.stringify({ deelNummer: huidigDeelNr })
         });
         const data = await r.json();
@@ -827,7 +794,7 @@ async function voltooiHuidigDeel() {
     try {
         const r = await fetch(`/api/mijn-verhaal/${verhaalId}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() },
             body: JSON.stringify({ delen: updatedDelen })
         });
         const data = await r.json();
@@ -844,7 +811,7 @@ async function voltooiHuidigDeel() {
         try {
             const r = await fetch(`/api/mijn-verhaal/${verhaalId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() },
                 body: JSON.stringify({ status: 'klaar' })
             });
             const d = await r.json();
@@ -893,7 +860,7 @@ async function laadVolgendeOpdracht(volgendNr) {
     try {
         const r = await fetch(`/api/mijn-verhaal/${verhaalId}/volgende-opdracht`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() },
             body: JSON.stringify({ volgendDeelNummer: volgendNr })
         });
         const data = await r.json();
@@ -978,7 +945,7 @@ async function slaaTitelOp() {
         try {
             const r = await fetch(`/api/mijn-verhaal/${verhaalId}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'x-user-token': userToken },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH.getToken() },
                 body: JSON.stringify({ titel: nieuweT })
             });
             const d = await r.json();
