@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samen Schrijven — Meedoen | WoordSpeler</title>
+    <title>De Woordenstorm — Meedoen | WoordSpeler</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -190,17 +190,50 @@
             margin-right: 6px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Nav ── */
+        .site-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(15,15,26,0.97);
+            backdrop-filter: blur(12px);
+            padding: 10px 20px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid rgba(124,58,237,0.2);
+            z-index: 100;
+        }
+        .site-nav a {
+            color: rgba(196,181,253,0.75);
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 0.88rem;
+            padding: 7px 14px;
+            border-radius: 50px;
+            transition: all 0.2s;
+        }
+        .site-nav a:hover { background: rgba(124,58,237,0.2); color: #c4b5fd; }
+        body { padding-top: 64px; }
     </style>
 </head>
 <body>
+
+<nav class="site-nav">
+    <a href="index.html">🏠 Home</a>
+    <a href="verhaal.html">✏️ Schrijf & Verhaal</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="sessie-host.html">🏫 Sessie starten</a>
+</nav>
 
 <!-- ══════════════════════════════════
      SCHERM 1: Inloggen
 ══════════════════════════════════ -->
 <div id="scherm-login" class="scherm actief">
     <div class="kaart">
-        <div class="icoon">✍️</div>
-        <h1>Samen Schrijven</h1>
+        <div class="icoon">⚡</div>
+        <h1>De Woordenstorm</h1>
         <p class="subtitel">Vul de code van je juf of meester in</p>
 
         <div id="login-melding"></div>
