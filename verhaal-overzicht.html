@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ons Grote Verhaal — VerhalenPost</title>
+    <title>Ons Grote Verhaal — WoordSpeler</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .verhaal-hero {
@@ -198,7 +198,7 @@
 <body>
 
 <header>
-    <h1 class="site-title">📬 VerhalenPost</h1>
+    <h1 class="site-title">🎲 WoordSpeler</h1>
     <p class="site-subtitle">Schrijf mee aan het grote avontuur!</p>
 </header>
 <!-- NAV -->
@@ -208,7 +208,7 @@
     <a href="verhalen.html">📖 Verhalen</a>
     <a href="videos.html">🎬 Video's</a>
     <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
-    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">🕵️ De Geheime Club</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">⚡ De Woordenstorm</a>
     <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
 </nav>
 
@@ -242,7 +242,7 @@
 
 <footer>
     <div class="quote">"Een verhaal dat je niet schrijft, bestaat nooit."</div>
-    <div class="quote-auteur">— VerhalenPost</div>
+    <div class="quote-auteur">— WoordSpeler</div>
 </footer>
 
 <script src="auth.js"></script>
@@ -300,7 +300,7 @@ function toonHoofdstukken(hoofdstukken) {
 
 function maakHoofdstukKaart(h) {
     const tekst = escapeHTML(h.tekst || '').replace(/\n/g, '<br>');
-    const groepenNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    const groepenNamen = { A: 'Jonge Vos 🦊', B: 'Slimme Uil 🦉', C: 'Wijze Draak 🐉' };
     const groep = h.leeftijdsgroep || 'B';
     const woorden = (h.tekst||'').trim().split(/\s+/).length;
     // Toon eerste 200 chars, rest inklapbaar

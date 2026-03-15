@@ -1,5 +1,5 @@
 // ============================================
-// VerhalenPost - Admin Script
+// WoordSpeler - Admin Script
 // ============================================
 // Beheert de admin pagina voor moderatie.
 // Geen AI, alles handmatig!

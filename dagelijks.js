@@ -1,5 +1,5 @@
 // ============================================
-// VerhalenPost - Dagelijks Script
+// WoordSpeler - Dagelijks Script
 // ============================================
 // Dit script draai je elke avond (bijv. om 20:00)
 // om automatisch:

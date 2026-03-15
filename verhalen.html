@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verhalen — VerhalenPost</title>
+    <title>Verhalen — WoordSpeler</title>
     <link rel="stylesheet" href="style.css">
     <style>
         main { padding: 32px 0 60px; position:relative; z-index:1; }
@@ -157,7 +157,7 @@
 <body>
 
 <header>
-    <h1 class="site-title">📬 VerhalenPost</h1>
+    <h1 class="site-title">🎲 WoordSpeler</h1>
     <p class="site-subtitle">Lees en schrijf mee!</p>
 </header>
 <!-- NAV -->
@@ -167,7 +167,7 @@
     <a href="verhalen.html">📖 Verhalen</a>
     <a href="videos.html">🎬 Video's</a>
     <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
-    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">🕵️ De Geheime Club</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">⚡ De Woordenstorm</a>
     <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
 </nav>
 
@@ -187,9 +187,9 @@
         <input class="zoek-input" id="zoekInput" placeholder="🔍 Zoek op naam of woord..." oninput="filterVerhalen()">
         <div class="filter-groep-btns">
             <button class="filter-btn actief-alle" onclick="setFilter('alle', this)">📋 Alle</button>
-            <button class="filter-btn" onclick="setFilter('A', this)">🟠 6-8 jr</button>
-            <button class="filter-btn" onclick="setFilter('B', this)">🔵 9-11 jr</button>
-            <button class="filter-btn" onclick="setFilter('C', this)">🟢 12+</button>
+            <button class="filter-btn" onclick="setFilter('A', this)">🦊 Jonge Vos</button>
+            <button class="filter-btn" onclick="setFilter('B', this)">🦉 Slimme Uil</button>
+            <button class="filter-btn" onclick="setFilter('C', this)">🐉 Wijze Draak</button>
         </div>
     </div>
 
@@ -245,7 +245,7 @@
 
 <footer>
     <div class="quote">"Lezen is dromen met open ogen."</div>
-    <div class="quote-auteur">— VerhalenPost</div>
+    <div class="quote-auteur">— WoordSpeler</div>
 </footer>
 
 <script src="auth.js"></script>
@@ -313,7 +313,7 @@ function toonVerhalen(verhalen) {
 }
 
 function maakVerhaalKaart(v, idx) {
-    const groepNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    const groepNamen = { A: 'Jonge Vos 🦊', B: 'Slimme Uil 🦉', C: 'Wijze Draak 🐉' };
     const groep = v.leeftijdsgroep || 'B';
     const avatarEmoji = ['🦁','🐉','🦋','🚀','⭐','🦊','🌈','🐺','🦅','🐬','🦄','🐼'][Math.abs(hashStr(v.naam||'')) % 12];
     const woorden = (v.tekst||'').trim().split(/\s+/).length;
@@ -378,7 +378,7 @@ function maakVerhaalKaart(v, idx) {
 function openLeesModal(cardId) {
     const v = verhaalData[cardId];
     if (!v) return;
-    const groepNamen = { A: '6-8 jr', B: '9-11 jr', C: '12+ jr' };
+    const groepNamen = { A: 'Jonge Vos 🦊', B: 'Slimme Uil 🦉', C: 'Wijze Draak 🐉' };
     const groep = v.leeftijdsgroep || 'B';
     const avatarEmoji = ['🦁','🐉','🦋','🚀','⭐','🦊','🌈','🐺','🦅','🐬','🦄','🐼'][Math.abs(hashStr(v.naam||'')) % 12];
     const titel = v.titel || v.verhaalTitel || ('Verhaal van ' + (v.naam || 'Anoniem'));

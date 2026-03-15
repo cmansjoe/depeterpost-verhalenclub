@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin — VerhalenPost</title>
+    <title>Admin — WoordSpeler</title>
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── LOGIN SCHERM ── */
@@ -107,7 +107,7 @@
     <div class="login-kaart">
         <div class="login-logo">🔐</div>
         <h2 class="login-titel">Admin Paneel</h2>
-        <p class="login-sub">VerhalenPost</p>
+        <p class="login-sub">WoordSpeler</p>
 
         <input type="email" class="login-input" id="adminEmail"
                placeholder="E-mailadres" onkeydown="if(event.key==='Enter')adminLogin()">
@@ -131,7 +131,7 @@
     <div class="admin-topbar">
         <div>
             <h1>🛡️ Admin Paneel</h1>
-            <p>VerhalenPost</p>
+            <p>WoordSpeler</p>
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <a href="index.html" style="color:rgba(255,255,255,0.5); text-decoration:none; font-size:0.85rem;">🏠 Naar de site</a>
@@ -178,9 +178,9 @@
         <div class="admin-kaart">
             <h3>📅 Huidige opdracht</h3>
             <div class="groep-selector">
-                <button class="groep-btn" onclick="selecteerGroep('A', this)">🟠 6-8 jaar</button>
-                <button class="groep-btn actief-B" onclick="selecteerGroep('B', this)">🔵 9-11 jaar</button>
-                <button class="groep-btn" onclick="selecteerGroep('C', this)">🟢 12+ jaar</button>
+                <button class="groep-btn" onclick="selecteerGroep('A', this)">🦊 Jonge Vos (6–8)</button>
+                <button class="groep-btn actief-B" onclick="selecteerGroep('B', this)">🦉 Slimme Uil (9–11)</button>
+                <button class="groep-btn" onclick="selecteerGroep('C', this)">🐉 Wijze Draak (12+)</button>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
                 <button class="knop knop-blauw" onclick="laadHuidigeOpdracht()" style="font-size:0.85rem; padding:8px 16px;">🔄 Bekijk opdracht</button>
@@ -193,9 +193,9 @@
             <h3>🤖 Nieuwe opdracht genereren</h3>
             <p style="margin-bottom:14px;">Claude maakt een opdracht die aansluit op het verhaal tot nu toe.</p>
             <div class="groep-selector" id="genereerGroepSelector">
-                <button class="groep-btn" onclick="selecteerGenereerGroep('A', this)">🟠 6-8 jaar</button>
-                <button class="groep-btn actief-B" onclick="selecteerGenereerGroep('B', this)">🔵 9-11 jaar</button>
-                <button class="groep-btn" onclick="selecteerGenereerGroep('C', this)">🟢 12+ jaar</button>
+                <button class="groep-btn" onclick="selecteerGenereerGroep('A', this)">🦊 Jonge Vos (6–8)</button>
+                <button class="groep-btn actief-B" onclick="selecteerGenereerGroep('B', this)">🦉 Slimme Uil (9–11)</button>
+                <button class="groep-btn" onclick="selecteerGenereerGroep('C', this)">🐉 Wijze Draak (12+)</button>
             </div>
             <button class="knop knop-paars" onclick="genereerOpdracht()" id="genereerKnop">🎯 Genereer Opdracht</button>
             <div class="resultaat-vak" id="opdrachtResultaat"></div>
@@ -209,9 +209,9 @@
             <h3>📝 Inzendingen van vandaag</h3>
             <div class="groep-selector" id="inzendingGroepSelector">
                 <button class="groep-btn actief-A" onclick="selecteerInzendingGroep('alle', this)">📋 Alle</button>
-                <button class="groep-btn" onclick="selecteerInzendingGroep('A', this)">🟠 6-8 jaar</button>
-                <button class="groep-btn" onclick="selecteerInzendingGroep('B', this)">🔵 9-11 jaar</button>
-                <button class="groep-btn" onclick="selecteerInzendingGroep('C', this)">🟢 12+ jaar</button>
+                <button class="groep-btn" onclick="selecteerInzendingGroep('A', this)">🦊 Jonge Vos (6–8)</button>
+                <button class="groep-btn" onclick="selecteerInzendingGroep('B', this)">🦉 Slimme Uil (9–11)</button>
+                <button class="groep-btn" onclick="selecteerInzendingGroep('C', this)">🐉 Wijze Draak (12+)</button>
             </div>
             <button class="knop knop-blauw" onclick="laadInzendingen()" style="font-size:0.85rem; padding:8px 16px;">🔄 Laden</button>
             <div id="inzendingenContainer" style="margin-top:14px;"></div>
@@ -226,9 +226,9 @@
             <h3>🏆 Stap 1 — Winnaar kiezen</h3>
             <p style="margin-bottom:12px;">Claude beoordeelt alle inzendingen en kiest de beste.</p>
             <div class="groep-selector">
-                <button class="groep-btn actief-B" onclick="selecteerWinnaarGroep('B', this)" id="winnaarGroepB">🔵 9-11 jaar</button>
-                <button class="groep-btn" onclick="selecteerWinnaarGroep('A', this)">🟠 6-8 jaar</button>
-                <button class="groep-btn" onclick="selecteerWinnaarGroep('C', this)">🟢 12+ jaar</button>
+                <button class="groep-btn actief-B" onclick="selecteerWinnaarGroep('B', this)" id="winnaarGroepB">🦉 Slimme Uil (9–11)</button>
+                <button class="groep-btn" onclick="selecteerWinnaarGroep('A', this)">🦊 Jonge Vos (6–8)</button>
+                <button class="groep-btn" onclick="selecteerWinnaarGroep('C', this)">🐉 Wijze Draak (12+)</button>
             </div>
             <button class="knop knop-geel" onclick="kiesWinnaar()" id="winnaarKnop">🏆 Kies Winnaar</button>
             <div class="resultaat-vak" id="winnaarResultaat"></div>
@@ -665,7 +665,7 @@ async function laadInzendingen() {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
                 <strong style="color:white;">✍️ ${escapeHTML(inz.naam)}</strong>
                 <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                    <span class="groep-badge groep-${inz.leeftijdsgroep || 'B'}" style="font-size:0.72rem;">${{A:'6-8jr',B:'9-11jr',C:'12+jr'}[inz.leeftijdsgroep] || '?'}</span>
+                    <span class="groep-badge groep-${inz.leeftijdsgroep || 'B'}" style="font-size:0.72rem;">${{A:'🦊 Jonge Vos',B:'🦉 Slimme Uil',C:'🐉 Wijze Draak'}[inz.leeftijdsgroep] || '?'}</span>
                     ${inz.winnaar ? '<span style="background:rgba(255,217,61,0.2);color:#FFD93D;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;">🏆 Winnaar</span>' : ''}
                     <span style="font-size:0.75rem;color:rgba(255,255,255,0.35);">ID: ${inz.id}</span>
                 </div>
@@ -1004,7 +1004,7 @@ async function laadSessies() {
                     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
                         <div>
                             <span style="font-family:'Grandstander',cursive;font-size:1.1rem;color:white;margin-right:10px;">🔑 ${escapeHTML(s.code)}</span>
-                            <span style="background:rgba(${s.groep==='A'?'242,140,56':s.groep==='C'?'76,201,122':'139,92,246'},0.2);color:${s.groep==='A'?'#F28C38':s.groep==='C'?'#4CC97A':'#8B5CF6'};padding:3px 12px;border-radius:50px;font-size:0.75rem;font-weight:700;">Groep ${s.groep}</span>
+                            <span style="background:rgba(${s.groep==='A'?'242,140,56':s.groep==='C'?'76,201,122':'139,92,246'},0.2);color:${s.groep==='A'?'#F28C38':s.groep==='C'?'#4CC97A':'#8B5CF6'};padding:3px 12px;border-radius:50px;font-size:0.75rem;font-weight:700;">${{A:'🦊 Jonge Vos',B:'🦉 Slimme Uil',C:'🐉 Wijze Draak'}[s.groep] || s.groep}</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:10px;">
                             <span style="color:${kleur};font-weight:700;font-size:0.85rem;">${statusLabel[s.status] || s.status}</span>

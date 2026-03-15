@@ -46,7 +46,7 @@ async function stuurMail(naar, onderwerp, html) {
         }
         const vanAdres = process.env.EMAIL_VAN || 'onboarding@resend.dev';
         const body = JSON.stringify({
-            from: `VerhalenPost <${vanAdres}>`,
+            from: `WoordSpeler <${vanAdres}>`,
             to: [naar],
             subject: onderwerp,
             html
@@ -168,7 +168,7 @@ function kiesInspiratie(groep) {
 // ── Initialiseer databestanden ──
 if (!fs.existsSync(VERHAAL_PAD)) {
     schrijfJSON(VERHAAL_PAD, {
-        titel: "Het Grote Avontuur van VerhalenPost",
+        titel: "Het Grote Avontuur van WoordSpeler",
         samenvatting: "Dit is het begin van een groot doorlopend verhaal, geschreven door alle kinderen samen.",
         hoofdstukken: [],
         personages: ["Blauwje de draak", "Tina de wolkenmaker", "Dapper de hond"],
@@ -185,8 +185,8 @@ if (!fs.existsSync(PROJECTEN_PAD))   schrijfJSON(PROJECTEN_PAD, []);
 if (!fs.existsSync(VIDEOS_PAD)) {
     schrijfJSON(VIDEOS_PAD, [{
         id: "video-1",
-        titel: "Welkom bij VerhalenPost!",
-        beschrijving: "De eerste video van de VerhalenPost.",
+        titel: "Welkom bij WoordSpeler!",
+        beschrijving: "De eerste video van de WoordSpeler.",
         type: "youtube",
         bronUrl: "https://www.youtube.com/embed/cEbgBSsMKj0",
         youtubeId: "cEbgBSsMKj0",
@@ -370,16 +370,16 @@ app.post('/api/auth/registreer', async (req, res) => {
         const toestemmingLink = `${siteUrl}/toestemming.html?token=${ouder_token}`;
         await stuurMail(
             ouder_email.trim(),
-            '✋ Toestemming geven voor VerhalenPost',
+            '✋ Toestemming geven voor WoordSpeler',
             `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:20px;">
-                <h1 style="color:#7C3AED;font-size:24px;">📚 Toestemming geven voor VerhalenPost</h1>
-                <p style="font-size:16px;color:#333;">Uw kind <strong>${gebruikersnaam}</strong> wil meedoen met VerhalenPost, een creatieve schrijfclub voor kinderen.</p>
+                <h1 style="color:#7C3AED;font-size:24px;">📚 Toestemming geven voor WoordSpeler</h1>
+                <p style="font-size:16px;color:#333;">Uw kind <strong>${gebruikersnaam}</strong> wil meedoen met WoordSpeler, een creatieve schrijfclub voor kinderen.</p>
                 <p style="font-size:16px;color:#333;">Klik op de knop hieronder om toestemming te geven:</p>
                 <a href="${toestemmingLink}" style="display:inline-block;background:linear-gradient(135deg,#7C3AED,#E8197D);color:white;font-size:18px;font-weight:bold;padding:16px 32px;border-radius:12px;text-decoration:none;margin:16px 0;">
                     ✅ Toestemming geven
                 </a>
                 <p style="font-size:14px;color:#888;">Als u geen toestemming wilt geven, hoeft u niets te doen. Het account blijft inactief.</p>
-                <p style="font-size:12px;color:#aaa;">VerhalenPost voldoet aan de AVG-richtlijnen voor scholen in Nederland en België.</p>
+                <p style="font-size:12px;color:#aaa;">WoordSpeler voldoet aan de AVG-richtlijnen voor scholen in Nederland en België.</p>
             </div>`
         );
     }
@@ -404,7 +404,7 @@ app.post('/api/auth/stuur-verificatie-opnieuw', async (req, res) => {
     if (error) {
         return res.json({ succes: false, bericht: 'E-mail kon niet verstuurd worden. Probeer het later opnieuw.' });
     }
-    res.json({ succes: true, bericht: 'Verificatiemail opnieuw verstuurd! Controleer je inbox. 📬' });
+    res.json({ succes: true, bericht: 'Verificatiemail opnieuw verstuurd! Controleer je inbox. 🎲' });
 });
 
 // ── Ouder bevestigt toestemming via link in e-mail ──
@@ -519,7 +519,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     if (!profiel?.toestemming_gegeven) {
         const bericht = profiel?.toestemming_type === 'ouder'
-            ? 'Je account wacht nog op toestemming van je ouder. Controleer of de toestemmingsmail al geopend is. 📬'
+            ? 'Je account wacht nog op toestemming van je ouder. Controleer of de toestemmingsmail al geopend is. 🎲'
             : 'Je account wacht nog op activatie door je school-beheerder. 🏫';
         return res.json({ succes: false, bericht });
     }

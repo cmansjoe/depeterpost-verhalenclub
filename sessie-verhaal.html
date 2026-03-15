@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ons Verhaal | VerhalenPost</title>
+    <title>Ons Verhaal | WoordSpeler</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -307,7 +307,7 @@
 
         <div class="header">
             <div>
-                <div class="header-logo">📚 VerhalenPost</div>
+                <div class="header-logo">📚 WoordSpeler</div>
                 <div class="header-sub">Samen geschreven verhaal</div>
             </div>
             <div style="font-size:13px;color:#555;">
@@ -477,7 +477,7 @@
         const url = `${location.origin}/sessie-verhaal.html?code=${sessiecode}`;
         if (navigator.share) {
             navigator.share({
-                title: 'Ons Samen Verhaal — VerhalenPost',
+                title: 'Ons Samen Verhaal — WoordSpeler',
                 text: 'Kijk ons samen geschreven verhaal! 📚',
                 url
             }).catch(() => {});

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inloggen — VerhalenPost</title>
+    <title>Inloggen — WoordSpeler</title>
     <style>
 @import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@700;900&family=Baloo+2:wght@400;700;800&family=Lora:ital,wght@0,400;1,400&display=swap');
 
@@ -221,15 +221,15 @@
     <a href="verhalen.html">📖 Verhalen</a>
     <a href="videos.html">🎬 Video's</a>
     <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
-    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">🕵️ De Geheime Club</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">⚡ De Woordenstorm</a>
     <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
 </nav>
 
 <div class="login-kaart">
 
     <div class="login-logo">
-        <span class="emoji">📬</span>
-        <h1>VerhalenPost</h1>
+        <span class="emoji">🎲</span>
+        <h1>WoordSpeler</h1>
         <p>Stop scrollen, start sturen! ✉️</p>
     </div>
 
@@ -277,18 +277,18 @@
             <label>🎯 Welke groep zit je in?</label>
             <div class="groep-knoppen">
                 <button type="button" class="groep-knop" id="groepA" onclick="kiesGroep('A')">
-                    <span class="groep-emoji">🌱</span>
-                    <span class="groep-naam">Groep A</span>
+                    <span class="groep-emoji">🦊</span>
+                    <span class="groep-naam">Jonge Vos</span>
                     <span class="groep-leeft">6–8 jaar</span>
                 </button>
                 <button type="button" class="groep-knop" id="groepB" onclick="kiesGroep('B')">
-                    <span class="groep-emoji">⭐</span>
-                    <span class="groep-naam">Groep B</span>
+                    <span class="groep-emoji">🦉</span>
+                    <span class="groep-naam">Slimme Uil</span>
                     <span class="groep-leeft">9–11 jaar</span>
                 </button>
                 <button type="button" class="groep-knop" id="groepC" onclick="kiesGroep('C')">
-                    <span class="groep-emoji">🚀</span>
-                    <span class="groep-naam">Groep C</span>
+                    <span class="groep-emoji">🐉</span>
+                    <span class="groep-naam">Wijze Draak</span>
                     <span class="groep-leeft">12+ jaar</span>
                 </button>
             </div>
@@ -316,7 +316,7 @@
         <div class="regels-vak">
             <input type="checkbox" id="regelsCheck">
             <label for="regelsCheck">
-                Ik ga akkoord met de <a href="regels.html" target="_blank">gebruiksregels</a> van VerhalenPost ✅
+                Ik ga akkoord met de <a href="regels.html" target="_blank">gebruiksregels</a> van WoordSpeler ✅
             </label>
         </div>
         <button class="knop-vol" id="regKnop" onclick="doeRegistreren()">🎉 Account aanmaken!</button>
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (melding === 'toestemming-gelukt') {
-        toonSucces('🎉', 'Toestemming gegeven!', `Super! ${naam ? naam + ' kan' : 'Je kind kan'} nu inloggen op VerhalenPost.`);
+        toonSucces('🎉', 'Toestemming gegeven!', `Super! ${naam ? naam + ' kan' : 'Je kind kan'} nu inloggen op WoordSpeler.`);
         return;
     }
     if (melding === 'toestemming-ongeldig') {
@@ -503,7 +503,7 @@ async function doeRegistreren() {
             verbergAlles();
             document.getElementById('loginTabs').style.display = 'none';
             const isOuder = gekozenToestemming === 'ouder';
-            document.getElementById('wachtEmoji').textContent = isOuder ? '📬' : '🏫';
+            document.getElementById('wachtEmoji').textContent = isOuder ? '🎲' : '🏫';
             document.getElementById('wachtTitel').textContent = 'Account aangemaakt!';
             document.getElementById('wachtTekst').textContent = data.bericht;
             document.getElementById('verificatieScherm').style.display = 'block';

@@ -1,5 +1,5 @@
 // ============================================
-// VerhalenPost - Frontend Script
+// WoordSpeler - Frontend Script
 // ============================================
 // Dit bestand regelt alles op de homepage
 // en de verhalenpagina voor bezoekers.

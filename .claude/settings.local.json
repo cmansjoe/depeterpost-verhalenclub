@@ -6,7 +6,29 @@
       "WebSearch",
       "Bash(node -e \"const s = require\\(''''./server.js''''\\)\")",
       "Bash(node --check \"c:/Users/cmans/Desktop/depeterpost-verhalenclub/server.js\")",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(sed -i \"s/van de Depeterpost Verhalen Club ✅/van VerhalenPost ✅/g; s/meedoen aan de Verhalen Club/meedoen aan VerhalenPost/g\" login.html)",
+      "Bash(sed -i \"s/Over de Verhalen Club/Over VerhalenPost/g\" public/index.html)",
+      "Bash(git submodule:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(grep -l \"<!DOCTYPE\" /c/Users/cmans/Desktop/depeterpost-verhalenclub/*.html)",
+      "Bash(ls -lh /c/Users/cmans/Desktop/depeterpost-verhalenclub/data/*.json)",
+      "Read(//c/Users/cmans/Desktop/depeterpost-verhalenclub/**)",
+      "Bash(npm install:*)",
+      "Bash(ls *.json)",
+      "Bash(timeout 8 node server.js)",
+      "Bash(grep -h \"<title>\" /c/Users/cmans/Desktop/depeterpost-verhalenclub/*.html)",
+      "Bash(xargs -I {} bash -c 'echo {}')",
+      "Bash(for f:*)",
+      "Bash(do sed:*)",
+      "Bash(done)",
+      "Bash(do)",
+      "Bash(sed -i 's/De Grote Operatie/Het Woordduel/g' \"$f\")",
+      "Bash(sed -i 's/Mijn Geheim Dossier/Mijn Woordenschat/g' \"$f\")",
+      "Bash(sed -i 's/De Geheime Club/De Woordenstorm/g' \"$f\")",
+      "Bash(git add:*)"
     ]
   }
 }

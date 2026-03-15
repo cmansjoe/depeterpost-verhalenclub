@@ -1,7 +1,7 @@
 {
-  "name": "depeterpost-verhalen-club",
+  "name": "woordspeler",
   "version": "2.0.0",
-  "description": "Depeterpost Verhalen Club — schrijfclub voor kinderen",
+  "description": "WoordSpeler — schrijfclub voor kinderen",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
