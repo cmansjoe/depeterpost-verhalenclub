@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Milo en Luna</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Pacifico&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #e8f4f8;
+      font-family: 'Nunito', sans-serif;
+      color: #2c3e50;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      width: 100%;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #1a2a4a 0%, #2d5f8a 40%, #e8956d 75%, #f5c97a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 180px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 180'%3E%3Cpath fill='%232d5f8a' fill-opacity='0.4' d='M0,80 C360,160 1080,0 1440,80 L1440,180 L0,180 Z'/%3E%3Cpath fill='%231a2a4a' fill-opacity='0.3' d='M0,120 C480,60 960,180 1440,100 L1440,180 L0,180 Z'/%3E%3C/svg%3E") no-repeat bottom;
+      background-size: cover;
+    }
+
+    .cover-stars {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        radial-gradient(circle, #fff 1px, transparent 1px),
+        radial-gradient(circle, #fff 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px);
+      background-size: 150px 150px, 200px 200px, 100px 100px;
+      background-position: 20px 30px, 80px 60px, 50px 10px;
+      opacity: 0.5;
+    }
+
+    .cover-image-wrap {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 40px;
+    }
+
+    .cover-image-wrap img {
+      width: 520px;
+      max-width: 90vw;
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      border: 6px solid rgba(255,255,255,0.3);
+    }
+
+    .cover h1 {
+      position: relative;
+      z-index: 1;
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(52px, 8vw, 88px);
+      color: #fff;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 60px rgba(245,201,122,0.5);
+      line-height: 1.1;
+      letter-spacing: 2px;
+    }
+
+    .cover-subtitle {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(16px, 2.5vw, 22px);
+      color: rgba(255,255,255,0.85);
+      margin-top: 16px;
+      font-style: italic;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .cover-wave-divider {
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      z-index: 2;
+    }
+
+    /* ── BOOK PAGES ── */
+    .book {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ── SPREAD: image left, text right ── */
+    .spread {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+      margin: 60px 0;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(44,62,80,0.10);
+      overflow: hidden;
+    }
+
+    .spread.reverse {
+      flex-direction: row-reverse;
+    }
+
+    .spread-img {
+      flex: 0 0 46%;
+      max-width: 46%;
+    }
+
+    .spread-img img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .spread-text {
+      flex: 1;
+      padding: 36px 36px 36px 10px;
+    }
+
+    .spread.reverse .spread-text {
+      padding: 36px 10px 36px 36px;
+    }
+
+    /* ── FULL-WIDTH IMAGE PAGE ── */
+    .full-img-page {
+      margin: 50px 0;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(44,62,80,0.15);
+    }
+
+    .full-img-page img {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── TEXT CARDS ── */
+    .text-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 40px 48px;
+      margin: 50px 0;
+      box-shadow: 0 8px 40px rgba(44,62,80,0.10);
+    }
+
+    /* ── CHAPTER HEADING ── */
+    .chapter {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(24px, 4vw, 36px);
+      color: #2d5f8a;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    /* ── BODY TEXT ── */
+    p {
+      font-size: clamp(15px, 1.8vw, 18px);
+      line-height: 1.85;
+      color: #374151;
+      margin-bottom: 14px;
+    }
+
+    p:last-child { margin-bottom: 0; }
+
+    /* ── DECORATIVE QUOTE ── */
+    .quote-block {
+      background: linear-gradient(135deg, #e8f4f8, #d4ecf7);
+      border-left: 5px solid #2d5f8a;
+      border-radius: 0 16px 16px 0;
+      padding: 20px 28px;
+      margin: 24px 0;
+      font-style: italic;
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 600;
+      color: #1a3a5c;
+    }
+
+    /* ── DIALOGUE ── */
+    .dialogue {
+      margin: 8px 0;
+      padding-left: 20px;
+      border-left: 3px solid #f5c97a;
+      font-style: italic;
+      color: #4a5568;
+    }
+
+    /* ── LIST OF PARALLELS ── */
+    .parallels {
+      list-style: none;
+      padding: 16px 0;
+    }
+
+    .parallels li {
+      font-size: clamp(15px, 1.8vw, 18px);
+      line-height: 2;
+      color: #374151;
+      padding-left: 28px;
+      position: relative;
+    }
+
+    .parallels li::before {
+      content: '🌊';
+      position: absolute;
+      left: 0;
+    }
+
+    /* ── DIVIDER WAVE ── */
+    .wave-divider {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 28px;
+      opacity: 0.4;
+      letter-spacing: 8px;
+    }
+
+    /* ── FINAL PAGE ── */
+    .final-page {
+      background: linear-gradient(160deg, #1a2a4a 0%, #2d5f8a 60%, #3a7abf 100%);
+      border-radius: 24px;
+      overflow: hidden;
+      margin: 50px 0;
+      box-shadow: 0 10px 50px rgba(26,42,74,0.4);
+      position: relative;
+    }
+
+    .final-page img {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
+      opacity: 0.85;
+    }
+
+    .final-text-overlay {
+      padding: 44px 52px;
+      text-align: center;
+    }
+
+    .final-text-overlay p {
+      color: rgba(255,255,255,0.9);
+      font-size: clamp(16px, 2vw, 20px);
+      line-height: 1.9;
+    }
+
+    .final-text-overlay .end-title {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(28px, 4vw, 44px);
+      color: #f5c97a;
+      margin-top: 32px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    /* ── PAGE NUMBER STRIP ── */
+    .page-num {
+      text-align: center;
+      font-size: 13px;
+      color: #a0aec0;
+      margin-top: -30px;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .spread, .spread.reverse {
+        flex-direction: column;
+      }
+      .spread-img, .spread.reverse .spread-img {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      .spread-img img {
+        height: 220px;
+      }
+      .spread-text, .spread.reverse .spread-text {
+        padding: 24px;
+      }
+      .text-card {
+        padding: 28px 24px;
+      }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .cover { min-height: auto; page-break-after: always; }
+      .spread, .text-card, .final-page { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ COVER ═══════════════════════════════ -->
+<div class="cover">
+  <div class="cover-stars"></div>
+
+  <div class="cover-image-wrap">
+    <img src="Gemini_Generated_Image_k1e6b4k1e6b4k1e6.png" alt="Milo en Luna onder de sterren" />
+  </div>
+
+  <h1>Milo en Luna</h1>
+  <p class="cover-subtitle">Een verhaal over de zee, toevallige ontmoetingen<br>en twee zeehondjes die voor altijd vrienden werden</p>
+
+  <svg class="cover-wave-divider" viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#e8f4f8" d="M0,30 C360,70 1080,0 1440,40 L1440,60 L0,60 Z"/>
+  </svg>
+</div>
+
+
+<!-- ═══════════════════════════════ BOOK ═══════════════════════════════ -->
+<div class="book">
+
+  <!-- ── HOOFDSTUK 1: Milo ── -->
+  <div class="spread" style="margin-top: 70px;">
+    <div class="spread-img">
+      <img src="Gemini_Generated_Image_eln0o1eln0o1eln0.png" alt="Milo zwemt naar de haven" />
+    </div>
+    <div class="spread-text">
+      <h2 class="chapter">Een bijzondere avond</h2>
+      <p>Op een frisse lenteavond, toen de lucht boven de zee zacht roze kleurde, schoof een klein zeehondje voorzichtig door het water richting de haven van een rustige baai.</p>
+      <p>Zijn naam was <strong>Milo</strong>. Milo was een grijze zeehond met grote, donkere ogen en een nieuwsgierige blik. Hij stond bekend als vriendelijk, een beetje dromerig en soms wat verlegen.</p>
+      <p>Milo hield van lange zwemtochten langs de kust en van luisteren naar het zachte klotsen van de golven tegen de houten palen van de pier.</p>
+      <div class="quote-block">
+        Die avond was bijzonder voor hem.<br>Voor het eerst in zijn leven had hij een afspraakje.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-num">~ 1 ~</div>
+
+  <!-- ── HOOFDSTUK 2: De Zoute Schelp ── -->
+  <div class="spread reverse">
+    <div class="spread-img">
+      <img src="Gemini_Generated_Image_wiohhwwiohhwwioh.png" alt="Milo bij De Zoute Schelp" />
+    </div>
+    <div class="spread-text">
+      <h2 class="chapter">De Zoute Schelp</h2>
+      <p>Aan het einde van de pier lag een kleine plek waar zeedieren vaak samenkwamen: <em>De Zoute Schelp</em>, een gezellig drijvend barretje waar je zeewierlimonade kon drinken en waar altijd een zachte lamp boven het water hing.</p>
+      <p>Het licht trok vissen, krabben en soms ook nieuwsgierige zeehonden aan.</p>
+      <p>Milo zwom langzaam dichterbij en stak zijn kop boven water. Hij keek een beetje nerveus om zich heen.</p>
+      <div class="dialogue">"Rustig," mompelde hij tegen zichzelf. "Het is maar een ontmoeting."</div>
+    </div>
+  </div>
+
+  <div class="page-num">~ 2 ~</div>
+
+  <!-- ── HOOFDSTUK 3: Luna ── -->
+  <div class="full-img-page">
+    <img src="Gemini_Generated_Image_4vk21k4vk21k4vk2.png" alt="Milo en Luna ontmoeten elkaar bij De Zoute Schelp" />
+  </div>
+
+  <div class="text-card">
+    <h2 class="chapter">Haar naam was Luna</h2>
+    <p>Maar toen zag hij haar.</p>
+    <p>Op een houten plank naast het water zat een ander zeehondje. Haar vacht was zilvergrijs met kleine donkere stipjes. Haar ogen glansden in het lamplicht alsof er kleine sterren in zaten. Ze keek nieuwsgierig naar het water terwijl ze met haar vin een beetje speelde.</p>
+    <p>Haar naam was <strong>Luna</strong>.</p>
+    <p>Toen Milo boven water kwam, draaide Luna haar kop. Hun ogen ontmoetten elkaar.</p>
+    <p>Er viel even een korte stilte. Daarna glimlachte Luna.</p>
+    <div class="dialogue">"Ben jij Milo?" vroeg ze zacht.</div>
+    <p>Milo voelde meteen dat zijn hart een klein sprongetje maakte.</p>
+    <div class="dialogue">"Ja," zei hij. "En jij moet Luna zijn."</div>
+    <div class="dialogue">"Dat klopt," antwoordde ze.</div>
+    <p>Het was een van die zeldzame momenten waarop twee dieren elkaar ontmoeten en meteen voelen dat er iets klopt. Zijn verlegen glimlach maakte haar meteen rustig.</p>
+  </div>
+
+  <div class="page-num">~ 3 ~</div>
+
+  <!-- ── HOOFDSTUK 4: Karel de krab ── -->
+  <div class="spread">
+    <div class="spread-img">
+      <img src="Gemini_Generated_Image_8b4mry8b4mry8b4m.png" alt="Karel de krab schenkt zeewierlimonade" />
+    </div>
+    <div class="spread-text">
+      <h2 class="chapter">Karel de krab</h2>
+      <p>Bij de bar van De Zoute Schelp werkte een oude krab genaamd <strong>Karel</strong>, die al jaren drankjes maakte voor alles wat kon zwemmen of kruipen.</p>
+      <div class="dialogue">"Twee zeewierlimonades," zei Luna.</div>
+      <p>Karel knikte langzaam.</p>
+      <div class="dialogue">"Eerste date?"</div>
+      <p>Milo en Luna keken elkaar aan en moesten lachen.</p>
+      <div class="dialogue">"Is het zo duidelijk?" vroeg Milo.</div>
+      <div class="dialogue">"Een beetje," bromde Karel terwijl hij de glazen vulde.</div>
+      <p>Ze dreven naast elkaar in het water en praatten. Eerst over simpele dingen: waar ze vandaan kwamen, welke plekken in de zee ze het mooist vonden en welke vissen het snelst waren. Maar al snel werden de gesprekken langer.</p>
+    </div>
+  </div>
+
+  <div class="page-num">~ 4 ~</div>
+
+  <!-- ── HOOFDSTUK 5: Ze leken op elkaar ── -->
+  <div class="text-card">
+    <h2 class="chapter">Twee harten, één zee</h2>
+    <p>Milo vertelde hoe hij soms urenlang langs de kust zwom en droomde over verre zeeën. Luna vertelde dat ze hield van rustige baaien en sterrennachten, wanneer het water spiegelglad was.</p>
+    <p>Hoe langer ze praatten, hoe meer ze ontdekten dat ze op elkaar leken:</p>
+    <ul class="parallels">
+      <li>Allebei hielden ze van stilte.</li>
+      <li>Allebei waren ze nieuwsgierig naar de wereld.</li>
+      <li>En allebei konden ze uren luisteren naar het geluid van de zee.</li>
+    </ul>
+    <p>De avond werd langzaam nacht. De lamp boven De Zoute Schelp wiegde zacht in de wind.</p>
+    <div class="dialogue">"Dit was echt leuk," zei Milo uiteindelijk een beetje verlegen.</div>
+    <div class="dialogue">"Misschien kunnen we nog eens afspreken," zei Luna.</div>
+    <p>Milo voelde een warme golf door zich heen gaan. <em>"Dat zou ik heel graag willen."</em></p>
+    <div class="wave-divider">~ ~ ~</div>
+    <p>Die tweede afspraak kwam snel. En daarna nog één. Ze gingen samen zwemmen langs zandbanken, speelden tussen scholen vissen en ontdekten nieuwe plekken langs de kust. Soms praatten ze uren, soms lagen ze gewoon stil naast elkaar op een rots terwijl de golven zacht tegen de kust rolden.</p>
+    <p>Hun vriendschap groeide langzaam uit tot iets diepers.</p>
+  </div>
+
+  <div class="page-num">~ 5 ~</div>
+
+  <!-- ── HOOFDSTUK 6: Op de rots ── -->
+  <div class="spread reverse">
+    <div class="spread-img">
+      <img src="Gemini_Generated_Image_6qju3e6qju3e6qju.png" alt="Milo en Luna op een rots bij zonsondergang" />
+    </div>
+    <div class="spread-text">
+      <h2 class="chapter">Oranje en goud</h2>
+      <p>Op een avond, een paar maanden na hun eerste ontmoeting, zaten ze samen op een grote rots terwijl de zon onderging.</p>
+      <p>De lucht kleurde oranje en goud.</p>
+      <div class="dialogue">"Milo," zei Luna zacht.</div>
+      <div class="dialogue">"Ja?"</div>
+      <div class="dialogue">"Ik vind het heel fijn met jou."</div>
+      <p>Milo keek naar haar.</p>
+      <div class="dialogue">"Ik met jou ook," zei hij.</div>
+      <p>Vanaf dat moment waren ze niet meer alleen vrienden.</p>
+    </div>
+  </div>
+
+  <div class="page-num">~ 6 ~</div>
+
+  <!-- ── HOOFDSTUK 7: Samen ── -->
+  <div class="text-card">
+    <h2 class="chapter">Kleine avonturen</h2>
+    <p>De jaren daarna waren gevuld met kleine avonturen. Ze zwommen samen door stormen en door rustige zomers. Ze ontdekten verborgen strandjes waar bijna niemand kwam. Soms gingen ze terug naar De Zoute Schelp, waar Karel nog steeds werkte.</p>
+    <div class="dialogue">"Daar heb je mijn favoriete stel weer," bromde hij dan.</div>
+    <p>Milo werd in de loop van de tijd iets minder verlegen. Luna bleef nieuwsgierig en vrolijk. Samen vormden ze een perfect team.</p>
+    <p>Wanneer Milo twijfelde, moedigde Luna hem aan. Wanneer Luna te snel wilde gaan, herinnerde Milo haar eraan om soms even stil te staan.</p>
+    <p>Ze leerden elkaar steeds beter kennen — wanneer de ander stilte nodig had, wanneer een grapje hielp, en wanneer een knuffel genoeg was.</p>
+  </div>
+
+  <div class="page-num">~ 7 ~</div>
+
+  <!-- ── EINDPAGINA ── -->
+  <div class="final-page">
+    <img src="Gemini_Generated_Image_k1e6b4k1e6b4k1e6.png" alt="Milo en Luna onder de sterren" />
+    <div class="final-text-overlay">
+      <p>Op een rustige zomeravond — precies <strong>vijf jaar</strong> nadat Milo voor het eerst nerveus naar De Zoute Schelp was gezwommen — lagen ze samen op een zandbank. De zee was kalm. De lucht zat vol sterren.</p>
+
+      <p style="margin-top:20px;">"Weet je nog," zei hij, "die eerste avond?"<br>
+      Luna lachte. "Toen je zo zenuwachtig was?"<br>
+      "Ik was niet zenuwachtig," zei Milo.<br>
+      "Een beetje wel."</p>
+
+      <p style="margin-top:20px;">Ze keken naar de sterren die weerspiegelden in het water.</p>
+
+      <p style="margin-top:20px;">"Vijf jaar," zei Milo zacht.<br>
+      "En het voelt nog steeds als die eerste avond," zei ze.</p>
+
+      <p style="margin-top:20px;">Milo schoof iets dichter naar haar toe.<br>
+      "De beste beslissing van mijn leven," zei hij.<br>
+      Luna gaf hem een zachte tik met haar vin. "De mijne ook."</p>
+
+      <p style="margin-top:20px;">En terwijl de golven rustig langs de zandbank rolden, lagen twee zeehondjes naast elkaar — nog steeds verliefd, nog steeds nieuwsgierig naar de toekomst, en nog steeds samen.</p>
+
+      <p style="margin-top:20px; font-style:italic; color:rgba(245,201,122,0.85);">Net als op die allereerste avond bij De Zoute Schelp.</p>
+
+      <div class="end-title">Einde</div>
+    </div>
+  </div>
+
+</div><!-- /book -->
+
+</body>
+</html>
