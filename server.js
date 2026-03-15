@@ -1002,11 +1002,13 @@ app.post('/api/admin/update-verhaal', checkAdmin, (req, res) => {
         const inzending = inzendingen.find(i => i.id === inzendingId);
         if (!inzending) return res.json({ succes: false, bericht: 'Inzending niet gevonden.' });
         const verhaal = leesJSON(VERHAAL_PAD, { hoofdstukken: [] });
+        const groep = inzending.leeftijdsgroep || 'B';
+        const groepHoofdstukken = (verhaal.hoofdstukken || []).filter(h => (h.leeftijdsgroep || 'B') === groep);
         const nieuwHoofdstuk = {
-            nummer: (verhaal.hoofdstukken?.length || 0) + 1,
+            nummer: groepHoofdstukken.length + 1,
             datum: inzending.opdrachtDatum,
             auteur: inzending.naam,
-            leeftijdsgroep: inzending.leeftijdsgroep || 'B',
+            leeftijdsgroep: groep,
             tekst: inzending.gecorrigeerdeTekst || inzending.tekst,
             inzendingId
         };
@@ -1031,7 +1033,7 @@ app.post('/api/admin/verhaal/reset', checkAdmin, (req, res) => {
             });
         }
         schrijfJSON(VERHAAL_PAD, {
-            titel: verhaal.titel || 'Het Grote Avontuur',
+            titel: verhaal.titel || 'Het WoordSpeler Verhaal',
             samenvatting: '',
             personages: [],
             locaties: [],
@@ -1089,7 +1091,15 @@ app.post('/api/admin/reject/:id', checkAdmin, (req, res) => {
 });
 
 app.get('/api/verhalen', (req, res) => res.json(leesJSON(VERHALEN_PAD, [])));
-app.get('/api/verhaal',  (req, res) => res.json(leesJSON(VERHAAL_PAD, { titel: 'Het Grote Avontuur', samenvatting: '', hoofdstukken: [] })));
+app.get('/api/verhaal', (req, res) => {
+    const verhaal = leesJSON(VERHAAL_PAD, { titel: 'Het WoordSpeler Verhaal', samenvatting: '', hoofdstukken: [] });
+    const groep = req.query.groep;
+    if (groep && ['A', 'B', 'C'].includes(groep)) {
+        const gefilterd = (verhaal.hoofdstukken || []).filter(h => (h.leeftijdsgroep || 'B') === groep);
+        return res.json({ ...verhaal, hoofdstukken: gefilterd });
+    }
+    res.json(verhaal);
+});
 
 // Publieke teller: hoeveel inzendingen zijn er vandaag voor een groep?
 app.get('/api/inzendingen/vandaag-teller', (req, res) => {
