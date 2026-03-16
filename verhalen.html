@@ -61,8 +61,33 @@
             background: rgba(34,99,58,0.45); border: 2px solid rgba(255,255,255,0.1);
             border-radius: 24px; padding: 24px;
             position: relative; transition: border-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
         }
         .verhaal-kaart:hover { border-color: rgba(76,201,122,0.35); transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+        /* ── AI AFBEELDING ── */
+        .kaart-ai-img {
+            display: block;
+            width: calc(100% + 48px);
+            height: 180px;
+            object-fit: cover;
+            margin: -24px -24px 18px -24px;
+            border-radius: 22px 22px 0 0;
+            background: rgba(0,0,0,0.25);
+        }
+        .kaart-ai-placeholder {
+            width: calc(100% + 48px);
+            height: 180px;
+            margin: -24px -24px 18px -24px;
+            border-radius: 22px 22px 0 0;
+            background: linear-gradient(135deg, rgba(27,77,46,0.8), rgba(13,43,26,0.9));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; opacity: 0.6;
+            animation: shimmer 1.8s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0%,100% { opacity: 0.4; } 50% { opacity: 0.7; }
+        }
 
         /* ── LIST MODE ── */
         .cardstack[data-layout="list"] {
@@ -394,8 +419,15 @@ function toonVerhalen(verhalen) {
         groepen[key].versies.push(v);
     });
 
+    const miloPrompt = encodeURIComponent('kinderboek illustratie, zeehond en zeemeermin in baai bij zonsondergang, kleurrijke fantasy stijl, sprookjesachtig, digitale kunst, geen tekst');
     const miloKaart = `
         <div class="verhaal-kaart" style="border-color:rgba(247,201,72,0.35);">
+            <div class="kaart-ai-placeholder" id="img-placeholder-milo">🦭</div>
+            <img class="kaart-ai-img" style="display:none;" id="img-milo"
+                src="https://image.pollinations.ai/prompt/${miloPrompt}?width=640&height=220&seed=42&nologo=true"
+                alt="Illustratie bij Milo en Luna"
+                onload="this.style.display='block';document.getElementById('img-placeholder-milo').style.display='none';"
+                onerror="this.style.display='none';">
             <div class="kaart-verhaal-titel">📖 Milo en Luna</div>
             <div class="kaart-header">
                 <div class="kaart-auteur-blok">
@@ -433,6 +465,11 @@ function toonVerhalen(verhalen) {
     }
 }
 
+function maakImagePrompt(titel, tekst) {
+    const context = ((titel || '') + ' ' + (tekst || '')).substring(0, 100).replace(/['"<>]/g, '');
+    return encodeURIComponent('kinderboek illustratie, ' + context + ', kleurrijke fantasy stijl, sprookjesachtig, digitale kunst, geen tekst');
+}
+
 function maakVerhaalKaart(v, idx) {
     const groepNamen = { A: 'Jonge Vos 🦊', B: 'Slimme Uil 🦉', C: 'Wijze Draak 🐉' };
     const groep = v.leeftijdsgroep || 'B';
@@ -446,8 +483,17 @@ function maakVerhaalKaart(v, idx) {
     // Sla op voor lees-modal
     verhaalData[cardId] = v;
 
+    const imgPrompt = maakImagePrompt(titel, v.tekst);
+    const imgSeed   = Math.abs(hashStr(cardId)) % 9999;
+
     return `
         <div class="verhaal-kaart" id="${cardId}" data-naam="${escapeAttr(v.naam||'')}" data-tekst="${escapeAttr(v.tekst||'')}" data-groep="${groep}">
+            <div class="kaart-ai-placeholder" id="ph-${cardId}">📖</div>
+            <img class="kaart-ai-img" style="display:none;" id="ai-${cardId}"
+                src="https://image.pollinations.ai/prompt/${imgPrompt}?width=640&height=220&seed=${imgSeed}&nologo=true"
+                alt="Illustratie bij verhaal"
+                onload="this.style.display='block';var ph=document.getElementById('ph-${cardId}');if(ph)ph.style.display='none';"
+                onerror="this.style.display='none';">
             ${titel ? `<div class="kaart-verhaal-titel">📖 ${escapeHTML(titel)}</div>` : ''}
             <div class="kaart-header">
                 <div class="kaart-auteur-blok">
