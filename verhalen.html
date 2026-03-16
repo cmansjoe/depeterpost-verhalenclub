@@ -41,26 +41,80 @@
         .filter-btn.actief-B { background: rgba(139,92,246,0.15); border-color: #8B5CF6; color: #8B5CF6; }
         .filter-btn.actief-C { background: rgba(76,201,122,0.15); border-color: #4CC97A; color: #4CC97A; }
 
-        /* ── TIJDLIJN ── */
-        .tijdlijn { position: relative; padding-left: 32px; }
-        .tijdlijn::before {
+        /* ── LAYOUT TOGGLE ── */
+        .layout-toggle {
+            display: flex; justify-content: center; gap: 4px; margin: 0 auto 24px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; padding: 5px; width: fit-content;
+        }
+        .layout-btn {
+            padding: 8px 20px; border-radius: 10px; border: none; cursor: pointer;
+            background: transparent; color: rgba(167,196,181,0.6);
+            font-size: 0.82rem; font-weight: 800; transition: all 0.2s;
+            font-family: 'Baloo 2', sans-serif; display: flex; align-items: center; gap: 7px;
+        }
+        .layout-btn:hover { background: rgba(255,255,255,0.07); color: white; }
+        .layout-btn.actief { background: #4CC97A; color: #0D2B1A; box-shadow: 0 2px 10px rgba(76,201,122,0.3); }
+
+        /* ── VERHAAL KAART (basis) ── */
+        .verhaal-kaart {
+            background: rgba(34,99,58,0.45); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 24px; padding: 24px;
+            position: relative; transition: border-color 0.3s, transform 0.2s, box-shadow 0.2s;
+        }
+        .verhaal-kaart:hover { border-color: rgba(76,201,122,0.35); transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+        /* ── LIST MODE ── */
+        .cardstack[data-layout="list"] {
+            position: relative; padding-left: 32px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .cardstack[data-layout="list"]::before {
             content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
             width: 2px; background: linear-gradient(to bottom, #4CC97A, #8B5CF6, #F472B6); border-radius: 2px;
         }
-
-        /* ── VERHAAL KAART ── */
-        .verhaal-kaart {
-            background: rgba(34,99,58,0.45); border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 24px; padding: 24px; margin-bottom: 20px;
-            position: relative; transition: border-color 0.3s, transform 0.2s;
-        }
-        .verhaal-kaart::before {
+        .cardstack[data-layout="list"] .verhaal-kaart::before {
             content: ''; position: absolute; left: -27px; top: 28px;
             width: 14px; height: 14px; border-radius: 50%;
             background: #4CC97A; border: 3px solid #1B4D2E;
             box-shadow: 0 0 10px rgba(76,201,122,0.5);
         }
-        .verhaal-kaart:hover { border-color: rgba(76,201,122,0.35); transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+        /* ── GRID MODE ── */
+        .cardstack[data-layout="grid"] {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+        }
+        @media (max-width: 600px) { .cardstack[data-layout="grid"] { grid-template-columns: 1fr; } }
+
+        /* ── STACK MODE ── */
+        .cardstack[data-layout="stack"] {
+            position: relative; height: 440px; max-width: 580px; margin: 0 auto;
+        }
+        .cardstack[data-layout="stack"] .verhaal-kaart {
+            position: absolute; inset: 0;
+            cursor: grab; user-select: none; overflow: hidden;
+            transition: transform 0.38s cubic-bezier(0.34,1.2,0.64,1), opacity 0.3s ease, box-shadow 0.2s;
+        }
+        .cardstack[data-layout="stack"] .verhaal-kaart:active { cursor: grabbing; }
+        .cardstack[data-layout="stack"] .verhaal-kaart[data-sp="0"] { z-index:10; transform: rotate(0deg); }
+        .cardstack[data-layout="stack"] .verhaal-kaart[data-sp="1"] { z-index:9;  transform: rotate(2.5deg)  translate(10px, 10px)  scale(0.96); pointer-events:none; }
+        .cardstack[data-layout="stack"] .verhaal-kaart[data-sp="2"] { z-index:8;  transform: rotate(-2deg) translate(-6px, 20px)  scale(0.92); pointer-events:none; }
+        .cardstack[data-layout="stack"] .verhaal-kaart[data-sp="3"] { z-index:7;  transform: rotate(1.5deg) translate(4px,  30px)  scale(0.88); pointer-events:none; opacity:0.7; }
+        .cardstack[data-layout="stack"] .verhaal-kaart[data-sp="99"]{ z-index:1;  transform: rotate(0deg); opacity:0; pointer-events:none; }
+        .cardstack[data-layout="stack"] .verhaal-kaart[data-sp="0"]:hover { box-shadow: 0 16px 48px rgba(0,0,0,0.45); }
+
+        /* ── DOTS ── */
+        .stack-dots { display: none; justify-content: center; gap: 7px; margin-top: 18px; }
+        .cardstack[data-layout="stack"] ~ .stack-dots { display: flex; }
+        .stack-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(167,196,181,0.2); border: none; cursor: pointer;
+            transition: all 0.25s ease; padding: 0;
+        }
+        .stack-dot.actief { width: 24px; border-radius: 4px; background: #4CC97A; }
+        .stack-dot:hover:not(.actief) { background: rgba(167,196,181,0.45); }
+        .stack-hint { display: none; text-align: center; font-size: 0.75rem; color: rgba(167,196,181,0.35); margin-top: 8px; }
+        .cardstack[data-layout="stack"] ~ .stack-dots ~ .stack-hint { display: block; }
 
         .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
         .kaart-auteur-blok { display: flex; align-items: center; gap: 10px; }
@@ -202,7 +256,7 @@
     </div>
 
     <!-- Uitgelicht verhaal: Milo en Luna -->
-    <div class="tijdlijn" style="margin-bottom:20px;">
+    <div style="margin-bottom:28px;">
         <div class="verhaal-kaart" style="border-color:rgba(247,201,72,0.35);">
             <div class="kaart-verhaal-titel">📖 Milo en Luna</div>
             <div class="kaart-header">
@@ -219,21 +273,37 @@
                     <span class="winnaar-badge-klein">⭐ Uitgelicht</span>
                 </div>
             </div>
-
             <div class="verhaal-tekst-preview">
                 Op een frisse lenteavond, toen de lucht boven de zee zacht roze kleurde, schoof een klein zeehondje voorzichtig door het water richting de haven van een rustige baai. Zijn naam was Milo...
             </div>
-
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
                 <a href="Milo_en_Luna.html" class="lees-meer-knop" style="text-decoration:none;">📖 Lees volledig verhaal</a>
             </div>
         </div>
     </div>
 
-    <!-- Verhalen lijst -->
-    <div class="tijdlijn" id="verhalenContainer">
+    <!-- Layout toggle -->
+    <div class="layout-toggle">
+        <button class="layout-btn" data-lbtn="stack" onclick="setLayout('stack')">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="10" width="12" height="2" rx="1"/><rect x="2" y="7" width="12" height="2" rx="1" opacity=".7"/><rect x="2" y="4" width="12" height="2" rx="1" opacity=".4"/></svg>
+            Stapel
+        </button>
+        <button class="layout-btn" data-lbtn="grid" onclick="setLayout('grid')">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+            Raster
+        </button>
+        <button class="layout-btn actief" data-lbtn="list" onclick="setLayout('list')">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="12" height="2" rx="1"/><rect x="2" y="7" width="12" height="2" rx="1"/><rect x="2" y="11" width="12" height="2" rx="1"/></svg>
+            Lijst
+        </button>
+    </div>
+
+    <!-- Verhalen (cardstack) -->
+    <div class="cardstack" id="verhalenContainer" data-layout="list">
         <div class="geen-verhalen"><span>⏳</span><p>Laden...</p></div>
     </div>
+    <div class="stack-dots" id="stackDots"></div>
+    <div class="stack-hint" id="stackHint">← Veeg of sleep om te navigeren →</div>
 
 </div>
 </main>
@@ -353,6 +423,13 @@ function toonVerhalen(verhalen) {
     container.innerHTML = Object.entries(groepen).map(([id, groep]) => {
         return groep.versies.map((v, i) => maakVerhaalKaart(v, i)).join('');
     }).join('');
+
+    // Cardstack reset na elke render
+    stackActiveIndex = 0;
+    if (huidigeLayout === 'stack') {
+        updateStackPositions();
+        updateStackDots();
+    }
 }
 
 function maakVerhaalKaart(v, idx) {
@@ -562,6 +639,108 @@ function escapeHTML(t) {
 }
 function escapeAttr(t) {
     return (t||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
+// ── CARDSTACK ──────────────────────────────────────────────
+let stackActiveIndex = 0;
+let huidigeLayout = 'list';
+let _dragState = null;
+
+function setLayout(mode) {
+    huidigeLayout = mode;
+    const container = document.getElementById('verhalenContainer');
+    container.setAttribute('data-layout', mode);
+    document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('actief'));
+    document.querySelector(`[data-lbtn="${mode}"]`).classList.add('actief');
+    stackActiveIndex = 0;
+    if (mode === 'stack') {
+        updateStackPositions();
+        updateStackDots();
+    }
+}
+
+function updateStackPositions() {
+    const container = document.getElementById('verhalenContainer');
+    const cards = Array.from(container.querySelectorAll('.verhaal-kaart'));
+    const n = cards.length;
+    cards.forEach((card, i) => {
+        const pos = ((i - stackActiveIndex) % n + n) % n;
+        card.setAttribute('data-sp', pos < 4 ? pos : '99');
+    });
+    initStackDrag();
+}
+
+function updateStackDots() {
+    const container = document.getElementById('verhalenContainer');
+    const cards = Array.from(container.querySelectorAll('.verhaal-kaart'));
+    const dots = document.getElementById('stackDots');
+    dots.innerHTML = cards.map((_, i) =>
+        `<button class="stack-dot${i === stackActiveIndex ? ' actief' : ''}" onclick="goToCard(${i})"></button>`
+    ).join('');
+}
+
+function goToCard(idx) {
+    stackActiveIndex = idx;
+    updateStackPositions();
+    updateStackDots();
+}
+
+function initStackDrag() {
+    // Verwijder vorige listeners
+    if (_dragState) {
+        const { el, onDown, onMove, onUp } = _dragState;
+        el.removeEventListener('pointerdown', onDown);
+        el.removeEventListener('pointermove', onMove);
+        el.removeEventListener('pointerup', onUp);
+        el.removeEventListener('pointercancel', onUp);
+        _dragState = null;
+    }
+    const container = document.getElementById('verhalenContainer');
+    const top = container.querySelector('[data-sp="0"]');
+    if (!top) return;
+
+    let startX = 0, dx = 0, active = false;
+
+    const onDown = e => {
+        if (e.target.closest('button,a,input,textarea')) return;
+        startX = e.clientX; dx = 0; active = true;
+        top.setPointerCapture(e.pointerId);
+        top.style.transition = 'none';
+    };
+    const onMove = e => {
+        if (!active) return;
+        dx = e.clientX - startX;
+        top.style.transform = `rotate(${dx * 0.055}deg) translateX(${dx}px)`;
+    };
+    const onUp = () => {
+        if (!active) return;
+        active = false;
+        top.style.transition = '';
+        const n = container.querySelectorAll('.verhaal-kaart').length;
+        if (Math.abs(dx) > 80) {
+            const dir = dx < 0 ? 1 : -1;  // links = volgende, rechts = vorige
+            top.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+            top.style.transform = `translateX(${-dir * 700}px) rotate(${-dir * 28}deg)`;
+            top.style.opacity = '0';
+            setTimeout(() => {
+                top.style.cssText = '';
+                stackActiveIndex = (stackActiveIndex - dir + n) % n;
+                updateStackPositions();
+                updateStackDots();
+            }, 290);
+        } else {
+            top.style.transition = 'transform 0.38s cubic-bezier(0.34,1.2,0.64,1)';
+            top.style.transform = '';
+            setTimeout(() => top.style.transition = '', 400);
+        }
+        dx = 0;
+    };
+
+    top.addEventListener('pointerdown', onDown);
+    top.addEventListener('pointermove', onMove);
+    top.addEventListener('pointerup', onUp);
+    top.addEventListener('pointercancel', onUp);
+    _dragState = { el: top, onDown, onMove, onUp };
 }
 </script>
 </body>
