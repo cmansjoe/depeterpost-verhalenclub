@@ -50,6 +50,8 @@
   --schrijf-kaart:      #FFF8E1;
   --schrijf-tekst:      #3D2B1F;
   --schrijf-placeholder:#A89080;
+  --schrijf-rand:       rgba(242,140,56, 0.35);
+  --schrijf-focus-glow: rgba(242,140,56, 0.18);
   --schrijf-radius:     18px;
   --schrijf-fontsize:   1.1rem;
   --schrijf-lineheight: 1.9;
@@ -67,6 +69,8 @@
   --schrijf-kaart:      #1e2a4a;
   --schrijf-tekst:      #e2e0ff;
   --schrijf-placeholder:#6b6b8a;
+  --schrijf-rand:       rgba(139,92,246, 0.3);
+  --schrijf-focus-glow: rgba(139,92,246, 0.14);
   --schrijf-radius:     16px;
   --schrijf-fontsize:   1rem;
   --schrijf-lineheight: 1.75;
@@ -84,6 +88,8 @@
   --schrijf-kaart:      #161b22;
   --schrijf-tekst:      #e6edf3;
   --schrijf-placeholder:#484f58;
+  --schrijf-rand:       rgba(76,201,122, 0.18);
+  --schrijf-focus-glow: rgba(76,201,122, 0.09);
   --schrijf-radius:     12px;
   --schrijf-fontsize:   0.95rem;
   --schrijf-lineheight: 1.7;
@@ -94,6 +100,210 @@
 [data-groep] .groep-bg            { background: var(--groep-licht); border-color: var(--groep-rand); }
 [data-groep] .groep-rand          { border-color: var(--groep-rand) !important; }
 [data-groep] .groep-voortgang     { background: var(--groep-kleur) !important; }
+
+/* Groep A: Warme achtergrond voor schrijfvelden — WCAG 7:1 contrast (#3D2B1F op #FFFBF0) */
+[data-groep="A"] .schrijf-kaart  { background: var(--schrijf-kaart); }
+[data-groep="A"] .schrijf-veld,
+[data-groep="A"] textarea.verhaal-textarea { background: var(--schrijf-bg); color: var(--schrijf-tekst); }
+
+/* Groep B & C: Donkere schrijfomgeving */
+[data-groep="B"] .schrijf-kaart,
+[data-groep="C"] .schrijf-kaart  { background: var(--schrijf-kaart); }
+
+/* ══ PAGINA-THEMA'S ══ */
+
+/* LANDING (index.html): Betoverd Woud — behoud bestaande groene sfeer, geen overrides nodig */
+
+/* LOGIN / TOESTEMMING: Kalm, vertrouwenwekkend — diep marineblauw/indigo
+   Doel: ook ouders gerust stellen, geen groene speelsheid, serieus en veilig */
+body[data-pagina="login"] {
+  background-color: #0D1B3E;
+}
+body[data-pagina="login"]::before {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(13,27,62,0.75) 0%, transparent 70%);
+}
+body[data-pagina="login"] header {
+  background: linear-gradient(135deg, #060E24, #0D1B3E, #060E24);
+  border-bottom-color: rgba(99,102,241,0.2);
+}
+body[data-pagina="login"] nav {
+  background: rgba(6,14,36,0.96);
+  border-bottom-color: rgba(99,102,241,0.12);
+}
+body[data-pagina="login"] nav a:hover  { background: rgba(99,102,241,0.15); color: #818CF8; }
+body[data-pagina="login"] nav a.actief { background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; }
+body[data-pagina="login"] .sectie {
+  background: rgba(22,32,68,0.65);
+  border-image: linear-gradient(90deg, #6366F1, #8B5CF6) 1;
+}
+body[data-pagina="login"] input[type="text"],
+body[data-pagina="login"] input[type="email"],
+body[data-pagina="login"] input[type="password"] {
+  background: rgba(6,14,36,0.8);
+  border-color: rgba(99,102,241,0.3);
+  color: #E0E7FF;
+}
+body[data-pagina="login"] input[type="text"]:focus,
+body[data-pagina="login"] input[type="email"]:focus,
+body[data-pagina="login"] input[type="password"]:focus {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+}
+body[data-pagina="login"] footer {
+  background: linear-gradient(135deg, #04090F, #060E24);
+  border-top-color: rgba(99,102,241,0.1);
+}
+
+/* ADMIN: Zakelijk dashboard — donker charcoal/slate, functioneel
+   Doelgroep: volwassen beheerder, geen kinderpalet */
+body[data-pagina="admin"] {
+  background-color: #0F1117;
+}
+body[data-pagina="admin"]::before {
+  background:
+    radial-gradient(ellipse at 25% 25%, rgba(59,130,246,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 75%, rgba(75,85,99,0.07) 0%, transparent 50%);
+}
+body[data-pagina="admin"] header {
+  background: linear-gradient(135deg, #070B12, #0F1117, #070B12);
+  border-bottom-color: rgba(59,130,246,0.2);
+}
+body[data-pagina="admin"] nav {
+  background: rgba(7,11,18,0.97);
+  border-bottom-color: rgba(59,130,246,0.12);
+}
+body[data-pagina="admin"] nav a:hover  { background: rgba(59,130,246,0.12); color: #60A5FA; }
+body[data-pagina="admin"] nav a.actief { background: linear-gradient(135deg, #1D4ED8, #3B82F6); color: #fff; }
+body[data-pagina="admin"] .sectie {
+  background: rgba(22,27,37,0.75);
+  border-image: linear-gradient(90deg, #3B82F6, #6366F1) 1;
+}
+body[data-pagina="admin"] .verhaal-kaart,
+body[data-pagina="admin"] .pending-kaart { background: rgba(22,27,37,0.7); }
+body[data-pagina="admin"] footer {
+  background: linear-gradient(135deg, #030508, #070B12);
+  border-top-color: rgba(59,130,246,0.08);
+}
+
+/* SESSIE: Samen schrijven — warmer groen + sociaal energie
+   Cyan accent voor samenwerking, oranje warmte, meer levendig */
+body[data-pagina="sessie"] {
+  background-color: #152219;
+}
+body[data-pagina="sessie"]::before {
+  background:
+    radial-gradient(ellipse at 10% 15%, rgba(56,189,248,0.14) 0%, transparent 45%),
+    radial-gradient(ellipse at 90% 85%, rgba(242,140,56,0.10) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(21,34,25,0.65) 0%, transparent 70%);
+}
+body[data-pagina="sessie"] header {
+  background: linear-gradient(135deg, #091510, #152219, #091510);
+  border-bottom-color: rgba(56,189,248,0.22);
+}
+body[data-pagina="sessie"] nav {
+  background: rgba(9,21,16,0.96);
+  border-bottom-color: rgba(56,189,248,0.15);
+}
+body[data-pagina="sessie"] nav a:hover  { background: rgba(56,189,248,0.12); color: #38BDF8; }
+body[data-pagina="sessie"] nav a.actief { background: linear-gradient(135deg, #0EA5E9, #38BDF8); color: #072330; }
+body[data-pagina="sessie"] .sectie {
+  background: rgba(21,34,25,0.65);
+  border-image: linear-gradient(90deg, #38BDF8, #4CC97A, #F7C948) 1;
+}
+body[data-pagina="sessie"] footer {
+  background: linear-gradient(135deg, #040C07, #091510);
+  border-top-color: rgba(56,189,248,0.1);
+}
+
+/* GALERIJ: Verhalebibliotheek — amber/goud dominant, serene bibliotheeksfeer
+   Inspiratie, trots op eigen werk, donker amber-groen */
+body[data-pagina="galerij"] {
+  background-color: #1A1C10;
+}
+body[data-pagina="galerij"]::before {
+  background:
+    radial-gradient(ellipse at 5% 10%, rgba(247,201,72,0.13) 0%, transparent 45%),
+    radial-gradient(ellipse at 95% 90%, rgba(76,201,122,0.07) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(26,28,16,0.70) 0%, transparent 70%);
+}
+body[data-pagina="galerij"] header {
+  background: linear-gradient(135deg, #0D0F07, #1A1C10, #0D0F07);
+  border-bottom-color: rgba(247,201,72,0.25);
+}
+body[data-pagina="galerij"] nav {
+  background: rgba(13,15,7,0.96);
+  border-bottom-color: rgba(247,201,72,0.12);
+}
+body[data-pagina="galerij"] nav a:hover  { background: rgba(247,201,72,0.12); color: #F7C948; }
+body[data-pagina="galerij"] nav a.actief { background: linear-gradient(135deg, #D4A017, #F7C948); color: #1A1600; }
+body[data-pagina="galerij"] .sectie {
+  background: rgba(26,28,16,0.65);
+  border-image: linear-gradient(90deg, #F7C948, #4CC97A) 1;
+}
+body[data-pagina="galerij"] .verhaal-kaart {
+  background: rgba(26,28,16,0.6);
+  border-top-color: var(--geel);
+}
+body[data-pagina="galerij"] .verhaal-kaart:nth-child(2n) { border-top-color: var(--groen); }
+body[data-pagina="galerij"] .verhaal-kaart:nth-child(3n) { border-top-color: var(--oranje); }
+body[data-pagina="galerij"] .verhaal-kaart:nth-child(4n) { border-top-color: var(--paars); }
+body[data-pagina="galerij"] footer {
+  background: linear-gradient(135deg, #060603, #0D0F07);
+  border-top-color: rgba(247,201,72,0.1);
+}
+
+/* DOSSIER: Persoonlijk, groepskleur prominent
+   Achtergrond via data-groep, kaarten persoonlijker */
+body[data-pagina="dossier"] .sectie {
+  border-image: linear-gradient(90deg, var(--groep-kleur, #4CC97A), var(--geel)) 1;
+}
+body[data-pagina="dossier"] header {
+  border-bottom-color: rgba(var(--groep-kleur, 76,201,122), 0.25);
+}
+
+/* SCHRIJF: Schrijfomgeving — achtergrond per groep via data-groep
+   Pagina-bg past zich aan de groep aan */
+body[data-pagina="schrijf"][data-groep="A"] { background-color: #F5F0E8; }
+body[data-pagina="schrijf"][data-groep="B"] { background-color: #0E1525; }
+body[data-pagina="schrijf"][data-groep="C"] { background-color: #090D14; }
+body[data-pagina="schrijf"][data-groep="A"]::before {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(242,140,56,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(247,201,72,0.08) 0%, transparent 50%);
+}
+body[data-pagina="schrijf"][data-groep="B"]::before {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(139,92,246,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(56,73,126,0.10) 0%, transparent 50%);
+}
+body[data-pagina="schrijf"][data-groep="C"]::before {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(76,201,122,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(30,50,30,0.08) 0%, transparent 50%);
+}
+body[data-pagina="schrijf"][data-groep="A"] header {
+  background: linear-gradient(135deg, #2C1A0E, #4A2E18, #2C1A0E);
+  border-bottom-color: rgba(242,140,56,0.3);
+}
+body[data-pagina="schrijf"][data-groep="B"] header {
+  background: linear-gradient(135deg, #0A0F1E, #141b2d, #0A0F1E);
+  border-bottom-color: rgba(139,92,246,0.25);
+}
+body[data-pagina="schrijf"][data-groep="C"] header {
+  background: linear-gradient(135deg, #060809, #0d1117, #060809);
+  border-bottom-color: rgba(76,201,122,0.15);
+}
+body[data-pagina="schrijf"][data-groep="A"] nav { background: rgba(44,26,14,0.97); border-bottom-color: rgba(242,140,56,0.2); }
+body[data-pagina="schrijf"][data-groep="B"] nav { background: rgba(10,15,30,0.97); border-bottom-color: rgba(139,92,246,0.15); }
+body[data-pagina="schrijf"][data-groep="C"] nav { background: rgba(6,8,9,0.97); border-bottom-color: rgba(76,201,122,0.1); }
+
+/* OPDRACHT: Schrijfopdracht bekijken — groep-adaptief accent */
+body[data-pagina="opdracht"] .sectie {
+  border-image: linear-gradient(90deg, var(--groep-kleur, #4CC97A), var(--geel)) 1;
+}
 
 /* ══ RESET ══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -496,22 +706,22 @@ textarea { min-height: 120px; line-height: 1.7; }
   width: 100%;
   min-height: 200px;
   padding: 16px;
-  border: 2px solid rgba(76,201,122,0.25);
-  border-radius: 16px;
-  font-size: 1rem;
+  border: 2px solid var(--schrijf-rand, rgba(76,201,122,0.25));
+  border-radius: var(--schrijf-radius, 16px);
+  font-size: var(--schrijf-fontsize, 1rem);
   font-family: 'Baloo 2', sans-serif;
-  line-height: 1.7;
+  line-height: var(--schrijf-lineheight, 1.7);
   resize: vertical;
-  color: var(--tekst);
-  background: rgba(13,43,26,0.6);
+  color: var(--schrijf-tekst, var(--tekst));
+  background: var(--schrijf-bg, rgba(13,43,26,0.6));
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 }
 .verhaal-textarea:focus {
-  border-color: var(--groen);
-  box-shadow: 0 0 0 3px rgba(76,201,122,0.2);
+  border-color: var(--groep-kleur, var(--groen));
+  box-shadow: 0 0 0 4px var(--schrijf-focus-glow, rgba(76,201,122,0.2));
 }
-.verhaal-textarea::placeholder { color: rgba(167,196,181,0.5); }
+.verhaal-textarea::placeholder { color: var(--schrijf-placeholder, rgba(167,196,181,0.5)); }
 .teller { text-align: right; font-size: 0.82rem; color: var(--tekst-zacht); margin-top: 4px; font-weight: 700; }
 .teller.bijna-vol { color: var(--oranje); }
 .teller.vol       { color: var(--rood); }
