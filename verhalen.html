@@ -9,6 +9,13 @@
         main { padding: 32px 0 60px; position:relative; z-index:1; }
         .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
 
+        /* ── SPINWEB ACHTERGROND ── */
+        #particles-js {
+            position: fixed; inset: 0; z-index: 0;
+            pointer-events: none;
+        }
+        #particles-js canvas { display: block; }
+
         /* ── PAGE HEADER ── */
         .pagina-header { text-align: center; padding: 36px 20px 28px; }
         .pagina-header p { color: rgba(167,196,181,0.7); font-size: 1rem; }
@@ -243,6 +250,7 @@
     </style>
 </head>
 <body data-pagina="galerij">
+<div id="particles-js"></div>
 
 <header>
     <h1 class="site-title">🎲 WoordSpeler</h1>
@@ -687,6 +695,49 @@ function escapeHTML(t) {
 function escapeAttr(t) {
     return (t||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
 }
+
+// ── SPINWEB ACHTERGROND (particles.js) ─────────────────────
+(function() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js';
+    script.async = true;
+    script.onload = function() {
+        window.particlesJS('particles-js', {
+            particles: {
+                number: { value: 120, density: { enable: true, value_area: 900 } },
+                color: { value: '#4CC97A' },
+                shape: { type: 'circle', stroke: { width: 0.5, color: '#2D6A4F' } },
+                opacity: {
+                    value: 0.45, random: true,
+                    anim: { enable: true, speed: 0.8, opacity_min: 0.15, sync: false }
+                },
+                size: {
+                    value: 2.5, random: true,
+                    anim: { enable: true, speed: 1.5, size_min: 0.8, sync: false }
+                },
+                line_linked: {
+                    enable: true, distance: 150,
+                    color: '#34D399', opacity: 0.25, width: 1
+                },
+                move: { enable: true, speed: 1.2, random: true, out_mode: 'bounce', attract: { enable: false } }
+            },
+            interactivity: {
+                detect_on: 'window',
+                events: {
+                    onhover: { enable: true, mode: 'grab' },
+                    onclick:  { enable: true, mode: 'push' },
+                    resize: true
+                },
+                modes: {
+                    grab: { distance: 180, line_linked: { opacity: 0.6 } },
+                    push: { particles_nb: 3 }
+                }
+            },
+            retina_detect: true
+        });
+    };
+    document.head.appendChild(script);
+})();
 
 // ── PARTICLE TEKST (Hovertext2) ────────────────────────────
 (function() {
