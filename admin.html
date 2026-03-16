@@ -9,53 +9,53 @@
         /* ── LOGIN SCHERM ── */
         #loginScherm { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .login-kaart {
-            background: linear-gradient(135deg, #0D2B1A, #1B4D2E);
-            border: 2px solid rgba(76,201,122,0.3); border-radius: 24px;
+            background: linear-gradient(135deg, #0a1628, #0f1f3d);
+            border: 2px solid rgba(56,189,248,0.25); border-radius: 24px;
             padding: 48px 40px; width: 100%; max-width: 420px; text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(76,201,122,0.15);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(56,189,248,0.08);
         }
-        .login-logo { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 0 20px rgba(76,201,122,0.7)); }
-        .login-titel { font-family: 'Grandstander', cursive; font-size: 1.8rem; color: #F7C948; margin-bottom: 4px; }
-        .login-sub { color: rgba(167,196,181,0.6); font-size: 0.85rem; margin-bottom: 32px; }
-        .login-input { width: 100%; padding: 14px 18px; background: rgba(13,43,26,0.7); border: 2px solid rgba(76,201,122,0.2); border-radius: 50px; color: white; font-size: 1rem; font-family: 'Baloo 2', sans-serif; margin-bottom: 12px; transition: border-color 0.2s; outline: none; }
-        .login-input:focus { border-color: #4CC97A; box-shadow: 0 0 0 3px rgba(76,201,122,0.2); }
-        .login-input::placeholder { color: rgba(167,196,181,0.4); }
-        .login-knop { width: 100%; padding: 14px; background: linear-gradient(135deg, #4CC97A, #34D399); border: none; border-radius: 50px; color: #0D2B1A; font-size: 1.05rem; font-weight: 900; font-family: 'Baloo 2', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
-        .login-knop:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(76,201,122,0.4); }
-        .login-fout { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.4); color: #F87171; border-radius: 14px; padding: 10px 14px; font-size: 0.9rem; margin-top: 12px; display: none; }
+        .login-logo { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 0 16px rgba(56,189,248,0.5)); }
+        .login-titel { font-family: 'Grandstander', cursive; font-size: 1.8rem; color: #e0f2fe; margin-bottom: 4px; }
+        .login-sub { color: rgba(148,163,184,0.6); font-size: 0.85rem; margin-bottom: 32px; }
+        .login-input { width: 100%; padding: 14px 18px; background: rgba(10,22,40,0.8); border: 2px solid rgba(56,189,248,0.18); border-radius: 12px; color: white; font-size: 1rem; font-family: 'Baloo 2', sans-serif; margin-bottom: 12px; transition: border-color 0.2s; outline: none; }
+        .login-input:focus { border-color: #38BDF8; box-shadow: 0 0 0 3px rgba(56,189,248,0.15); }
+        .login-input::placeholder { color: rgba(148,163,184,0.4); }
+        .login-knop { width: 100%; padding: 14px; background: linear-gradient(135deg, #0284c7, #38BDF8); border: none; border-radius: 12px; color: white; font-size: 1.05rem; font-weight: 900; font-family: 'Baloo 2', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+        .login-knop:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.35); }
+        .login-fout { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.4); color: #F87171; border-radius: 12px; padding: 10px 14px; font-size: 0.9rem; margin-top: 12px; display: none; }
 
         /* ── ADMIN PANEEL ── */
         #adminPaneel { display: none; }
         .admin-wrapper { max-width: 960px; margin: 0 auto; padding: 30px 20px; }
 
         .admin-topbar {
-            background: linear-gradient(135deg, #0D2B1A, #1B4D2E); border: 2px solid rgba(76,201,122,0.2);
-            border-radius: 24px; padding: 20px 28px; margin-bottom: 24px;
+            background: linear-gradient(135deg, #0a1628, #0f1f3d); border: 2px solid rgba(56,189,248,0.2);
+            border-radius: 20px; padding: 20px 28px; margin-bottom: 24px;
             display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
         }
-        .admin-topbar h1 { font-family: 'Grandstander', cursive; font-size: 1.6rem; color: #F7C948; margin: 0; }
-        .admin-topbar p { color: rgba(167,196,181,0.6); font-size: 0.85rem; margin: 0; }
-        .uitlog-knop { padding: 8px 20px; background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.35); border-radius: 50px; color: #F87171; font-weight: 700; cursor: pointer; font-family: 'Baloo 2', sans-serif; font-size: 0.9rem; transition: all 0.2s; }
-        .uitlog-knop:hover { background: rgba(248,113,113,0.3); transform: translateY(-2px); }
+        .admin-topbar h1 { font-family: 'Grandstander', cursive; font-size: 1.6rem; color: #e0f2fe; margin: 0; }
+        .admin-topbar p { color: rgba(148,163,184,0.6); font-size: 0.85rem; margin: 0; }
+        .uitlog-knop { padding: 8px 20px; background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; color: #F87171; font-weight: 700; cursor: pointer; font-family: 'Baloo 2', sans-serif; font-size: 0.9rem; transition: all 0.2s; }
+        .uitlog-knop:hover { background: rgba(248,113,113,0.25); transform: translateY(-1px); }
 
         /* ── TABS ── */
         .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-        .tab-knop { padding: 10px 20px; border: 2px solid rgba(255,255,255,0.1); border-radius: 50px; cursor: pointer; font-size: 0.88rem; font-weight: 700; background: rgba(34,99,58,0.3); color: rgba(167,196,181,0.6); font-family: 'Baloo 2', sans-serif; transition: all 0.2s; }
-        .tab-knop:hover { background: rgba(76,201,122,0.15); color: #4CC97A; border-color: rgba(76,201,122,0.3); }
-        .tab-knop.actief { background: linear-gradient(135deg, #4CC97A, #34D399); color: #0D2B1A; border-color: transparent; font-weight: 900; }
+        .tab-knop { padding: 9px 18px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 700; background: rgba(15,31,61,0.5); color: rgba(148,163,184,0.7); font-family: 'Baloo 2', sans-serif; transition: all 0.2s; }
+        .tab-knop:hover { background: rgba(56,189,248,0.1); color: #38BDF8; border-color: rgba(56,189,248,0.3); }
+        .tab-knop.actief { background: rgba(56,189,248,0.15); color: #38BDF8; border-color: rgba(56,189,248,0.5); font-weight: 900; }
         .tab-inhoud { display: none; }
         .tab-inhoud.actief { display: block; }
 
         /* ── ADMIN KAARTEN ── */
-        .admin-kaart { background: rgba(34,99,58,0.4); border: 2px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 22px 26px; margin-bottom: 16px; }
-        .admin-kaart h3 { color: #F7C948; margin-bottom: 12px; font-size: 1rem; font-family: 'Grandstander', cursive; }
-        .admin-kaart p { color: rgba(167,196,181,0.7); font-size: 0.9rem; }
+        .admin-kaart { background: rgba(15,31,61,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 22px 26px; margin-bottom: 16px; }
+        .admin-kaart h3 { color: #7dd3fc; margin-bottom: 12px; font-size: 1rem; font-family: 'Grandstander', cursive; }
+        .admin-kaart p { color: rgba(148,163,184,0.7); font-size: 0.9rem; }
 
-        .resultaat-vak { background: rgba(76,201,122,0.08); border-left: 4px solid #4CC97A; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; color: #4CC97A; margin-top: 10px; display: none; white-space: pre-wrap; line-height: 1.6; }
+        .resultaat-vak { background: rgba(56,189,248,0.07); border-left: 4px solid #38BDF8; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; color: #7dd3fc; margin-top: 10px; display: none; white-space: pre-wrap; line-height: 1.6; }
 
         /* ── PENDING KAARTEN ── */
-        .pending-kaart { background: rgba(34,99,58,0.4); border: 2px solid rgba(255,255,255,0.1); border-top: 3px solid #F28C38; border-radius: 24px; padding: 20px; margin-bottom: 14px; }
-        .pending-kaart.type-verhaal { border-top-color: #4CC97A; }
+        .pending-kaart { background: rgba(15,31,61,0.5); border: 1px solid rgba(255,255,255,0.08); border-top: 3px solid #38BDF8; border-radius: 20px; padding: 20px; margin-bottom: 14px; }
+        .pending-kaart.type-verhaal { border-top-color: #38BDF8; }
         .pending-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
         .pending-naam { font-weight: 800; color: white; }
         .pending-datum { font-size: 0.8rem; color: rgba(167,196,181,0.5); margin-bottom: 10px; }
@@ -64,8 +64,8 @@
         .type-label.idee    { background: rgba(247,201,72,0.2); color: #F7C948; }
         .type-label.verhaal { background: rgba(76,201,122,0.2); color: #4CC97A; }
 
-        .inzending-kaart { background: rgba(34,99,58,0.35); border: 2px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
-        .inzending-kaart.winnaar { border-color: rgba(247,201,72,0.4); background: rgba(247,201,72,0.06); }
+        .inzending-kaart { background: rgba(15,31,61,0.4); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+        .inzending-kaart.winnaar { border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.06); }
 
         .teller-badge { display: inline-block; background: #F87171; color: white; font-weight: 800; font-size: 0.8rem; padding: 3px 12px; border-radius: 20px; margin-left: 6px; }
 
@@ -78,21 +78,21 @@
         .groep-C { background: rgba(76,201,122,0.2); color: #4CC97A; }
 
         /* ── VIDEO KAARTEN ── */
-        .video-kaart { background: rgba(34,99,58,0.35); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; margin-bottom: 12px; display: flex; gap: 16px; align-items: flex-start; }
+        .video-kaart { background: rgba(15,31,61,0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px; margin-bottom: 12px; display: flex; gap: 16px; align-items: flex-start; }
         .video-kaart-info { flex: 1; }
         .video-kaart-info h4 { color: white; margin-bottom: 4px; font-size: 0.95rem; }
-        .video-kaart-info p { color: rgba(167,196,181,0.5); font-size: 0.82rem; }
-        .video-type-badge { padding: 3px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: rgba(76,201,122,0.2); color: #4CC97A; }
+        .video-kaart-info p { color: rgba(148,163,184,0.5); font-size: 0.82rem; }
+        .video-type-badge { padding: 3px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; background: rgba(56,189,248,0.15); color: #38BDF8; }
 
         /* ── FORMULIEREN ── */
-        .admin-input { width: 100%; padding: 10px 14px; background: rgba(13,43,26,0.7); border: 2px solid rgba(76,201,122,0.2); border-radius: 14px; color: white; font-family: 'Baloo 2', sans-serif; font-size: 0.9rem; margin-bottom: 10px; outline: none; transition: border-color 0.2s; }
-        .admin-input:focus { border-color: #4CC97A; }
-        .admin-input::placeholder { color: rgba(167,196,181,0.4); }
-        select.admin-input option { background: #1B4D2E; color: white; }
+        .admin-input { width: 100%; padding: 10px 14px; background: rgba(5,15,30,0.7); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: white; font-family: 'Baloo 2', sans-serif; font-size: 0.9rem; margin-bottom: 10px; outline: none; transition: border-color 0.2s; }
+        .admin-input:focus { border-color: #38BDF8; box-shadow: 0 0 0 2px rgba(56,189,248,0.1); }
+        .admin-input::placeholder { color: rgba(148,163,184,0.35); }
+        select.admin-input option { background: #0a1628; color: white; }
 
         /* ── GROEP SELECTOR ── */
         .groep-selector { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .groep-btn { padding: 8px 18px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; font-weight: 700; font-family: 'Baloo 2', sans-serif; font-size: 0.85rem; transition: all 0.2s; background: rgba(255,255,255,0.07); color: rgba(167,196,181,0.6); }
+        .groep-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-weight: 700; font-family: 'Baloo 2', sans-serif; font-size: 0.85rem; transition: all 0.2s; background: rgba(255,255,255,0.05); color: rgba(148,163,184,0.6); }
         .groep-btn.actief-A { background: rgba(242,140,56,0.2); color: #F28C38; border-color: #F28C38; }
         .groep-btn.actief-B { background: rgba(139,92,246,0.2); color: #8B5CF6; border-color: #8B5CF6; }
         .groep-btn.actief-C { background: rgba(76,201,122,0.2); color: #4CC97A; border-color: #4CC97A; }
@@ -923,7 +923,7 @@ async function laadVolledigVerhaal() {
         }
         container.innerHTML = `
             <div style="background:rgba(13,43,26,0.5); border:1px solid rgba(76,201,122,0.15); border-radius:12px; padding:20px; margin-bottom:14px;">
-                <p style="color:#F7C948; font-weight:800; font-size:1.1rem; margin-bottom:4px;">${escapeHTML(verhaal.titel || 'Het Grote Avontuur')}</p>
+                <p style="color:#F7C948; font-weight:800; font-size:1.1rem; margin-bottom:4px;">${escapeHTML(verhaal.titel || 'Het WoordSpeler Verhaal')}</p>
                 <p style="color:rgba(167,196,181,0.5); font-size:0.82rem;">${hoofdstukken.length} hoofdstukken · Auteurs: ${[...new Set(hoofdstukken.map(h => h.auteur))].join(', ')}</p>
             </div>
             <div id="verhaalTekstBlok" style="background:rgba(13,43,26,0.4); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:20px; font-size:0.92rem; line-height:1.9; color:rgba(167,196,181,0.9); white-space:pre-wrap; max-height:600px; overflow-y:auto;">

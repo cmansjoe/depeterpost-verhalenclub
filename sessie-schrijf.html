@@ -6,6 +6,100 @@
     <title>Schrijf jouw hoofdstuk | WoordSpeler</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ── GROEP-ADAPTIEVE KLEUREN ── */
+        body { transition: background 0.4s ease; }
+
+        /* Groep A: body wordt warm ivoor */
+        body[data-groep="A"] {
+          background: #FFF8EC !important;
+          color: #3D2B1F !important;
+        }
+        body[data-groep="A"] .header,
+        body[data-groep="A"] .header-titel { color: #F28C38 !important; }
+        body[data-groep="A"] .context-blok,
+        body[data-groep="A"] .opdracht-blok { background: #FFF3DC !important; border-color: rgba(242,140,56,0.4) !important; }
+        body[data-groep="A"] textarea,
+        body[data-groep="A"] .schrijf-veld {
+          background: #FFFBF0 !important;
+          color: #3D2B1F !important;
+          border-color: rgba(242,140,56,0.4) !important;
+          font-size: 1.1rem !important;
+          line-height: 1.9 !important;
+          border-radius: 18px !important;
+        }
+        body[data-groep="A"] textarea:focus,
+        body[data-groep="A"] .schrijf-veld:focus {
+          border-color: #F28C38 !important;
+          box-shadow: 0 0 0 4px rgba(242,140,56,0.18) !important;
+          outline: none !important;
+        }
+        body[data-groep="A"] textarea::placeholder { color: #A89080 !important; }
+        body[data-groep="A"] .groep-label,
+        body[data-groep="A"] .header-links strong { color: #F28C38 !important; }
+        body[data-groep="A"] .btn-primary,
+        body[data-groep="A"] .verzend-btn,
+        body[data-groep="A"] button.primary { background: #F28C38 !important; color: white !important; }
+        body[data-groep="A"] .context-tekst,
+        body[data-groep="A"] .opdracht-tekst { color: #5C3A1E !important; }
+        body[data-groep="A"] .header { border-bottom-color: rgba(242,140,56,0.2) !important; }
+
+        /* Groep B: behoud donker marineblauw (standaard/huidige stijl) */
+        body[data-groep="B"] {
+          background: #0f0f1a !important;
+        }
+        body[data-groep="B"] textarea,
+        body[data-groep="B"] .schrijf-veld {
+          background: #141b2d !important;
+          color: #e2e0ff !important;
+          border-color: rgba(139,92,246,0.3) !important;
+          border-radius: 16px !important;
+        }
+        body[data-groep="B"] textarea:focus,
+        body[data-groep="B"] .schrijf-veld:focus {
+          border-color: #8B5CF6 !important;
+          box-shadow: 0 0 0 4px rgba(139,92,246,0.14) !important;
+          outline: none !important;
+        }
+        body[data-groep="B"] textarea::placeholder { color: #6b6b8a !important; }
+        body[data-groep="B"] .groep-label,
+        body[data-groep="B"] .header-links strong,
+        body[data-groep="B"] .header-titel { color: #8B5CF6 !important; }
+        body[data-groep="B"] .btn-primary,
+        body[data-groep="B"] .verzend-btn,
+        body[data-groep="B"] button.primary { background: #8B5CF6 !important; color: white !important; }
+
+        /* Groep C: near-black, professioneel */
+        body[data-groep="C"] {
+          background: #0d1117 !important;
+          color: #e6edf3 !important;
+        }
+        body[data-groep="C"] textarea,
+        body[data-groep="C"] .schrijf-veld {
+          background: #0d1117 !important;
+          color: #e6edf3 !important;
+          border: 1px solid rgba(76,201,122,0.2) !important;
+          border-radius: 12px !important;
+          font-size: 0.95rem !important;
+          line-height: 1.7 !important;
+        }
+        body[data-groep="C"] textarea:focus,
+        body[data-groep="C"] .schrijf-veld:focus {
+          border-color: #4CC97A !important;
+          box-shadow: 0 0 0 3px rgba(76,201,122,0.09) !important;
+          outline: none !important;
+        }
+        body[data-groep="C"] textarea::placeholder { color: #484f58 !important; }
+        body[data-groep="C"] .groep-label,
+        body[data-groep="C"] .header-links strong,
+        body[data-groep="C"] .header-titel { color: #4CC97A !important; }
+        body[data-groep="C"] .context-blok,
+        body[data-groep="C"] .opdracht-blok { background: #161b22 !important; border-color: rgba(76,201,122,0.2) !important; border-left-color: #4CC97A !important; }
+        body[data-groep="C"] .btn-primary,
+        body[data-groep="C"] .verzend-btn,
+        body[data-groep="C"] button.primary { background: #4CC97A !important; color: #0d1117 !important; }
+        body[data-groep="C"] .context-tekst,
+        body[data-groep="C"] .opdracht-tekst { color: #adbac7 !important; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -681,5 +775,11 @@
     }
 </script>
 <script src="auth.js"></script>
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
+</script>
 </body>
 </html>

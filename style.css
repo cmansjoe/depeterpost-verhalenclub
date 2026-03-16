@@ -36,6 +36,65 @@
   --radius-btn: 50px;
 }
 
+/* ══ GROEP-THEMA'S (leeftijdsadaptief — kleurpsychologie onderzoek 2022-2025) ══ */
+
+/* Groep A: 6-8 jaar — "Warme Papierwereld"
+   Wetenschappelijk: warme ivoor achtergrond = max leesbaarheid + emotionele veiligheid
+   Nooit donkere achtergrond voor deze groep (ScienceDirect 2025) */
+[data-groep="A"] {
+  --groep-kleur:        #F28C38;
+  --groep-licht:        rgba(242,140,56, 0.15);
+  --groep-rand:         rgba(242,140,56, 0.35);
+  --groep-focus:        rgba(242,140,56, 0.18);
+  --schrijf-bg:         #FFFBF0;
+  --schrijf-kaart:      #FFF8E1;
+  --schrijf-tekst:      #3D2B1F;
+  --schrijf-placeholder:#A89080;
+  --schrijf-radius:     18px;
+  --schrijf-fontsize:   1.1rem;
+  --schrijf-lineheight: 1.9;
+}
+
+/* Groep B: 9-11 jaar — "Nachtelijk Atelier"
+   Wetenschappelijk: donker marineblauw + paars stimuleert divergent denken
+   Paars = "dromerig, creatief" bij deze groep (Lyu 2022) */
+[data-groep="B"] {
+  --groep-kleur:        #8B5CF6;
+  --groep-licht:        rgba(139,92,246, 0.15);
+  --groep-rand:         rgba(139,92,246, 0.3);
+  --groep-focus:        rgba(139,92,246, 0.14);
+  --schrijf-bg:         #141b2d;
+  --schrijf-kaart:      #1e2a4a;
+  --schrijf-tekst:      #e2e0ff;
+  --schrijf-placeholder:#6b6b8a;
+  --schrijf-radius:     16px;
+  --schrijf-fontsize:   1rem;
+  --schrijf-lineheight: 1.75;
+}
+
+/* Groep C: 12+ jaar — "Gefocuste Studio"
+   Wetenschappelijk: dark mode verhoogt sessieduur bij adolescenten
+   Tieners verwerpen actief kinderlijk design (Nielsen Norman 2024) */
+[data-groep="C"] {
+  --groep-kleur:        #4CC97A;
+  --groep-licht:        rgba(76,201,122, 0.1);
+  --groep-rand:         rgba(76,201,122, 0.2);
+  --groep-focus:        rgba(76,201,122, 0.09);
+  --schrijf-bg:         #0d1117;
+  --schrijf-kaart:      #161b22;
+  --schrijf-tekst:      #e6edf3;
+  --schrijf-placeholder:#484f58;
+  --schrijf-radius:     12px;
+  --schrijf-fontsize:   0.95rem;
+  --schrijf-lineheight: 1.7;
+}
+
+/* Groep-adaptieve hulpklassen */
+[data-groep] .groep-accent        { color: var(--groep-kleur); }
+[data-groep] .groep-bg            { background: var(--groep-licht); border-color: var(--groep-rand); }
+[data-groep] .groep-rand          { border-color: var(--groep-rand) !important; }
+[data-groep] .groep-voortgang     { background: var(--groep-kleur) !important; }
+
 /* ══ RESET ══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

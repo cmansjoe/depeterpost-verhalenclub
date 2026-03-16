@@ -191,6 +191,19 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* Groep-adaptieve invoerveld focus states */
+        body[data-groep="A"] input[type="text"], body[data-groep="A"] .code-input { border-color: rgba(242,140,56,0.4) !important; }
+        body[data-groep="A"] input[type="text"]:focus, body[data-groep="A"] .code-input:focus { border-color: #F28C38 !important; box-shadow: 0 0 0 3px rgba(242,140,56,0.2) !important; }
+        body[data-groep="A"] .join-btn { background: #F28C38 !important; color: white !important; }
+
+        body[data-groep="B"] input[type="text"], body[data-groep="B"] .code-input { border-color: rgba(139,92,246,0.3) !important; }
+        body[data-groep="B"] input[type="text"]:focus, body[data-groep="B"] .code-input:focus { border-color: #8B5CF6 !important; box-shadow: 0 0 0 3px rgba(139,92,246,0.15) !important; }
+        body[data-groep="B"] .join-btn { background: #8B5CF6 !important; color: white !important; }
+
+        body[data-groep="C"] input[type="text"], body[data-groep="C"] .code-input { border-color: rgba(76,201,122,0.2) !important; }
+        body[data-groep="C"] input[type="text"]:focus, body[data-groep="C"] .code-input:focus { border-color: #4CC97A !important; box-shadow: 0 0 0 3px rgba(76,201,122,0.1) !important; }
+        body[data-groep="C"] .join-btn { background: #4CC97A !important; color: #0d1117 !important; }
+
         /* ── Nav ── */
         .site-nav {
             position: fixed;
@@ -503,5 +516,11 @@
     }
 </script>
 <script src="auth.js"></script>
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
+</script>
 </body>
 </html>

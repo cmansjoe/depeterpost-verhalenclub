@@ -316,6 +316,11 @@
 
         .geen-hoofdstukken { text-align: center; padding: 40px 20px; color: rgba(167,196,181,0.7); }
         .geen-hoofdstukken .emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+
+        /* ── GROEP KLEUR HULPKLASSEN ── */
+        .groep-A-kleur { color: #F28C38; border-color: rgba(242,140,56,0.4); }
+        .groep-B-kleur { color: #8B5CF6; border-color: rgba(139,92,246,0.3); }
+        .groep-C-kleur { color: #4CC97A; border-color: rgba(76,201,122,0.25); }
     </style>
 </head>
 <body>
@@ -980,6 +985,12 @@ function escapeHTML(t) {
     d.appendChild(document.createTextNode(t));
     return d.innerHTML;
 }
+</script>
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
 </script>
 </body>
 </html>

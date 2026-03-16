@@ -177,6 +177,11 @@
         }
         .geen-hoofdstukken .emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
 
+        /* ── GROEPSKLEUR VOORTGANG EN ACCENTEN ── */
+        .stat-badge { color: var(--groep-kleur, #4CC97A); border-color: var(--groep-rand, rgba(76,201,122,0.3)); background: var(--groep-licht, rgba(76,201,122,0.15)); }
+        .lees-verder { color: var(--groep-kleur, #4CC97A); }
+        .groep-chip { background: var(--groep-licht, rgba(139,92,246,0.2)); color: var(--groep-kleur, #8B5CF6); }
+
         /* CTA onderaan */
         .cta-blok {
             background: linear-gradient(135deg, rgba(76,201,122,0.1), rgba(247,201,72,0.08));
@@ -245,6 +250,12 @@
     <div class="quote-auteur">— WoordSpeler</div>
 </footer>
 
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
+</script>
 <script src="auth.js"></script>
 <script>
 AUTH.initNav();

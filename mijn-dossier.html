@@ -315,6 +315,28 @@
             cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
         }
         .knop-groen:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(76,201,122,0.4); }
+
+        /* ── PROFIEL: GROEPSKLEUR PROMINENT ── */
+        body[data-groep="A"] .agent-profiel,
+        body[data-groep="A"] .agent-avatar { box-shadow: 0 0 0 4px rgba(242,140,56,0.4), 0 0 30px rgba(242,140,56,0.2); }
+        body[data-groep="A"] .stat-getal,
+        body[data-groep="A"] .badge { color: #F28C38 !important; border-color: rgba(242,140,56,0.4) !important; }
+        body[data-groep="A"] .agent-tag { background: rgba(242,140,56,0.12); border-color: rgba(242,140,56,0.3); color: #F28C38; }
+        body[data-groep="A"] .agent-profiel { border-color: rgba(242,140,56,0.4); background: linear-gradient(135deg, #0D2B1A 0%, #2a1a0a 60%, #0D2B1A 100%); }
+
+        body[data-groep="B"] .agent-profiel,
+        body[data-groep="B"] .agent-avatar { box-shadow: 0 0 0 4px rgba(139,92,246,0.4), 0 0 30px rgba(139,92,246,0.2); }
+        body[data-groep="B"] .stat-getal,
+        body[data-groep="B"] .badge { color: #8B5CF6 !important; border-color: rgba(139,92,246,0.3) !important; }
+        body[data-groep="B"] .agent-tag { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.3); color: #8B5CF6; }
+        body[data-groep="B"] .agent-profiel { border-color: rgba(139,92,246,0.3); background: linear-gradient(135deg, #0D2B1A 0%, #150d2a 60%, #0D2B1A 100%); }
+
+        body[data-groep="C"] .agent-profiel,
+        body[data-groep="C"] .agent-avatar { box-shadow: 0 0 0 4px rgba(76,201,122,0.35), 0 0 30px rgba(76,201,122,0.15); }
+        body[data-groep="C"] .stat-getal,
+        body[data-groep="C"] .badge { color: #4CC97A !important; border-color: rgba(76,201,122,0.3) !important; }
+        body[data-groep="C"] .agent-tag { background: rgba(76,201,122,0.12); border-color: rgba(76,201,122,0.3); color: #4CC97A; }
+        body[data-groep="C"] .agent-profiel { border-color: rgba(76,201,122,0.3); }
     </style>
 </head>
 <body>
@@ -753,6 +775,12 @@ function escapeHTML(t) {
     d.appendChild(document.createTextNode(t));
     return d.innerHTML;
 }
+</script>
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
 </script>
 </body>
 </html>

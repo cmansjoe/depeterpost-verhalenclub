@@ -152,6 +152,14 @@
         .lees-modal-badges { margin-top: 28px; padding-top: 18px; border-top: 2px solid rgba(76,201,122,0.15); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .lees-modal-badges .groep-badge, .lees-modal-badges .winnaar-badge-klein, .lees-modal-badges .ingezonden-badge { padding: 5px 14px; font-size: 0.82rem; }
         .lees-modal-woorden { color: rgba(167,196,181,0.5); font-size: 0.85rem; margin-left: auto; }
+
+        /* ── GROEPSKLEUR KAARTEN ── */
+        .verhaal-kaart[data-groep="A"] { border-color: rgba(242,140,56,0.4) !important; }
+        .verhaal-kaart[data-groep="A"] .groep-badge { background: rgba(242,140,56,0.15); color: #F28C38; }
+        .verhaal-kaart[data-groep="B"] { border-color: rgba(139,92,246,0.4) !important; }
+        .verhaal-kaart[data-groep="B"] .groep-badge { background: rgba(139,92,246,0.15); color: #8B5CF6; }
+        .verhaal-kaart[data-groep="C"] { border-color: rgba(76,201,122,0.3) !important; }
+        .verhaal-kaart[data-groep="C"] .groep-badge { background: rgba(76,201,122,0.12); color: #4CC97A; }
     </style>
 </head>
 <body>
@@ -277,6 +285,12 @@
     <div class="quote-auteur">— WoordSpeler</div>
 </footer>
 
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
+</script>
 <script src="auth.js"></script>
 <script>
 AUTH.initNav();

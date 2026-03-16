@@ -6,16 +6,39 @@
     <title>Toestemming geven — WoordSpeler</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@700;900&family=Baloo+2:wght@400;700;800&display=swap');
+
+        :root {
+            --groen:        #4CC97A;
+            --groen-donker: #1B4D2E;
+            --tekst:        #F0FDF4;
+            --tekst-zacht:  #A7C4B5;
+            --rood:         #F87171;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             font-family: 'Baloo 2', sans-serif;
             background: #1B4D2E;
-            color: #F0FDF4;
+            color: var(--tekst);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
+            position: relative;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 10% 20%, rgba(76,201,122,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(52,211,153,0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
         .kaart {
             background: linear-gradient(145deg, #0E3520, #0A2416);
             border-radius: 28px;
@@ -23,13 +46,27 @@
             max-width: 480px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-            border: 2px solid rgba(76,201,122,0.4);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(76,201,122,0.2);
+            border: 2px solid rgba(76,201,122,0.35);
+            position: relative;
+            z-index: 1;
         }
+
         .groot-emoji { font-size: 4rem; display: block; margin-bottom: 16px; }
-        h1 { font-family: 'Grandstander', cursive; font-size: 1.8rem; color: #4CC97A; margin-bottom: 12px; }
-        p  { color: #A7C4B5; font-size: 1rem; line-height: 1.6; margin-bottom: 12px; }
-        .lader { color: #A7C4B5; font-size: 0.9rem; margin-top: 12px; }
+        h1 {
+            font-family: 'Grandstander', cursive;
+            font-size: 1.8rem;
+            color: var(--groen);
+            margin-bottom: 12px;
+        }
+        h1.fout { color: var(--rood); }
+        p  { color: var(--tekst-zacht); font-size: 1rem; line-height: 1.6; margin-bottom: 12px; }
+        p.fout { color: #FCA5A5; }
+        .lader { color: var(--tekst-zacht); font-size: 0.9rem; margin-top: 12px; }
+
+        @media (max-width: 480px) {
+            .kaart { padding: 32px 24px; }
+        }
     </style>
 </head>
 <body>
@@ -46,9 +83,13 @@
     if (token) {
         window.location.href = `/api/auth/ouder-toestemming/${token}`;
     } else {
-        document.getElementById('emoji').textContent = '❌';
-        document.getElementById('titel').textContent = 'Ongeldige link';
-        document.getElementById('tekst').textContent = 'Deze toestemmingslink is niet geldig. Vraag het kind om opnieuw te registreren.';
+        document.getElementById('emoji').textContent = '🔗';
+        const titel = document.getElementById('titel');
+        titel.textContent = 'Ongeldige link';
+        titel.classList.add('fout');
+        const tekst = document.getElementById('tekst');
+        tekst.textContent = 'Deze toestemmingslink is niet geldig. Vraag het kind om opnieuw te registreren.';
+        tekst.classList.add('fout');
     }
 </script>
 </body>

@@ -132,6 +132,12 @@
         .niet-gevonden h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: #5B21B6; margin-bottom: 10px; }
         .niet-gevonden p { color: var(--tekst-zacht); margin-bottom: 24px; }
         footer { border-top: 2px solid var(--rand-licht); padding: 24px 20px; text-align: center; color: var(--tekst-zacht); font-size: 0.85rem; }
+
+        /* ── GROEP BADGE KLEUREN ── */
+        [data-groep="A"] { --groep-kleur:#F28C38; --groep-licht:rgba(242,140,56,0.15); --groep-rand:rgba(242,140,56,0.35); }
+        [data-groep="B"] { --groep-kleur:#8B5CF6; --groep-licht:rgba(139,92,246,0.15); --groep-rand:rgba(139,92,246,0.3); }
+        [data-groep="C"] { --groep-kleur:#4CC97A; --groep-licht:rgba(76,201,122,0.1); --groep-rand:rgba(76,201,122,0.2); }
+        .auteur-chip { background: var(--groep-licht, var(--paars-licht)); border-color: var(--groep-rand, #C4B5FD); color: var(--groep-kleur, #5B21B6); }
     </style>
 </head>
 <body>
@@ -165,6 +171,12 @@
     <p>Gemaakt met <span style="color:#E8197D;">❤️</span> voor de WoordSpeler</p>
 </footer>
 
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
+</script>
 <script>
 // ── Navigatie: actieve link + inlogstatus ──
 (function() {

@@ -28,7 +28,9 @@
       "Bash(sed -i 's/De Grote Operatie/Het Woordduel/g' \"$f\")",
       "Bash(sed -i 's/Mijn Geheim Dossier/Mijn Woordenschat/g' \"$f\")",
       "Bash(sed -i 's/De Geheime Club/De Woordenstorm/g' \"$f\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Woordspeler/**)"
     ]
   }
 }

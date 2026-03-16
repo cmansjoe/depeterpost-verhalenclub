@@ -13,6 +13,30 @@
             --groen-licht: rgba(76,201,122,0.15);
             --rand:        rgba(76,201,122,0.25);
         }
+
+        /* Regelnummers en koppen: geel accent voor leesbaarheid en uitnodigende sfeer */
+        .sectie-titel.blauw,
+        .sectie-titel.paars,
+        .sectie-titel.roze,
+        .sectie-titel.groen,
+        .sectie-titel.geel {
+            color: var(--geel) !important;
+        }
+
+        /* Subtiele gele linkerlijn bij elke sectie voor visuele structuur */
+        .sectie {
+            border-left: 3px solid rgba(247,201,72,0.3);
+        }
+
+        /* Introductie-sectie: geen linkerlijn, die heeft al eigen stijl */
+        .sectie:first-child {
+            border-left: none;
+        }
+
+        /* Afsluitsectie: gele rand past goed bij de gele kop */
+        .sectie:last-of-type {
+            border-left: none;
+        }
     </style>
 </head>
 <body>

@@ -190,6 +190,17 @@
 
         .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(76,201,122,0.3); border-top-color: #4CC97A; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Groep-adaptieve opdracht-kaart achtergrond tint */
+        body[data-groep="A"] .opdracht-kaart { background: linear-gradient(135deg, #3D1A00, #5C2A00) !important; border-color: rgba(242,140,56,0.4) !important; }
+        body[data-groep="A"] .opdracht-kaart::before { background: radial-gradient(circle, rgba(242,140,56,0.2), transparent 70%) !important; }
+        body[data-groep="B"] .opdracht-kaart { background: linear-gradient(135deg, #0D1020, #1a1a2e) !important; border-color: rgba(139,92,246,0.35) !important; }
+        body[data-groep="C"] .opdracht-kaart { background: linear-gradient(135deg, #0A1A10, #0d1117) !important; border-color: rgba(76,201,122,0.3) !important; }
+
+        /* Schrijf-knop per groep */
+        body[data-groep="A"] .schrijf-knop { background: linear-gradient(135deg, #F28C38, #F7C948) !important; color: #3D2B1F !important; }
+        body[data-groep="B"] .schrijf-knop { background: linear-gradient(135deg, #8B5CF6, #6d28d9) !important; color: white !important; }
+        body[data-groep="C"] .schrijf-knop { background: linear-gradient(135deg, #4CC97A, #2D6A4F) !important; color: white !important; }
     </style>
 </head>
 <body>
@@ -335,6 +346,12 @@
 <footer><p>Gemaakt met <span style="color:#FF6B9D;">❤️</span> voor de WoordSpeler</p></footer>
 
 <script src="auth.js"></script>
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
+</script>
 <script>
 AUTH.initNav();
 

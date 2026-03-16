@@ -253,6 +253,30 @@
         .knop-nieuw  { background: linear-gradient(135deg, #7c3aed, #e8197d); color: white; }
         .knop-deel   { background: linear-gradient(135deg, #059669, #10b981); color: white; }
 
+        /* ── Groep-specifieke header accenten ── */
+        body[data-groep="A"] .verhaal-badge { background: linear-gradient(135deg, rgba(242,140,56,0.3), rgba(247,201,72,0.2)) !important; color: #F28C38 !important; border: 1px solid rgba(242,140,56,0.35); }
+        body[data-groep="A"] .hst-nummer { background: linear-gradient(135deg, #F28C38, #F7C948) !important; }
+        body[data-groep="A"] .verhaal-meta span { color: #F28C38 !important; }
+        body[data-groep="A"] .auteur-chip { background: linear-gradient(135deg, rgba(242,140,56,0.3), rgba(247,201,72,0.2)) !important; border: 1px solid rgba(242,140,56,0.3); }
+        body[data-groep="A"] .hoofdstuk-kaart:hover { border-color: rgba(242,140,56,0.5) !important; }
+
+        body[data-groep="B"] .verhaal-badge { background: linear-gradient(135deg, #4c1d95, #7c3aed) !important; }
+        body[data-groep="B"] .verhaal-meta span { color: #a78bfa !important; }
+
+        body[data-groep="C"] .verhaal-badge { background: linear-gradient(135deg, rgba(76,201,122,0.3), rgba(56,189,248,0.15)) !important; color: #4CC97A !important; border: 1px solid rgba(76,201,122,0.3); }
+        body[data-groep="C"] .hst-nummer { background: linear-gradient(135deg, #4CC97A, #38BDF8) !important; }
+        body[data-groep="C"] .verhaal-meta span { color: #4CC97A !important; }
+        body[data-groep="C"] .auteur-chip { background: linear-gradient(135deg, rgba(76,201,122,0.25), rgba(56,189,248,0.15)) !important; border: 1px solid rgba(76,201,122,0.3); }
+        body[data-groep="C"] .hoofdstuk-kaart:hover { border-color: rgba(76,201,122,0.4) !important; }
+
+        /* ── Betere leesbaarheid verhaal tekst ── */
+        .hst-tekst {
+            font-size: 17px !important;
+            line-height: 2 !important;
+            color: #e8e8ff !important;
+            letter-spacing: 0.01em;
+        }
+
         /* ── Print stijl ── */
         @media print {
             body { background: white; color: black; }
@@ -507,6 +531,12 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;');
     }
+</script>
+<script>
+(function() {
+  const groep = localStorage.getItem('groep') || 'B';
+  document.body.setAttribute('data-groep', groep);
+})();
 </script>
 </body>
 </html>
