@@ -255,33 +255,6 @@
         </div>
     </div>
 
-    <!-- Uitgelicht verhaal: Milo en Luna -->
-    <div style="margin-bottom:28px;">
-        <div class="verhaal-kaart" style="border-color:rgba(247,201,72,0.35);">
-            <div class="kaart-verhaal-titel">📖 Milo en Luna</div>
-            <div class="kaart-header">
-                <div class="kaart-auteur-blok">
-                    <div class="auteur-avatar">🦭</div>
-                    <div>
-                        <div class="auteur-naam">VerhalenPost</div>
-                        <div class="auteur-datum">📅 maart 2026</div>
-                    </div>
-                </div>
-                <div class="kaart-badges">
-                    <span class="groep-badge gb-B">Slimme Uil 🦉</span>
-                    <span class="woordenaantal-badge">1025 woorden</span>
-                    <span class="winnaar-badge-klein">⭐ Uitgelicht</span>
-                </div>
-            </div>
-            <div class="verhaal-tekst-preview">
-                Op een frisse lenteavond, toen de lucht boven de zee zacht roze kleurde, schoof een klein zeehondje voorzichtig door het water richting de haven van een rustige baai. Zijn naam was Milo...
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-                <a href="Milo_en_Luna.html" class="lees-meer-knop" style="text-decoration:none;">📖 Lees volledig verhaal</a>
-            </div>
-        </div>
-    </div>
-
     <!-- Layout toggle -->
     <div class="layout-toggle">
         <button class="layout-btn" data-lbtn="stack" onclick="setLayout('stack')">
@@ -420,9 +393,36 @@ function toonVerhalen(verhalen) {
         groepen[key].versies.push(v);
     });
 
-    container.innerHTML = Object.entries(groepen).map(([id, groep]) => {
+    const miloKaart = `
+        <div class="verhaal-kaart" style="border-color:rgba(247,201,72,0.35);">
+            <div class="kaart-verhaal-titel">📖 Milo en Luna</div>
+            <div class="kaart-header">
+                <div class="kaart-auteur-blok">
+                    <div class="auteur-avatar">🦭</div>
+                    <div>
+                        <div class="auteur-naam">VerhalenPost</div>
+                        <div class="auteur-datum">📅 maart 2026</div>
+                    </div>
+                </div>
+                <div class="kaart-badges">
+                    <span class="groep-badge gb-B">Slimme Uil 🦉</span>
+                    <span class="woordenaantal-badge">1025 woorden</span>
+                    <span class="winnaar-badge-klein">⭐ Uitgelicht</span>
+                </div>
+            </div>
+            <div class="verhaal-tekst-preview">
+                Op een frisse lenteavond, toen de lucht boven de zee zacht roze kleurde, schoof een klein zeehondje voorzichtig door het water richting de haven van een rustige baai. Zijn naam was Milo...
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+                <a href="Milo_en_Luna.html" class="lees-meer-knop" style="text-decoration:none;">📖 Lees volledig verhaal</a>
+            </div>
+        </div>`;
+
+    const dynamischeKaarten = Object.entries(groepen).map(([id, groep]) => {
         return groep.versies.map((v, i) => maakVerhaalKaart(v, i)).join('');
     }).join('');
+
+    container.innerHTML = miloKaart + dynamischeKaarten;
 
     // Cardstack reset na elke render
     stackActiveIndex = 0;
