@@ -786,8 +786,8 @@ function escapeAttr(t) {
 
     function buildParticles() {
         const W = canvas.width, H = canvas.height;
-        const tekst = '📖 Verhalen';
-        const fontSize = Math.max(40, Math.floor(H * 0.62));
+        const tekst = 'Verhalen';
+        const fontSize = Math.max(60, Math.floor(H * 0.62));
         interactionRadius = fontSize * 1.4;
 
         ctx.clearRect(0, 0, W, H);
@@ -822,7 +822,7 @@ function escapeAttr(t) {
 
     function init() {
         const W = canvas.parentElement.offsetWidth || 800;
-        const H = Math.max(90, Math.floor(W * 0.13));
+        const H = Math.max(135, Math.floor(W * 0.195));
         canvas.width  = W;
         canvas.height = H;
         canvas.style.height = H + 'px';
