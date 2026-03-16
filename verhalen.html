@@ -11,8 +11,8 @@
 
         /* ── PAGE HEADER ── */
         .pagina-header { text-align: center; padding: 36px 20px 28px; }
-        .pagina-header h1 { font-family: 'Grandstander', cursive; font-size: clamp(2rem, 6vw, 3rem); color: #F7C948; margin-bottom: 8px; }
         .pagina-header p { color: rgba(167,196,181,0.7); font-size: 1rem; }
+        #verhalenTitel { display: block; width: 100%; cursor: none; margin-bottom: 8px; }
 
         /* ── FILTER BALK ── */
         .filter-balk {
@@ -263,7 +263,7 @@
 <div class="container">
 
     <div class="pagina-header">
-        <h1>📖 Verhalen</h1>
+        <canvas id="verhalenTitel"></canvas>
         <p>Lees de verhalen van andere schrijvers, reageer met jouw eigen versie!</p>
         <div class="instuur-knop-wrapper">
             <button class="knop knop-gradient" onclick="openInstuurModal()">📨 Stuur jouw verhaal in</button>
@@ -687,6 +687,119 @@ function escapeHTML(t) {
 function escapeAttr(t) {
     return (t||'').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
 }
+
+// ── PARTICLE TEKST (Hovertext2) ────────────────────────────
+(function() {
+    const canvas = document.getElementById('verhalenTitel');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const DENSITY = 4;
+    const FORCE   = 85;
+    const KLEUREN = ['F7C948','F28C38','4CC97A','34D399','8B5CF6','F472B6','38BDF8','F7C948'];
+
+    let particles = [], pointer = {}, hasPointer = false, animId = null, interactionRadius = 100;
+
+    function rand(max, min = 0) { return min + Math.random() * (max - min); }
+
+    function Particle(x, y, rgb) {
+        this.ox = x; this.oy = y; this.cx = x; this.cy = y;
+        this.r  = rand(4.5, 1);
+        this.f  = rand(FORCE + 20, FORCE - 20);
+        this.rgb = rgb.map(c => Math.max(0, Math.min(255, c + rand(15, -15))));
+    }
+    Particle.prototype.draw = function() {
+        ctx.fillStyle = `rgb(${this.rgb[0]},${this.rgb[1]},${this.rgb[2]})`;
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.r, 0, Math.PI * 2);
+        ctx.fill();
+    };
+    Particle.prototype.move = function() {
+        if (hasPointer && pointer.x !== undefined) {
+            const dx = this.cx - pointer.x, dy = this.cy - pointer.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < interactionRadius && dist > 0) {
+                const force = Math.min(this.f, (interactionRadius - dist) / dist * 2);
+                this.cx += (dx / dist) * force;
+                this.cy += (dy / dist) * force;
+            }
+        }
+        const odx = this.ox - this.cx, ody = this.oy - this.cy;
+        const od = Math.hypot(odx, ody);
+        if (od > 0.5) {
+            const restore = Math.min(od * 0.12, 3.5);
+            this.cx += (odx / od) * restore;
+            this.cy += (ody / od) * restore;
+        }
+        this.draw();
+    };
+
+    function buildParticles() {
+        const W = canvas.width, H = canvas.height;
+        const tekst = '📖 Verhalen';
+        const fontSize = Math.max(40, Math.floor(H * 0.62));
+        interactionRadius = fontSize * 1.4;
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.font = `900 ${fontSize}px Grandstander, cursive`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        KLEUREN.forEach((c, i) => grad.addColorStop(i / (KLEUREN.length - 1), '#' + c));
+        ctx.fillStyle = grad;
+        ctx.fillText(tekst, W / 2, H / 2);
+
+        const data = ctx.getImageData(0, 0, W, H).data;
+        ctx.clearRect(0, 0, W, H);
+        particles = [];
+        for (let y = 0; y < H; y += DENSITY) {
+            for (let x = 0; x < W; x += DENSITY) {
+                const i = (y * W + x) * 4;
+                if (data[i + 3] > 100) {
+                    particles.push(new Particle(x, y, [data[i], data[i+1], data[i+2]]));
+                }
+            }
+        }
+        particles.forEach(p => p.draw());
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => p.move());
+        animId = requestAnimationFrame(animate);
+    }
+
+    function init() {
+        const W = canvas.parentElement.offsetWidth || 800;
+        const H = Math.max(90, Math.floor(W * 0.13));
+        canvas.width  = W;
+        canvas.height = H;
+        canvas.style.height = H + 'px';
+        buildParticles();
+    }
+
+    canvas.addEventListener('pointermove', e => {
+        const r = canvas.getBoundingClientRect();
+        pointer.x = (e.clientX - r.left) * (canvas.width / r.width);
+        pointer.y = (e.clientY - r.top)  * (canvas.height / r.height);
+        hasPointer = true;
+        if (!animId) animate();
+    });
+    canvas.addEventListener('pointerleave', () => {
+        hasPointer = false; pointer = {};
+    });
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (animId) { cancelAnimationFrame(animId); animId = null; }
+            init(); animate();
+        }, 150);
+    });
+
+    document.fonts.ready.then(() => { init(); animate(); });
+})();
 
 // ── CARDSTACK ──────────────────────────────────────────────
 let stackActiveIndex = 0;
