@@ -546,12 +546,44 @@ textarea { min-height: 120px; line-height: 1.7; }
   border: none;
   transition: all 0.2s ease;
   text-decoration: none;
+  overflow: hidden;
+  position: relative;
   text-align: center;
   line-height: 1.4;
 }
 .knop:hover  { transform: translateY(-3px); box-shadow: var(--schaduw-hover); }
 .knop:active { transform: translateY(0); }
 .knop:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* Cursor-glow effect (HoverButton) */
+.knop::before {
+  content: '';
+  position: absolute;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, transparent 65%);
+  transform: translate(calc(var(--mx, -9999px) - 110px), calc(var(--my, -9999px) - 110px));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 0;
+}
+.knop:hover::before { opacity: 1; }
+.knop > * { position: relative; z-index: 1; }
+
+/* Click-ripple effect (RippleButton) */
+.knop-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: scale(0);
+  animation: knopRipple 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes knopRipple {
+  to { transform: scale(1); opacity: 0; }
+}
 
 .knop-geel   { background: var(--geel);   color: #1B2E05; }
 .knop-oranje { background: var(--oranje);  color: #FFFFFF; }
