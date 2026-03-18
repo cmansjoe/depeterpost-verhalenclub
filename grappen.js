@@ -152,12 +152,13 @@ async function stuurGrappen(grappen) {
     if (!apiKey) throw new Error('RESEND_API_KEY ontbreekt in .env');
 
     const vanAdres = process.env.EMAIL_VAN || 'onboarding@resend.dev';
-    const datum = new Date().toLocaleDateString('nl-NL', { dateStyle: 'long' });
+    const naarAdres = process.env.EMAIL_NAAR || 'cmansjoe@gmail.com';
     const html  = buildEmail(grappen);
+    const datum = new Date().toLocaleDateString('nl-NL', { dateStyle: 'long' });
 
     const body = JSON.stringify({
         from: `VerhalenPost Grappen <${vanAdres}>`,
-        to:   ['cmansjoe@gmail.com'],
+        to:   [naarAdres],
         subject: `☀️ Jouw 3 grappen voor vandaag — ${datum}`,
         html,
     });
@@ -183,6 +184,7 @@ async function stuurGrappen(grappen) {
                 }
             });
         });
+        req.setTimeout(10000, () => { req.destroy(new Error('Resend timeout')); });
         req.on('error', reject);
         req.write(body);
         req.end();
