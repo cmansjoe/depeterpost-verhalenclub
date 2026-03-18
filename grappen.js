@@ -5,22 +5,33 @@ const fs    = require('fs');
 
 const LOG_PAD = path.join(__dirname, 'grappen-log.txt');
 
+function escHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 function logFout(bericht) {
     const regel = `[${new Date().toISOString()}] ${bericht}\n`;
-    fs.appendFileSync(LOG_PAD, regel);
+    try { fs.appendFileSync(LOG_PAD, regel); } catch (_) { /* noop */ }
     console.error(bericht);
 }
 
 // ── HTML email bouwen ──────────────────────────────────────────────────────────
 function buildEmail(grappen) {
+    if (!Array.isArray(grappen) || grappen.length === 0) {
+        throw new Error('buildEmail verwacht een niet-lege array van grappen');
+    }
     // grappen = array van { setup, punchline } or { grap } (for dad jokes)
     const datum = new Date().toLocaleDateString('nl-NL', { dateStyle: 'long' });
 
     const kaarten = grappen.map((g, i) => {
         const inhoud = g.grap
-            ? `<p style="margin:0;font-size:16px;line-height:1.6;">${g.grap}</p>`
-            : `<p style="margin:0 0 12px;font-size:16px;line-height:1.6;">${g.setup}</p>
-               <p style="margin:0;font-size:16px;font-weight:bold;color:#f0c040;">${g.punchline}</p>`;
+            ? `<p style="margin:0;font-size:16px;line-height:1.6;">${escHtml(g.grap)}</p>`
+            : `<p style="margin:0 0 12px;font-size:16px;line-height:1.6;">${escHtml(g.setup)}</p>
+               <p style="margin:0;font-size:16px;font-weight:bold;color:#f0c040;">${escHtml(g.punchline)}</p>`;
 
         return `
         <div style="background:#16213e;border-radius:12px;padding:24px;margin-bottom:20px;">
