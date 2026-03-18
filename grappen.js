@@ -22,8 +22,8 @@ function logFout(bericht) {
 // ── Fallback grappen (als API faalt) ──────────────────────────────────────────
 const FALLBACKS = [
     { setup: 'Waarom kan een fiets niet zelfstandig staan?', punchline: 'Omdat hij twee-wielig is!' },
-    { grap: 'Ik vertelde een grap over papier... maar die was tear-ible.' },
-    { setup: 'What do you call a fish without eyes?', punchline: 'A fsh.' },
+    { grap: 'Waarom zijn boeken de beste vrienden? Ze hebben altijd een goed verhaal!' },
+    { setup: 'Waarom kan een kok niet kwaad worden?', punchline: 'Omdat hij altijd zijn geduld bewaart!' },
 ];
 
 // ── HTTP helper met timeout ───────────────────────────────────────────────────
@@ -56,7 +56,7 @@ async function haalJokeApi() {
     const data = await haalJson(
         'https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,explicit,racist,sexist&type=twopart'
     );
-    if (data.error) throw new Error('JokeAPI fout');
+    if (data.error || !data.setup || !data.delivery) throw new Error('JokeAPI fout');
     return { setup: data.setup, punchline: data.delivery };
 }
 
@@ -71,7 +71,7 @@ async function haalDadJoke() {
 
 async function haalOfficieleGrap() {
     const data = await haalJson('https://official-joke-api.appspot.com/random_joke');
-    if (!data.setup) throw new Error('Official Joke API fout');
+    if (!data.setup || !data.punchline) throw new Error('Official Joke API fout');
     return { setup: data.setup, punchline: data.punchline };
 }
 
