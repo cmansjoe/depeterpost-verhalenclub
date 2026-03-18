@@ -19,6 +19,79 @@ function logFout(bericht) {
     console.error(bericht);
 }
 
+// ── Fallback grappen (als API faalt) ──────────────────────────────────────────
+const FALLBACKS = [
+    { setup: 'Waarom kan een fiets niet zelfstandig staan?', punchline: 'Omdat hij twee-wielig is!' },
+    { grap: 'Ik vertelde een grap over papier... maar die was tear-ible.' },
+    { setup: 'What do you call a fish without eyes?', punchline: 'A fsh.' },
+];
+
+// ── HTTP helper met timeout ───────────────────────────────────────────────────
+function haalJson(url, headers = {}) {
+    return new Promise((resolve, reject) => {
+        const opties = new URL(url);
+        const aanvraag = https.get({
+            hostname: opties.hostname,
+            path: opties.pathname + opties.search,
+            headers: { 'User-Agent': 'grappen-mailer/1.0', ...headers },
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                clearTimeout(timer);
+                try { resolve(JSON.parse(data)); }
+                catch (e) { reject(new Error('JSON parse fout')); }
+            });
+        });
+        const timer = setTimeout(() => {
+            aanvraag.destroy();
+            reject(new Error('Timeout'));
+        }, 5000);
+        aanvraag.on('error', (e) => { clearTimeout(timer); reject(e); });
+    });
+}
+
+// ── Joke fetchers ─────────────────────────────────────────────────────────────
+async function haalJokeApi() {
+    const data = await haalJson(
+        'https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,explicit,racist,sexist&type=twopart'
+    );
+    if (data.error) throw new Error('JokeAPI fout');
+    return { setup: data.setup, punchline: data.delivery };
+}
+
+async function haalDadJoke() {
+    const data = await haalJson(
+        'https://icanhazdadjoke.com/',
+        { 'Accept': 'application/json' }
+    );
+    if (!data.joke) throw new Error('icanhazdadjoke fout');
+    return { grap: data.joke };
+}
+
+async function haalOfficieleGrap() {
+    const data = await haalJson('https://official-joke-api.appspot.com/random_joke');
+    if (!data.setup) throw new Error('Official Joke API fout');
+    return { setup: data.setup, punchline: data.punchline };
+}
+
+async function haalAlleGrappen() {
+    const fetchers = [
+        { naam: 'JokeAPI',       fn: haalJokeApi,        fallback: FALLBACKS[0] },
+        { naam: 'DadJoke',       fn: haalDadJoke,         fallback: FALLBACKS[1] },
+        { naam: 'OfficieleGrap', fn: haalOfficieleGrap,   fallback: FALLBACKS[2] },
+    ];
+
+    return Promise.all(fetchers.map(async ({ naam, fn, fallback }) => {
+        try {
+            return await fn();
+        } catch (e) {
+            logFout(`⚠️ ${naam} mislukt: ${e.message} — fallback gebruikt`);
+            return fallback;
+        }
+    }));
+}
+
 // ── HTML email bouwen ──────────────────────────────────────────────────────────
 function buildEmail(grappen) {
     if (!Array.isArray(grappen) || grappen.length === 0) {
@@ -72,4 +145,4 @@ if (process.argv[2] === '--test') {
     process.exit(0);
 }
 
-module.exports = { buildEmail };
+module.exports = { buildEmail, haalAlleGrappen, haalJson, haalJokeApi, haalDadJoke, haalOfficieleGrap, FALLBACKS };
