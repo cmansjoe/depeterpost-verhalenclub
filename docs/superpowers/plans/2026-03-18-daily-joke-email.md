@@ -331,17 +331,10 @@ Expected output:
 
 Then check `cmansjoe@gmail.com` inbox for the email.
 
-- [ ] **Step 3.4: Add `grappen-log.txt` to `.gitignore`**
-
-Open `.gitignore` (or create it if it doesn't exist) and add:
-```
-grappen-log.txt
-```
-
-- [ ] **Step 3.5: Commit**
+- [ ] **Step 3.4: Commit**
 
 ```bash
-git add grappen.js .gitignore
+git add grappen.js
 git commit -m "feat: add Resend email sender and main entry point to grappen.js"
 ```
 
