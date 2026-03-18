@@ -146,4 +146,64 @@ if (process.argv[2] === '--test') {
     process.exit(0);
 }
 
-module.exports = { buildEmail, haalAlleGrappen, haalJson, haalJokeApi, haalDadJoke, haalOfficieleGrap, FALLBACKS };
+// ── E-mail versturen via Resend ───────────────────────────────────────────────
+async function stuurGrappen(grappen) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) throw new Error('RESEND_API_KEY ontbreekt in .env');
+
+    const vanAdres = process.env.EMAIL_VAN || 'onboarding@resend.dev';
+    const datum = new Date().toLocaleDateString('nl-NL', { dateStyle: 'long' });
+    const html  = buildEmail(grappen);
+
+    const body = JSON.stringify({
+        from: `VerhalenPost Grappen <${vanAdres}>`,
+        to:   ['cmansjoe@gmail.com'],
+        subject: `☀️ Jouw 3 grappen voor vandaag — ${datum}`,
+        html,
+    });
+
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.resend.com',
+            path:     '/emails',
+            method:   'POST',
+            headers:  {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type':  'application/json',
+                'Content-Length': Buffer.byteLength(body),
+            },
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    resolve(true);
+                } else {
+                    reject(new Error(`Resend fout ${res.statusCode}: ${data}`));
+                }
+            });
+        });
+        req.on('error', reject);
+        req.write(body);
+        req.end();
+    });
+}
+
+// ── Hoofdprogramma ────────────────────────────────────────────────────────────
+if (process.argv[2] !== '--test') {
+    (async () => {
+        try {
+            console.log('🎭 Grappen ophalen...');
+            const grappen = await haalAlleGrappen();
+            console.log('📧 E-mail versturen...');
+            await stuurGrappen(grappen);
+            console.log('✅ Grappen-mail verstuurd!');
+            process.exit(0);
+        } catch (e) {
+            logFout(`❌ Grappen-mail mislukt: ${e.message}`);
+            process.exit(1);
+        }
+    })();
+}
+
+module.exports = { buildEmail, haalAlleGrappen };
