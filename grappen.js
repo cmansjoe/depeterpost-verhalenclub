@@ -134,12 +134,13 @@ if (process.argv[2] === '--test') {
     const testGrappen = [
         { setup: 'Waarom kan een fiets niet zelfstandig staan?', punchline: 'Omdat hij twee-wielig is!' },
         { grap: 'Ik vertelde een grap over papier... het was tear-ible.' },
-        { setup: 'What do you call a fish without eyes?', punchline: 'A fsh.' },
+        { setup: 'Wat heeft vier wielen en vliegt?', punchline: 'Een vuilniswagen!' },
     ];
     const html = buildEmail(testGrappen);
     if (!html.includes('Grap 1')) throw new Error('Test mislukt: "Grap 1" niet gevonden in HTML');
     if (!html.includes('twee-wielig')) throw new Error('Test mislukt: punchline niet gevonden');
     if (!html.includes('tear-ible')) throw new Error('Test mislukt: enkele grap niet gevonden');
+    if (!html.includes('vuilniswagen')) throw new Error('Test mislukt: punchline van grap 3 niet gevonden');
     if (!html.includes('Geniet van je dag')) throw new Error('Test mislukt: footer niet gevonden');
     console.log('✅ buildEmail test geslaagd');
     process.exit(0);
