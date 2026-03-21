@@ -110,6 +110,147 @@
 [data-groep="B"] .schrijf-kaart,
 [data-groep="C"] .schrijf-kaart  { background: var(--schrijf-kaart); }
 
+/* ══ GLASSMORPHISM UTILITIES ══ */
+
+/* Donker thema (standaard + Groep B + C) */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+}
+
+/* Licht thema (Groep A) */
+[data-groep="A"] .glass {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(242, 140, 56, 0.25);
+}
+
+.glass:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+[data-groep="A"] .glass:hover {
+  background: rgba(0, 0, 0, 0.07);
+  border-color: rgba(242, 140, 56, 0.4);
+}
+
+/* ══ BENTO-GRID SYSTEEM ══ */
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+/* Bento cel groottes */
+.bento-1 { grid-column: span 1; }
+.bento-2 { grid-column: span 2; }
+.bento-3 { grid-column: span 3; }
+.bento-4 { grid-column: span 4; }
+.bento-6 { grid-column: span 6; }
+.bento-tall { grid-row: span 2; }
+
+/* Mobiel: alles op 1 kolom */
+@media (max-width: 768px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .bento-1, .bento-2, .bento-3,
+  .bento-4, .bento-6 { grid-column: span 1; }
+  .bento-tall { grid-row: span 1; }
+}
+
+/* Bento kaart basis */
+.bento-card {
+  border-radius: var(--radius);
+  padding: 24px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--schaduw-hover);
+}
+
+/* ══ SCROLL-ENTRANCE ANIMATIES ══ */
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Reduced motion: geen animaties */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .bento-card:hover,
+  .glass:hover {
+    transform: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ══ FONT PER LEEFTIJDSGROEP ══ */
+
+/* Standaard (niet ingelogd) */
+h1, h2, h3 { font-family: 'Grandstander', cursive; }
+
+/* Groep A: Baloo 2 — rond en vrolijk */
+[data-groep="A"] h1,
+[data-groep="A"] h2,
+[data-groep="A"] h3 {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+}
+
+/* Groep B: Grandstander — speels maar stoerder */
+[data-groep="B"] h1,
+[data-groep="B"] h2,
+[data-groep="B"] h3 {
+  font-family: 'Grandstander', cursive;
+  font-weight: 700;
+}
+
+/* Groep C: Grandstander titels + Lora body */
+[data-groep="C"] h1,
+[data-groep="C"] h2,
+[data-groep="C"] h3 {
+  font-family: 'Grandstander', cursive;
+  font-weight: 700;
+}
+
+[data-groep="C"] p,
+[data-groep="C"] li,
+[data-groep="C"] .body-text {
+  font-family: 'Lora', serif;
+  font-weight: 400;
+}
+
 /* ══ PAGINA-THEMA'S ══ */
 
 /* LANDING (index.html): Betoverd Woud — behoud bestaande groene sfeer, geen overrides nodig */
