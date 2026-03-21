@@ -1,0 +1,1119 @@
+# Homepage Visuele Redesign — Implementatieplan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Transform the WoordSpeler homepage from "good" to "super" with age-adaptive theming, real glassmorphism, restructured page flow, and micro-interactions.
+
+**Architecture:** CSS custom properties (`--landing-*`) drive all visual theming per `data-groep`. One HTML file, no frameworks. JS handles particle colors, orb parallax, group picker, and confetti. The existing `.glass` and `.fade-in` utilities are leveraged but bento cells lose their hardcoded background classes.
+
+**Tech Stack:** Vanilla HTML, CSS, JavaScript. No libraries.
+
+**Spec:** `docs/superpowers/specs/2026-03-21-homepage-visual-redesign.md`
+
+---
+
+### Task 1: Add `--landing-*` CSS custom properties for all group themes
+
+**Files:**
+- Modify: `style.css` (after the existing `[data-groep]` sections, around line 96)
+
+- [ ] **Step 1: Add default landing vars to `body[data-pagina="landing"]`**
+
+Add after the existing `[data-groep="C"]` block (around line 96) in `style.css`:
+
+```css
+/* ══ HOMEPAGE LANDING THEMA'S ══ */
+
+body[data-pagina="landing"] {
+  --landing-bg: #1B4D2E;
+  --landing-accent: #4CC97A;
+  --landing-accent-licht: rgba(76,201,122,0.15);
+  --landing-accent-rand: rgba(76,201,122,0.3);
+  --landing-glass-bg: rgba(255,255,255,0.06);
+  --landing-glass-rand: rgba(255,255,255,0.12);
+  --landing-tekst: #F0FDF4;
+  --landing-tekst-zacht: rgba(167,196,181,0.75);
+  --landing-orb-1: rgba(76,201,122,0.12);
+  --landing-orb-2: rgba(247,201,72,0.08);
+  --landing-stroke: #4CC97A;
+  background-color: var(--landing-bg);
+}
+
+body[data-pagina="landing"][data-groep="A"] {
+  --landing-bg: #FFFBF0;
+  --landing-accent: #F28C38;
+  --landing-accent-licht: rgba(242,140,56,0.15);
+  --landing-accent-rand: rgba(242,140,56,0.35);
+  --landing-glass-bg: rgba(0,0,0,0.04);
+  --landing-glass-rand: rgba(242,140,56,0.25);
+  --landing-tekst: #3D2B1F;
+  --landing-tekst-zacht: rgba(61,43,31,0.7);
+  --landing-orb-1: rgba(242,140,56,0.1);
+  --landing-orb-2: rgba(247,201,72,0.08);
+  --landing-stroke: #F28C38;
+}
+
+body[data-pagina="landing"][data-groep="B"] {
+  --landing-bg: #141b2d;
+  --landing-accent: #8B5CF6;
+  --landing-accent-licht: rgba(139,92,246,0.15);
+  --landing-accent-rand: rgba(139,92,246,0.3);
+  --landing-glass-bg: rgba(255,255,255,0.06);
+  --landing-glass-rand: rgba(139,92,246,0.3);
+  --landing-tekst: #e2e0ff;
+  --landing-tekst-zacht: rgba(226,224,255,0.7);
+  --landing-orb-1: rgba(139,92,246,0.12);
+  --landing-orb-2: rgba(99,102,241,0.08);
+  --landing-stroke: #8B5CF6;
+}
+
+body[data-pagina="landing"][data-groep="C"] {
+  --landing-bg: #0d1117;
+  --landing-accent: #38BDF8;
+  --landing-accent-licht: rgba(56,189,248,0.1);
+  --landing-accent-rand: rgba(56,189,248,0.2);
+  --landing-glass-bg: rgba(255,255,255,0.05);
+  --landing-glass-rand: rgba(56,189,248,0.2);
+  --landing-tekst: #e6edf3;
+  --landing-tekst-zacht: rgba(230,237,243,0.7);
+  --landing-orb-1: rgba(56,189,248,0.08);
+  --landing-orb-2: rgba(76,201,122,0.06);
+  --landing-stroke: #38BDF8;
+}
+```
+
+- [ ] **Step 2: Add `.homepage-grid` class**
+
+Add after the landing themes in `style.css`:
+
+```css
+/* ══ HOMEPAGE GRID (3-koloms voor spelmodi) ══ */
+
+.homepage-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .homepage-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .homepage-grid {
+    grid-template-columns: 1fr;
+  }
+}
+```
+
+- [ ] **Step 3: Add landing-specific `.glass` overrides**
+
+```css
+/* Landing glass — uses landing vars */
+body[data-pagina="landing"] .glass {
+  background: var(--landing-glass-bg);
+  border-color: var(--landing-glass-rand);
+}
+
+body[data-pagina="landing"] .glass:hover {
+  background: var(--landing-glass-bg);
+  border-color: var(--landing-accent-rand);
+  filter: brightness(1.15);
+}
+```
+
+- [ ] **Step 4: Add landing typography overrides per group (font-family AND font-size)**
+
+```css
+/* Landing typografie per groep — family + sizing (spec Sectie 4) */
+
+/* Groep A: Baloo 2, larger sizes (default font, only size overrides needed) */
+body[data-pagina="landing"][data-groep="A"] .hero-titel { font-size: 2.2rem; font-weight: 900; }
+body[data-pagina="landing"][data-groep="A"] .bento-naam { font-size: 1.4rem; font-weight: 800; }
+body[data-pagina="landing"][data-groep="A"] .bento-tekst,
+body[data-pagina="landing"][data-groep="A"] .hero-tekst { font-size: 1rem; line-height: 1.8; }
+
+/* Groep B: Grandstander titels, medium sizes */
+body[data-pagina="landing"][data-groep="B"] .hero-titel,
+body[data-pagina="landing"][data-groep="B"] .bento-naam {
+  font-family: 'Grandstander', cursive;
+}
+body[data-pagina="landing"][data-groep="B"] .hero-titel { font-size: 2rem; font-weight: 900; }
+body[data-pagina="landing"][data-groep="B"] .bento-naam { font-size: 1.3rem; font-weight: 700; }
+body[data-pagina="landing"][data-groep="B"] .bento-tekst,
+body[data-pagina="landing"][data-groep="B"] .hero-tekst { font-size: 0.95rem; line-height: 1.75; }
+
+/* Groep C: Grandstander titels + Lora body, compact sizes */
+body[data-pagina="landing"][data-groep="C"] .hero-titel,
+body[data-pagina="landing"][data-groep="C"] .bento-naam {
+  font-family: 'Grandstander', cursive;
+}
+body[data-pagina="landing"][data-groep="C"] .hero-titel { font-size: 1.8rem; font-weight: 700; }
+body[data-pagina="landing"][data-groep="C"] .bento-naam { font-size: 1.2rem; font-weight: 700; }
+body[data-pagina="landing"][data-groep="C"] .bento-tekst,
+body[data-pagina="landing"][data-groep="C"] .hero-tekst {
+  font-family: 'Lora', serif;
+  font-size: 0.9rem; line-height: 1.7;
+}
+```
+
+- [ ] **Step 5: Verify by opening `index.html` in browser**
+
+Open the homepage in a browser. Manually set `localStorage.setItem('groep', 'A')` in console and reload — the page background should change to warm ivory. Repeat for 'B' (navy) and 'C' (near-black). Clear with `localStorage.removeItem('groep')` — should return to green.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add style.css
+git commit -m "feat: add --landing-* CSS custom properties for homepage group themes"
+```
+
+---
+
+### Task 2: Restructure `index.html` page flow and HTML
+
+**Files:**
+- Modify: `index.html` (full inline `<style>` and `<body>` restructure)
+
+This is the largest task. It replaces the current HTML structure with the new page flow: particle header → groepkiezer → hero → spelmodi → social proof → footer.
+
+- [ ] **Step 1: Update `<body>` tag**
+
+Change from:
+```html
+<body data-pagina="landing">
+```
+No change needed — already correct.
+
+- [ ] **Step 2: Replace inline `<style>` block**
+
+Replace the entire `<style>` block (lines 8-296 of current `index.html`) with the new styles. Remove all `.bento-groen`, `.bento-geel`, `.bento-paars`, `.bento-donker` classes and their hover states. Remove `.span-2`, `.span-3`, `.span-4`, `.rij-2` grid span rules (no longer needed). Remove `.idee-input`, `.idee-textarea`, `.idee-knop` styles (idee form removed). Remove `.winnaar-kaart` inline styles (will be simplified). Keep and update:
+
+```css
+body { overflow-x: hidden; }
+
+/* ── ACHTERGROND ORBS ── */
+.bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.bg-orb {
+    position: absolute; border-radius: 50%; filter: blur(80px);
+    animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
+    will-change: transform;
+}
+@keyframes orbDrift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
+}
+
+main { position: relative; z-index: 1; padding: 0 0 60px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+/* ── PARTICLE HEADER ── */
+.particle-header {
+    position: relative; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px 0 0; overflow: visible; z-index: 2;
+}
+#particleCanvas {
+    display: block; width: 100%; max-width: 700px;
+    height: 130px; cursor: none; touch-action: none;
+}
+.particle-subtitle {
+    color: var(--landing-tekst-zacht);
+    font-size: 0.85rem; letter-spacing: 2px;
+    text-transform: uppercase; margin-top: -8px; margin-bottom: 6px;
+}
+
+/* ── STROKE SVG ── */
+.stroke-svgwrapper {
+    position: fixed; right: -60px; top: 0; width: 340px;
+    height: 100vh; pointer-events: none; z-index: 0; opacity: 0.22; overflow: visible;
+}
+.stroke-svgwrapper svg { width: 100%; height: 100%; overflow: visible; }
+
+/* ── GROEPKIEZER ── */
+.groepkiezer { display: flex; gap: 16px; justify-content: center; margin: 24px 0 16px; flex-wrap: wrap; }
+.groepkiezer-kaart {
+    flex: 0 1 160px; padding: 20px 16px; border-radius: 24px;
+    text-align: center; text-decoration: none; cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    perspective: 600px;
+    animation: ademKaart 3s ease-in-out infinite;
+}
+@keyframes ademKaart {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+.groepkiezer-kaart:hover {
+    transform: rotateY(8deg) scale(1.06);
+    animation: none;
+}
+.groepkiezer-kaart .groep-emoji { font-size: 2rem; margin-bottom: 8px; display: block; }
+.groepkiezer-kaart .groep-label { font-weight: 800; font-size: 0.85rem; display: block; }
+.groepkiezer-kaart .groep-leeftijd { font-size: 0.72rem; opacity: 0.6; display: block; margin-top: 2px; }
+.gk-oranje { background: rgba(242,140,56,0.15); border: 2px solid rgba(242,140,56,0.35); }
+.gk-oranje .groep-label { color: #F28C38; }
+.gk-oranje:hover { box-shadow: 0 12px 40px rgba(242,140,56,0.3); border-color: rgba(242,140,56,0.6); }
+.gk-paars { background: rgba(139,92,246,0.15); border: 2px solid rgba(139,92,246,0.35); }
+.gk-paars .groep-label { color: #8B5CF6; }
+.gk-paars:hover { box-shadow: 0 12px 40px rgba(139,92,246,0.3); border-color: rgba(139,92,246,0.6); }
+.gk-blauw { background: rgba(56,189,248,0.12); border: 2px solid rgba(56,189,248,0.3); }
+.gk-blauw .groep-label { color: #38BDF8; }
+.gk-blauw:hover { box-shadow: 0 12px 40px rgba(56,189,248,0.25); border-color: rgba(56,189,248,0.5); }
+.groepkiezer.verborgen { display: none; }
+
+/* ── HERO ── */
+.hero-cel {
+    border-radius: 24px; padding: 40px 32px;
+    text-align: center; margin-bottom: 48px;
+    position: relative; overflow: hidden;
+}
+.hero-titel {
+    font-family: 'Baloo 2', cursive; font-size: 2.2rem; font-weight: 900;
+    color: var(--landing-tekst); margin-bottom: 12px; line-height: 1.2;
+}
+.hero-tekst {
+    color: var(--landing-tekst-zacht); font-size: 1rem;
+    line-height: 1.8; max-width: 600px; margin: 0 auto 20px;
+}
+.hero-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 1rem;
+    padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--landing-accent), var(--landing-accent));
+    color: var(--landing-bg); text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px var(--landing-accent-licht);
+}
+.hero-cta:active { transform: scale(0.96); }
+.hero-cta .cta-pijl {
+    display: inline-block; transition: transform 0.2s ease;
+}
+.hero-cta:hover .cta-pijl { transform: translateX(4px); }
+
+/* ── SECTIE LABELS ── */
+.sectie-label {
+    color: var(--landing-tekst-zacht); font-size: 0.75rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+}
+.sectie-label::after { content: ''; flex: 1; height: 1px; background: var(--landing-accent-licht); }
+
+/* ── SPELMODUS KAARTEN ── */
+.modus-cel {
+    border-radius: 24px; padding: 28px 24px;
+    position: relative; overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    display: flex; flex-direction: column; min-height: 280px;
+}
+.modus-cel:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+
+/* Shine shimmer */
+.modus-cel::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transform: skewX(-18deg); pointer-events: none; transition: left 0s;
+}
+.modus-cel:hover::after { animation: bentoGlans 0.55s ease forwards; }
+@keyframes bentoGlans { from { left: -100%; } to { left: 160%; } }
+
+/* Glow achter kaart bij hover */
+.modus-cel::before {
+    content: ''; position: absolute; inset: -2px; border-radius: 26px;
+    background: var(--landing-accent); opacity: 0; filter: blur(20px);
+    transition: opacity 0.3s ease; z-index: -1; pointer-events: none;
+}
+.modus-cel:hover::before { opacity: 0.08; }
+
+.modus-tag {
+    display: inline-block; font-size: 0.72rem; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 50px; margin-bottom: 12px;
+    align-self: flex-start;
+    background: var(--landing-accent-licht); color: var(--landing-accent);
+    border: 1px solid var(--landing-accent-rand);
+}
+.bento-naam {
+    font-family: 'Grandstander', cursive; font-size: 1.3rem;
+    color: var(--landing-accent); margin-bottom: 8px; line-height: 1.2;
+}
+.bento-tekst {
+    color: var(--landing-tekst-zacht); font-size: 0.88rem;
+    line-height: 1.7; flex: 1;
+}
+.modus-knop {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 0.88rem;
+    padding: 10px 20px; border-radius: 50px;
+    transition: transform 0.2s ease, background 0.2s ease;
+    text-decoration: none; align-self: flex-start; margin-top: auto;
+    background: var(--landing-accent-licht); color: var(--landing-accent);
+    border: 1px solid var(--landing-accent-rand);
+}
+.modus-cel:hover .modus-knop { filter: brightness(1.2); transform: translateX(5px); }
+.modus-knop .cta-pijl { display: inline-block; transition: transform 0.2s ease; }
+.modus-cel:hover .modus-knop .cta-pijl { transform: translateX(4px); }
+
+/* Modus illustraties */
+.modus-illus {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+    min-height: 80px; margin-bottom: 8px;
+    animation: illusFloat 4s ease-in-out infinite;
+}
+@keyframes illusFloat {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+.modus-illus svg { width: 100px; height: 80px; }
+
+/* ── SOCIAL PROOF ── */
+.social-proof {
+    border-radius: 24px; padding: 28px 24px;
+    margin-top: 48px; margin-bottom: 16px;
+}
+.winnaar-kaart {
+    background: rgba(0,0,0,0.15); border: 1px solid var(--landing-accent-rand);
+    border-radius: 16px; padding: 14px; margin-bottom: 10px;
+    display: flex; gap: 12px; align-items: flex-start;
+}
+.winnaar-kroon { font-size: 1.6rem; flex-shrink: 0; }
+.winnaar-naam { color: var(--landing-accent); font-weight: 800; font-size: 0.88rem; margin-bottom: 3px; }
+.winnaar-datum { color: var(--landing-tekst-zacht); font-size: 0.73rem; margin-bottom: 5px; opacity: 0.6; }
+.winnaar-tekst { color: var(--landing-tekst-zacht); font-size: 0.83rem; line-height: 1.5; }
+
+/* ── STAGGER FADE-IN ── */
+.fade-in:nth-child(1) { transition-delay: 0ms; }
+.fade-in:nth-child(2) { transition-delay: 100ms; }
+.fade-in:nth-child(3) { transition-delay: 200ms; }
+.fade-in.hero-fade { transition: opacity 0.6s ease, transform 0.6s ease; transform: translateY(20px) scale(0.95); }
+.fade-in.hero-fade.visible { transform: translateY(0) scale(1); }
+
+@media (max-width: 560px) {
+    .hero-cel { padding: 28px 20px; }
+    .hero-titel { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+    .modus-cel { min-height: 220px; }
+    .groepkiezer { gap: 10px; }
+    .groepkiezer-kaart { flex: 0 1 120px; padding: 14px 10px; }
+}
+```
+
+- [ ] **Step 3: Replace `<body>` content with new HTML structure**
+
+Replace everything between `<body data-pagina="landing">` and `</body>` with:
+
+```html
+<!-- Achtergrond orbs -->
+<div class="bg-canvas" id="bgCanvas">
+    <div class="bg-orb" style="width:300px;height:300px;background:var(--landing-orb-1);top:-80px;left:-60px;--d:16s;--tx:50px;--ty:40px;"></div>
+    <div class="bg-orb" style="width:250px;height:250px;background:var(--landing-orb-2);bottom:-60px;right:-50px;--d:13s;--tx:-40px;--ty:-50px;"></div>
+    <div class="bg-orb" style="width:200px;height:200px;background:var(--landing-orb-1);top:35%;left:55%;--d:11s;--tx:60px;--ty:-30px;"></div>
+    <div class="bg-orb" style="width:180px;height:180px;background:var(--landing-orb-2);top:60%;left:10%;--d:14s;--tx:-30px;--ty:50px;"></div>
+    <div class="bg-orb" style="width:150px;height:150px;background:var(--landing-orb-1);top:20%;right:15%;--d:10s;--tx:40px;--ty:20px;"></div>
+</div>
+
+<!-- SVG SCROLL STROKE -->
+<div class="stroke-svgwrapper" aria-hidden="true">
+    <svg viewBox="0 0 340 900" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <path id="strokePath"
+            d="M280 20 C260 80 180 60 200 140 C220 220 320 200 290 290 C260 380 140 350 170 450 C200 550 310 520 270 620 C230 720 100 700 140 800 C160 860 220 880 260 880"
+            stroke="var(--landing-stroke, #4CC97A)"
+            stroke-width="3"
+            stroke-linecap="round"
+            fill="none"
+        />
+    </svg>
+</div>
+
+<!-- PARTICLE HEADER -->
+<header style="padding: 16px 0 0; background: none; border: none; box-shadow: none; text-align: center;">
+    <div class="particle-header">
+        <canvas id="particleCanvas"></canvas>
+        <p class="particle-subtitle">Jouw woorden. Jouw spel.</p>
+    </div>
+</header>
+
+<!-- GROEPKIEZER (zichtbaar als geen groep bekend) -->
+<div class="groepkiezer" id="groepkiezer">
+    <div class="groepkiezer-kaart gk-oranje" data-kies-groep="A">
+        <span class="groep-emoji">🦊</span>
+        <span class="groep-label">Jonge Vos</span>
+        <span class="groep-leeftijd">6–8 jaar</span>
+    </div>
+    <div class="groepkiezer-kaart gk-paars" data-kies-groep="B">
+        <span class="groep-emoji">🦉</span>
+        <span class="groep-label">Slimme Uil</span>
+        <span class="groep-leeftijd">9–11 jaar</span>
+    </div>
+    <div class="groepkiezer-kaart gk-blauw" data-kies-groep="C">
+        <span class="groep-emoji">🐉</span>
+        <span class="groep-label">Wijze Draak</span>
+        <span class="groep-leeftijd">12+ jaar</span>
+    </div>
+</div>
+
+<!-- NAV -->
+<nav id="hoofdNav">
+    <a href="index.html">🏠 Home</a>
+    <a href="verhaal.html">✏️ Schrijf & Verhaal</a>
+    <a href="verhalen.html">📖 Verhalen</a>
+    <a href="videos.html">🎬 Video's</a>
+    <a href="mijn-dossier.html" id="navMijnDossierLink" style="display:none">🗂️ Mijn Dossier</a>
+    <a href="sessie-host.html" id="navGeheimeClubLink" style="display:none">⚡ De Woordenstorm</a>
+    <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
+</nav>
+
+<main>
+<div class="container">
+
+    <!-- ── HERO ── -->
+    <div class="hero-cel glass fade-in hero-fade">
+        <h1 class="hero-titel">Elke dag een nieuw avontuur in woorden</h1>
+        <p class="hero-tekst">Bij WoordSpeler schrijf jij mee aan grote verhalen. De AI kiest de beste inzending — en die wordt onderdeel van het echte verhaal. Ben jij de volgende winnaar?</p>
+        <a href="verhaal.html" class="hero-cta">Begin je avontuur <span class="cta-pijl">→</span></a>
+    </div>
+
+    <!-- ── SPELMODI ── -->
+    <div class="sectie-label">📂 Kies jouw missie</div>
+    <div class="homepage-grid">
+
+        <!-- ① Het Woordduel -->
+        <div class="modus-cel glass fade-in">
+            <div class="modus-illus">
+                <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="90" cy="75" r="65" fill="rgba(76,201,122,0.07)"/>
+                    <rect x="38" y="30" width="72" height="92" rx="8" fill="rgba(76,201,122,0.12)" stroke="var(--landing-accent)" stroke-opacity="0.45" stroke-width="2"/>
+                    <rect x="38" y="30" width="13" height="92" rx="6" fill="rgba(76,201,122,0.25)" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="1.5"/>
+                    <line x1="60" y1="56" x2="98" y2="56" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="60" y1="68" x2="98" y2="68" stroke="var(--landing-accent)" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="60" y1="80" x2="85" y2="80" stroke="var(--landing-accent)" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M122 28 L130 48 L152 48 L135 60 L142 80 L122 68 L102 80 L109 60 L92 48 L114 48 Z" fill="none" stroke="rgba(247,201,72,0.7)" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="modus-tag">📖 Elke dag nieuw</span>
+            <div class="bento-naam">Het Woordduel</div>
+            <p class="bento-tekst">Schrijf elke dag mee aan het grote verhaal. De AI beoordeelt en de winnaar ziet zijn woorden in het echte boek!</p>
+            <a href="verhaal.html" class="modus-knop">📖 Doe mee <span class="cta-pijl">→</span></a>
+        </div>
+
+        <!-- ② Mijn Woordenschat -->
+        <div class="modus-cel glass fade-in">
+            <div class="modus-illus">
+                <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="90" cy="75" r="65" fill="rgba(247,201,72,0.06)"/>
+                    <rect x="35" y="50" width="85" height="72" rx="8" fill="rgba(247,201,72,0.1)" stroke="var(--landing-accent)" stroke-opacity="0.4" stroke-width="2"/>
+                    <rect x="48" y="70" width="60" height="8" rx="4" fill="rgba(247,201,72,0.25)"/>
+                    <rect x="48" y="84" width="44" height="8" rx="4" fill="rgba(247,201,72,0.18)"/>
+                    <circle cx="138" cy="58" r="18" fill="rgba(13,43,26,0.8)" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="2"/>
+                    <circle cx="138" cy="64" r="2" fill="rgba(247,201,72,0.9)"/>
+                </svg>
+            </div>
+            <span class="modus-tag">🗂️ Persoonlijk</span>
+            <div class="bento-naam">Mijn Woordenschat</div>
+            <p class="bento-tekst">Jouw eigen geheime map vol verhalen. Schrijf wanneer je wil en leer van je taalfouten.</p>
+            <a href="mijn-dossier.html" class="modus-knop">🗂️ Open dossier <span class="cta-pijl">→</span></a>
+        </div>
+
+        <!-- ③ De Woordenstorm -->
+        <div class="modus-cel glass fade-in">
+            <div class="modus-illus">
+                <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="90" cy="75" r="65" fill="rgba(124,58,237,0.07)"/>
+                    <circle cx="50" cy="60" r="18" fill="rgba(124,58,237,0.2)" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="2"/>
+                    <circle cx="50" cy="53" r="7" fill="rgba(124,58,237,0.4)"/>
+                    <circle cx="130" cy="60" r="18" fill="rgba(232,25,125,0.15)" stroke="var(--landing-accent)" stroke-opacity="0.45" stroke-width="2"/>
+                    <circle cx="130" cy="53" r="7" fill="rgba(232,25,125,0.35)"/>
+                    <circle cx="90" cy="95" r="18" fill="rgba(124,58,237,0.25)" stroke="var(--landing-accent)" stroke-opacity="0.55" stroke-width="2"/>
+                    <circle cx="90" cy="88" r="7" fill="rgba(124,58,237,0.45)"/>
+                </svg>
+            </div>
+            <span class="modus-tag">⚡ Samen schrijven</span>
+            <div class="bento-naam">De Woordenstorm</div>
+            <p class="bento-tekst">Start een geheime missie met je klas of vrienden. De AI weeft alles samen tot één verhaal!</p>
+            <div style="display:flex; gap:9px; flex-wrap:wrap; margin-top:auto;">
+                <a href="sessie-host.html" class="modus-knop">🏫 Start missie <span class="cta-pijl">→</span></a>
+                <a href="sessie-join.html" class="modus-knop" style="opacity:0.7;">🙋 Meedoen</a>
+            </div>
+        </div>
+
+    </div><!-- /homepage-grid -->
+
+    <!-- ── SOCIAL PROOF ── -->
+    <div class="social-proof glass fade-in">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+            <div>
+                <span class="modus-tag">🏆 Winnaars</span>
+                <div class="bento-naam" style="margin-top:8px;">Laatste Winnaars</div>
+            </div>
+            <div id="verhaalTeller" style="color:var(--landing-accent); font-weight:800; font-size:0.9rem;"></div>
+        </div>
+        <div id="winnaarsList">
+            <div style="text-align:center; padding:20px 0; color:var(--landing-tekst-zacht); font-size:0.9rem;">⏳ Laden...</div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<footer>
+    <div class="quote">"Woorden zijn je speelgoed."</div>
+    <div class="quote-auteur">— WoordSpeler</div>
+    <div style="margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="verhalen.html" style="color:var(--landing-tekst-zacht, rgba(167,196,181,0.6)); text-decoration:none; font-size:0.85rem;">📖 Verhalen</a>
+        <a href="videos.html" style="color:var(--landing-tekst-zacht, rgba(167,196,181,0.6)); text-decoration:none; font-size:0.85rem;">🎬 Video's</a>
+        <span style="color:var(--landing-tekst-zacht, rgba(167,196,181,0.4)); font-size:0.85rem;">|</span>
+        <a href="#" id="wisselGroepLink" style="color:var(--landing-accent, #4CC97A); text-decoration:none; font-size:0.85rem; font-weight:700;">🔄 Wissel van groep</a>
+    </div>
+    <p style="margin-top:12px; color:var(--landing-tekst-zacht, rgba(167,196,181,0.4)); font-size:0.78rem; max-width:500px; margin-left:auto; margin-right:auto;">
+        WoordSpeler is een creatieve schrijfclub voor kinderen. Elke dag schrijven kinderen een stukje van een groot doorlopend verhaal.
+    </p>
+</footer>
+```
+
+- [ ] **Step 4: Verify HTML renders correctly**
+
+Open `index.html` in browser. Check that the page shows: particle header → groepkiezer → nav → hero → 3 spelmodi → social proof → footer. No broken layouts.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add index.html
+git commit -m "feat: restructure homepage with new page flow, hero, and spelmodi grid"
+```
+
+---
+
+### Task 3: Update JavaScript — groepkiezer, theme switching, particle colors, parallax
+
+**Files:**
+- Modify: `index.html` (inline `<script>` blocks at bottom)
+
+- [ ] **Step 1: Replace the bottom scripts**
+
+Replace everything from `<script src="auth.js"></script>` to `</body>` with:
+
+```html
+<script src="auth.js"></script>
+<script>
+AUTH.initNav();
+
+/* ════════════════════════════════════════
+   GROEP THEMA CONFIG
+   ════════════════════════════════════════ */
+const GROEP_CONFIG = {
+    A: { particles: ['#F28C38', '#F7C948', '#F28C38', '#FDB462', '#F7C948'] },
+    B: { particles: ['#8B5CF6', '#A78BFA', '#C084FC', '#8B5CF6', '#A78BFA'] },
+    C: { particles: ['#38BDF8', '#67E8F9', '#FFFFFF', '#38BDF8', '#67E8F9'] },
+    default: { particles: ['#4CC97A', '#34D399', '#F7C948', '#4CC97A', '#34D399'] }
+};
+
+function getGroep() {
+    return document.body.getAttribute('data-groep') || localStorage.getItem('groep') || null;
+}
+
+function getParticleKleuren() {
+    const g = getGroep();
+    return (GROEP_CONFIG[g] || GROEP_CONFIG.default).particles;
+}
+
+/* ════════════════════════════════════════
+   GROEPKIEZER
+   ════════════════════════════════════════ */
+function initGroepkiezer() {
+    const kiezer = document.getElementById('groepkiezer');
+    const wisselLink = document.getElementById('wisselGroepLink');
+    if (!kiezer) return;
+
+    // Verberg als groep al bekend
+    const bestaandeGroep = getGroep();
+    if (bestaandeGroep) {
+        kiezer.classList.add('verborgen');
+    }
+
+    // Klik handler voor groepkaarten
+    kiezer.addEventListener('click', (e) => {
+        const kaart = e.target.closest('[data-kies-groep]');
+        if (!kaart) return;
+        const groep = kaart.dataset.kiesGroep;
+        localStorage.setItem('groep', groep);
+        document.body.setAttribute('data-groep', groep);
+        kiezer.classList.add('verborgen');
+
+        // Confetti burst
+        confettiBurst(kaart, groep);
+
+        // Herlaad particle kleuren
+        setTimeout(() => bouwParticles(), 300);
+    });
+
+    // Wissel van groep link in footer
+    if (wisselLink) {
+        wisselLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('groep');
+            document.body.removeAttribute('data-groep');
+            kiezer.classList.remove('verborgen');
+            kiezer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            bouwParticles();
+        });
+    }
+}
+
+/* ════════════════════════════════════════
+   CONFETTI BURST (lightweight, inline)
+   ════════════════════════════════════════ */
+function confettiBurst(element, groep) {
+    const kleuren = {
+        A: ['#F28C38', '#F7C948', '#FDB462'],
+        B: ['#8B5CF6', '#A78BFA', '#C084FC'],
+        C: ['#38BDF8', '#67E8F9', '#22D3EE']
+    };
+    const palet = kleuren[groep] || kleuren.B;
+    const rect = element.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    const deeltjes = Array.from({ length: 25 }, () => ({
+        x: cx, y: cy,
+        vx: (Math.random() - 0.5) * 12,
+        vy: (Math.random() - 0.5) * 12 - 4,
+        r: 3 + Math.random() * 4,
+        kleur: palet[Math.floor(Math.random() * palet.length)],
+        leven: 1
+    }));
+
+    let frame;
+    function teken() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let actief = false;
+        for (const d of deeltjes) {
+            d.x += d.vx; d.y += d.vy;
+            d.vy += 0.3;
+            d.leven -= 0.018;
+            if (d.leven <= 0) continue;
+            actief = true;
+            ctx.globalAlpha = d.leven;
+            ctx.fillStyle = d.kleur;
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        if (actief) { frame = requestAnimationFrame(teken); }
+        else { cancelAnimationFrame(frame); canvas.remove(); }
+    }
+    frame = requestAnimationFrame(teken);
+}
+
+/* ════════════════════════════════════════
+   SCROLL-ENTRANCE + STAGGER
+   ════════════════════════════════════════ */
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+
+/* ════════════════════════════════════════
+   ORB PARALLAX
+   ════════════════════════════════════════ */
+function initOrbParallax() {
+    const bgCanvas = document.getElementById('bgCanvas');
+    if (!bgCanvas) return;
+    let ticking = false;
+
+    // Apply parallax to the parent .bg-canvas, not individual orbs,
+    // so the orbs' CSS orbDrift animation (which uses transform) is preserved.
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(() => {
+                const y = window.scrollY;
+                bgCanvas.style.transform = `translateY(${y * 0.03}px)`;
+                ticking = false;
+            });
+        }
+    }, { passive: true });
+}
+
+/* ════════════════════════════════════════
+   PARTICLE CANVAS — "WoordSpeler" titel
+   ════════════════════════════════════════ */
+let particles = [];
+let particleCtx, particleCanvas;
+
+function initParticleCanvas() {
+    particleCanvas = document.getElementById('particleCanvas');
+    if (!particleCanvas) return;
+    particleCtx = particleCanvas.getContext('2d', { willReadFrequently: true });
+
+    let mouseX = -9999, mouseY = -9999;
+    const TEKST = 'WoordSpeler';
+
+    class Deeltje {
+        constructor(x, y, kleur) {
+            this.ox = x; this.oy = y;
+            this.x = x + (Math.random() - 0.5) * 8;
+            this.y = y + (Math.random() - 0.5) * 8;
+            this.vx = (Math.random() - 0.5) * 3;
+            this.vy = (Math.random() - 0.5) * 3;
+            this.grootte = 1.6 + Math.random() * 1.0;
+            this.kleur = kleur;
+        }
+        update() {
+            const dx = mouseX - this.x;
+            const dy = mouseY - this.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const radius = 120;
+            if (dist < radius && mouseX !== -9999) {
+                const kracht = (radius - dist) / radius;
+                this.vx -= (dx / dist) * kracht * 14;
+                this.vy -= (dy / dist) * kracht * 14;
+            }
+            this.vx += (this.ox - this.x) * 0.09;
+            this.vy += (this.oy - this.y) * 0.09;
+            this.vx *= 0.82;
+            this.vy *= 0.82;
+            this.x += this.vx;
+            this.y += this.vy;
+        }
+        teken(ctx) {
+            ctx.fillStyle = this.kleur;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.grootte, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    window._DeeltjeClass = Deeltje;
+    window._mouseState = { x: mouseX, y: mouseY };
+
+    function bouwParticlesIntern() {
+        const dpr = window.devicePixelRatio || 1;
+        const W = particleCanvas.offsetWidth;
+        const H = particleCanvas.offsetHeight;
+        particleCanvas.width = W * dpr;
+        particleCanvas.height = H * dpr;
+        particleCtx.setTransform(1, 0, 0, 1, 0, 0);
+        particleCtx.scale(dpr, dpr);
+
+        const tmp = document.createElement('canvas');
+        tmp.width = W * dpr; tmp.height = H * dpr;
+        const tc = tmp.getContext('2d');
+        tc.scale(dpr, dpr);
+
+        const fontSize = Math.min(62, W * 0.088);
+        tc.font = `900 ${fontSize}px 'Grandstander', cursive`;
+        tc.textAlign = 'center';
+        tc.textBaseline = 'middle';
+        tc.fillStyle = '#4CC97A';
+        tc.fillText(TEKST, W / 2, H / 2);
+
+        const data = tc.getImageData(0, 0, tmp.width, tmp.height);
+        particles = [];
+        const stap = Math.max(3, Math.round(dpr * 3));
+        const kleuren = getParticleKleuren();
+
+        for (let y = 0; y < tmp.height; y += stap) {
+            for (let x = 0; x < tmp.width; x += stap) {
+                const i = (y * tmp.width + x) * 4;
+                if (data.data[i + 3] > 128) {
+                    const kleur = kleuren[Math.floor(Math.random() * kleuren.length)];
+                    particles.push(new Deeltje(x / dpr, y / dpr, kleur));
+                }
+            }
+        }
+    }
+
+    // Make bouwParticles accessible globally for groepkiezer
+    window.bouwParticles = bouwParticlesIntern;
+
+    function animeer() {
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        for (const p of particles) { p.update(); p.teken(particleCtx); }
+        requestAnimationFrame(animeer);
+    }
+
+    function muisBewegen(e) {
+        const rect = particleCanvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+    }
+    function muisWeg() { mouseX = -9999; mouseY = -9999; }
+    function aanraken(e) {
+        const rect = particleCanvas.getBoundingClientRect();
+        mouseX = e.touches[0].clientX - rect.left;
+        mouseY = e.touches[0].clientY - rect.top;
+    }
+
+    particleCanvas.addEventListener('mousemove', muisBewegen);
+    particleCanvas.addEventListener('mouseleave', muisWeg);
+    particleCanvas.addEventListener('touchmove', aanraken, { passive: true });
+    particleCanvas.addEventListener('touchend', muisWeg);
+
+    const ro = new ResizeObserver(() => { bouwParticlesIntern(); });
+    ro.observe(particleCanvas.parentElement);
+
+    setTimeout(() => { bouwParticlesIntern(); animeer(); }, 80);
+}
+
+/* ════════════════════════════════════════
+   STROKE SVG
+   ════════════════════════════════════════ */
+function initScrollStroke() {
+    const pad = document.getElementById('strokePath');
+    if (!pad) return;
+    const totaal = pad.getTotalLength();
+    pad.style.strokeDasharray = totaal;
+    pad.style.strokeDashoffset = totaal;
+
+    function updateStroke() {
+        const scrollbaar = document.documentElement.scrollHeight - window.innerHeight;
+        const voortgang = scrollbaar > 0 ? window.scrollY / scrollbaar : 0;
+        pad.style.strokeDashoffset = totaal * (1 - Math.min(1, voortgang * 1.1));
+    }
+    window.addEventListener('scroll', updateStroke, { passive: true });
+    updateStroke();
+}
+
+/* ════════════════════════════════════════
+   WINNAARS + TELLER
+   ════════════════════════════════════════ */
+async function laadWinnaars() {
+    const container = document.getElementById('winnaarsList');
+    const teller = document.getElementById('verhaalTeller');
+    try {
+        const r2 = await fetch('/api/verhaal');
+        const verhaal = await r2.json();
+        const hoofdstukken = verhaal.hoofdstukken || [];
+
+        if (teller && hoofdstukken.length > 0) {
+            teller.textContent = `📚 Al ${hoofdstukken.length} hoofdstuk${hoofdstukken.length === 1 ? '' : 'ken'} geschreven!`;
+        }
+
+        const laatste = hoofdstukken.slice(-3).reverse();
+        if (laatste.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--landing-tekst-zacht);font-size:0.88rem;">Nog geen winnaars. Doe mee en win!</div>';
+            return;
+        }
+        container.innerHTML = laatste.map((h, i) => `
+            <div class="winnaar-kaart">
+                <span class="winnaar-kroon">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+                <div>
+                    <div class="winnaar-naam">${escapeHTML(h.auteur)}</div>
+                    <div class="winnaar-datum">📅 ${h.datum}</div>
+                    <div class="winnaar-tekst">${escapeHTML(h.tekst||'').substring(0,120)}${(h.tekst||'').length>120?'...':''}</div>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) {
+        container.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--landing-tekst-zacht);font-size:0.88rem;">Kon winnaars niet laden.</div>';
+    }
+}
+
+function escapeHTML(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+/* ════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    initGroepkiezer();
+    laadWinnaars();
+    initParticleCanvas();
+    initScrollStroke();
+    initOrbParallax();
+});
+</script>
+
+<script>
+/* Groep-detectie: stel data-groep in op body voor kleuradaptatie */
+(function() {
+    const groep = localStorage.getItem('groep') || null;
+    if (groep) {
+        document.body.setAttribute('data-groep', groep);
+    }
+})();
+</script>
+<script src="knop.js"></script>
+```
+
+- [ ] **Step 2: Verify JavaScript works**
+
+Open `index.html` in browser:
+1. With no localStorage groep → groepkiezer visible, default green theme
+2. Click a groep card → confetti burst, theme changes, kiezer hides
+3. Reload → theme persists, kiezer hidden
+4. Click "Wissel van groep" in footer → kiezer reappears
+5. Particle canvas shows correct colors per group
+6. Scroll → orb parallax works smoothly
+7. Cards fade in with stagger effect
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add index.html
+git commit -m "feat: add groepkiezer, theme-adaptive particles, orb parallax, and confetti"
+```
+
+---
+
+### Task 4: Add `prefers-reduced-motion` support and final polish
+
+**Files:**
+- Modify: `index.html` (inline `<style>`)
+- Modify: `style.css`
+
+- [ ] **Step 1: Add reduced-motion rules to inline styles in `index.html`**
+
+Add at the end of the inline `<style>` block:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+    .bg-orb { animation: none !important; }
+    .groepkiezer-kaart { animation: none; }
+    .groepkiezer-kaart:hover { transform: none; }
+    .modus-illus { animation: none; }
+    .modus-cel:hover { transform: none; }
+    .modus-cel::after { animation: none !important; }
+    .hero-cta:hover { transform: none; }
+    .fade-in { opacity: 1; transform: none; transition: none; }
+    .fade-in.hero-fade { transform: none; }
+}
+```
+
+- [ ] **Step 2: Move the groep-detection `<script>` to the very start of `<body>`**
+
+The groep-detection script must run before any visible content renders to prevent a flash of wrong theme. Move it to immediately after `<body data-pagina="landing">`, before the bg-canvas div. This way `<body>` already exists and we can set `data-groep` directly on it:
+
+```html
+<body data-pagina="landing">
+<script>
+/* Groep-detectie: vroeg laden om flash te voorkomen */
+(function() {
+    var g = localStorage.getItem('groep');
+    if (g) document.body.setAttribute('data-groep', g);
+})();
+</script>
+
+<!-- Achtergrond orbs -->
+<div class="bg-canvas" id="bgCanvas">
+...
+```
+
+Also remove the duplicate groep-detection IIFE at the bottom of the file (the one before `<script src="knop.js"></script>`) since it's now handled at the top.
+
+- [ ] **Step 3: Verify reduced motion and flash prevention**
+
+1. In browser DevTools, emulate `prefers-reduced-motion: reduce` — all animations should be disabled
+2. Set localStorage groep, reload — no flash of green before switching to the correct theme
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add index.html style.css
+git commit -m "feat: add reduced-motion support and prevent theme flash on load"
+```
+
+---
+
+### Task 5: Visual QA and cross-group testing
+
+**Files:**
+- Possibly: `index.html`, `style.css` (minor fixes)
+
+- [ ] **Step 1: Test all four states in browser**
+
+Open `index.html` and test each state:
+
+| State | How to set | Expected |
+|---|---|---|
+| Default | `localStorage.removeItem('groep')` + reload | Green theme, groepkiezer visible |
+| Groep A | `localStorage.setItem('groep','A')` + reload | Warm ivory bg, dark text, orange accents |
+| Groep B | `localStorage.setItem('groep','B')` + reload | Navy bg, light text, purple accents |
+| Groep C | `localStorage.setItem('groep','C')` + reload | Near-black bg, light text, cyan accents |
+
+For each state verify:
+- Background color correct
+- Glass cards visible with correct border color
+- Text readable (contrast)
+- Particle colors match group
+- SVG stroke color matches group
+- Hover effects work on all cards
+- Footer links visible and "Wissel van groep" works
+
+- [ ] **Step 2: Test responsive breakpoints**
+
+Resize browser to:
+- `>900px`: 3 spelmodi columns
+- `560-900px`: 2 columns
+- `<560px`: 1 column, stacked
+
+Check that hero, social proof, and groepkiezer scale correctly.
+
+- [ ] **Step 3: Fix any issues found**
+
+Apply fixes as needed to `index.html` inline styles or `style.css`.
+
+- [ ] **Step 4: Commit fixes**
+
+```bash
+git add index.html style.css
+git commit -m "fix: visual QA fixes for homepage redesign"
+```
+
+---
+
+### Task 6: Clean up obsolete code
+
+**Files:**
+- Modify: `index.html`
+- Modify: `script.js` (remove homepage-specific idee form code if still present)
+
+- [ ] **Step 1: Remove dead code from `script.js`**
+
+The `verstuurIdee` function in `script.js` (lines 33+) references the homepage idee form which has been removed. Check if `script.js` is still loaded on `index.html` — if not, no action needed. If `script.js` is NOT loaded on the homepage (it uses inline scripts), skip this step.
+
+- [ ] **Step 2: Verify no remaining references to removed elements**
+
+Search for references to removed elements: `ideeNaam`, `ideeTekst`, `ideeKnop`, `ideeSucces`, `ideeFout`, `modusDoossierKnop`, `gm-oranje`, `gm-paars2`, `gm-groen2`.
+
+If found in `index.html` or its scripts, remove them.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add -A
+git commit -m "chore: remove obsolete idee form and bento color class references"
+```
+
+---
+
+## Summary
+
+| Task | Description | Key files |
+|---|---|---|
+| 1 | CSS custom properties for group themes | `style.css` |
+| 2 | Restructure HTML page flow | `index.html` |
+| 3 | JavaScript: groepkiezer, particles, parallax, confetti | `index.html` inline scripts |
+| 4 | Reduced-motion + flash prevention | `index.html`, `style.css` |
+| 5 | Visual QA across all states | Both files (fixes) |
+| 6 | Clean up obsolete code | `index.html`, `script.js` |
