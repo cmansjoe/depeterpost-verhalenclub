@@ -270,7 +270,7 @@
 <main>
 <div class="container">
 
-    <div class="pagina-header">
+    <div class="pagina-header fade-in">
         <canvas id="verhalenTitel"></canvas>
         <p>Lees de verhalen van andere schrijvers, reageer met jouw eigen versie!</p>
         <div class="instuur-knop-wrapper">
@@ -279,7 +279,7 @@
     </div>
 
     <!-- Filter balk -->
-    <div class="filter-balk">
+    <div class="filter-balk glass fade-in">
         <input class="zoek-input" id="zoekInput" placeholder="🔍 Zoek op naam of woord..." oninput="filterVerhalen()">
         <div class="filter-groep-btns">
             <button class="filter-btn actief-alle" onclick="setFilter('alle', this)">📋 Alle</button>
@@ -290,7 +290,7 @@
     </div>
 
     <!-- Layout toggle -->
-    <div class="layout-toggle">
+    <div class="layout-toggle glass fade-in">
         <button class="layout-btn" data-lbtn="stack" onclick="setLayout('stack')">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="10" width="12" height="2" rx="1"/><rect x="2" y="7" width="12" height="2" rx="1" opacity=".7"/><rect x="2" y="4" width="12" height="2" rx="1" opacity=".4"/></svg>
             Stapel
@@ -376,7 +376,22 @@ let alleVerhalen = [];
 let huidigFilter = 'alle';
 let verhaalData = {};
 
+// Scroll-entrance animaties
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+function observeFadeIns() {
+  document.querySelectorAll('.fade-in:not(.visible)').forEach(el => fadeObserver.observe(el));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    observeFadeIns();
     laadVerhalen();
 });
 
@@ -429,7 +444,7 @@ function toonVerhalen(verhalen) {
 
     const miloPrompt = encodeURIComponent('kinderboek illustratie, zeehond en zeemeermin in baai bij zonsondergang, kleurrijke fantasy stijl, sprookjesachtig, digitale kunst, geen tekst');
     const miloKaart = `
-        <div class="verhaal-kaart" style="border-color:rgba(247,201,72,0.35);">
+        <div class="verhaal-kaart fade-in" style="border-color:rgba(247,201,72,0.35);">
             <div class="kaart-ai-placeholder" id="img-placeholder-milo">🦭</div>
             <img class="kaart-ai-img" style="display:none;" id="img-milo"
                 src="https://image.pollinations.ai/prompt/${miloPrompt}?width=640&height=220&seed=42&nologo=true"
@@ -464,6 +479,7 @@ function toonVerhalen(verhalen) {
     }).join('');
 
     container.innerHTML = miloKaart + dynamischeKaarten;
+    observeFadeIns();
 
     // Cardstack reset na elke render
     stackActiveIndex = 0;
@@ -495,7 +511,7 @@ function maakVerhaalKaart(v, idx) {
     const imgSeed   = Math.abs(hashStr(cardId)) % 9999;
 
     return `
-        <div class="verhaal-kaart" id="${cardId}" data-naam="${escapeAttr(v.naam||'')}" data-tekst="${escapeAttr(v.tekst||'')}" data-groep="${groep}">
+        <div class="verhaal-kaart fade-in" id="${cardId}" data-naam="${escapeAttr(v.naam||'')}" data-tekst="${escapeAttr(v.tekst||'')}" data-groep="${groep}">
             <div class="kaart-ai-placeholder" id="ph-${cardId}">📖</div>
             <img class="kaart-ai-img" style="display:none;" id="ai-${cardId}"
                 src="https://image.pollinations.ai/prompt/${imgPrompt}?width=640&height=220&seed=${imgSeed}&nologo=true"

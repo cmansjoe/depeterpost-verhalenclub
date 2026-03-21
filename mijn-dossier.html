@@ -369,7 +369,7 @@
 
     <!-- Niet ingelogd -->
     <div id="nietIngelogd" style="display:none;">
-        <div class="niet-ingelogd">
+        <div class="niet-ingelogd glass fade-in">
             <div class="niet-ingelogd-emoji">🔒</div>
             <h2>Jouw dossier is beveiligd</h2>
             <p>Log in om jouw geheime dossier te openen.<br>Al jouw verhalen en feedback wachten op je!</p>
@@ -381,7 +381,7 @@
     <div id="dossierContent" style="display:none;">
 
         <!-- ── AGENTENPROFIEL ── -->
-        <div class="agent-profiel">
+        <div class="agent-profiel fade-in">
             <div class="agent-profiel-inner">
                 <div class="agent-avatar" id="agentAvatar">🕵️</div>
                 <div class="agent-info">
@@ -412,7 +412,7 @@
         </div>
 
         <!-- ── VEELGEMAAKTE FOUTEN ── -->
-        <div class="sectie-label">🔍 Mijn leerpunten</div>
+        <div class="sectie-label fade-in">🔍 Mijn leerpunten</div>
         <div class="fouten-samenvatting" id="foutenSamenvatting" style="display:none;">
             <div class="fouten-samenvatting-kop">
                 <span style="font-size:1.6rem;">🧠</span>
@@ -425,7 +425,7 @@
         </div>
 
         <!-- ── INZENDINGEN ── -->
-        <div class="sectie-label">📋 Mijn inzendingen voor Het Woordduel</div>
+        <div class="sectie-label fade-in">📋 Mijn inzendingen voor Het Woordduel</div>
         <div id="inzendingenLijst">
             <div class="laad-staat">⏳ Dossier wordt geladen...</div>
         </div>
@@ -435,7 +435,7 @@
         </div>
 
         <!-- ── PERSOONLIJKE VERHALEN ── -->
-        <div class="sectie-label">📝 Mijn persoonlijke verhalen</div>
+        <div class="sectie-label fade-in">📝 Mijn persoonlijke verhalen</div>
         <div id="persoonlijkeLijst">
             <div class="laad-staat">⏳ Laden...</div>
         </div>
@@ -469,7 +469,19 @@ const BADGE_NAMEN = {
 
 const GROEP_NAMEN = { A: 'Jonge Vos 🦊 · 6–8 jaar', B: 'Slimme Uil 🦉 · 9–11 jaar', C: 'Wijze Draak 🐉 · 12+ jaar' };
 
+// Scroll-entrance animaties
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
+
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
 
     if (!AUTH.getToken()) {

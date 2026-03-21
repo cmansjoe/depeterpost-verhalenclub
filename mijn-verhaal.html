@@ -345,7 +345,7 @@
 
 <!-- ══ FASE 1: SETUP ══ -->
 <div id="setupSectie">
-    <section class="sectie">
+    <section class="sectie fade-in">
         <h2 class="sectie-titel groen">📖 Nieuw verhaal starten</h2>
         <div class="formulier">
             <div>
@@ -433,7 +433,7 @@
     <div id="voltooideDelenContainer"></div>
 
     <!-- Huidig deel editor -->
-    <section class="sectie" id="huidigDeelEditor">
+    <section class="sectie fade-in" id="huidigDeelEditor">
         <!-- Huidige opdracht -->
         <div class="opdracht-kaart fade-in" id="opdrachtKaart">
             <div class="opdracht-label" id="opdrachtLabel">📜 Opdracht voor deel 1</div>
@@ -491,7 +491,7 @@
     </section>
 
     <!-- AI genereert scherm -->
-    <section class="sectie" id="genereerScherm">
+    <section class="sectie fade-in" id="genereerScherm">
         <div class="genereer-spinner">🌟</div>
         <div class="genereer-tekst">De AI bedenkt jouw volgende opdracht...</div>
         <div class="genereer-subtekst">Even geduld, dit duurt maar een paar seconden!</div>
@@ -552,9 +552,20 @@ let dot3Timer = null;
 let dot3Bezig = false;
 let bollen = [false, false, false];
 
+// Scroll-entrance animaties
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
 // ══ INIT ══
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) { window.location.href = 'login.html'; return; }
     userToken = AUTH.getToken();

@@ -155,7 +155,7 @@
 <main>
 <div class="container">
 
-    <div class="pagina-header">
+    <div class="pagina-header fade-in">
         <h1>✍️ Mijn Verhalen</h1>
         <p>Schrijf en beheer jouw eigen persoonlijke verhalen.</p>
     </div>
@@ -211,7 +211,22 @@ let huidigDeelUrl = '';
 let verwijderId = null;
 let userToken = null;
 
+// Scroll-entrance animaties
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+function observeFadeIns() {
+  document.querySelectorAll('.fade-in:not(.visible)').forEach(el => fadeObserver.observe(el));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    observeFadeIns();
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) { window.location.href = 'login.html'; return; }
     userToken = localStorage.getItem('userToken');
@@ -255,7 +270,7 @@ function toonVerhalen(verhalen) {
         const geschrevenDelen = v.delen.filter(d => d.tekst.trim()).length;
         const publicUrl = `${window.location.origin}/verhaal/${v.id}`;
         return `
-        <div class="pv-kaart">
+        <div class="pv-kaart fade-in">
             <div class="kaart-kop">
                 <div class="kaart-titel">${veilig(v.titel)}</div>
                 <span class="status-badge ${v.status === 'klaar' ? 'status-klaar' : 'status-bezig'}">
@@ -279,6 +294,7 @@ function toonVerhalen(verhalen) {
             </div>
         </div>`;
     }).join('');
+    observeFadeIns();
 }
 
 function openDeelModal(id, titel, encodedUrl) {

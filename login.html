@@ -208,6 +208,18 @@
             .login-kaart { padding:28px 20px; }
             .avatar-grid { grid-template-columns:repeat(5,1fr); }
         }
+
+        /* Scroll-entrance */
+        .fade-in {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .fade-in.visible {
+            opacity: 1; transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in { opacity: 1; transform: none; transition: none; }
+        }
     </style>
 </head>
 <body data-pagina="login">
@@ -223,7 +235,7 @@
     <a href="login.html" class="nav-login" id="navLoginLink">👤 Login</a>
 </nav>
 
-<div class="login-kaart">
+<div class="login-kaart fade-in">
 
     <div class="login-logo">
         <span class="emoji">🎲</span>
@@ -376,7 +388,18 @@
 let gekozenGroep       = 'B';
 let gekozenToestemming = null;
 
+// Scroll-entrance animaties
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
     AUTH.initNav();
 
     // Al ingelogd? → meteen door
