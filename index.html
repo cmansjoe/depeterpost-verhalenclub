@@ -387,34 +387,165 @@ main { position: relative; z-index: 1; padding: 0 0 60px; }
 <script>
 AUTH.initNav();
 
-// Scroll-entrance animaties
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      observer.unobserve(entry.target);
+/* ════════════════════════════════════════
+   GROEP THEMA CONFIG
+   ════════════════════════════════════════ */
+const GROEP_CONFIG = {
+    A: { particles: ['#F28C38', '#F7C948', '#F28C38', '#FDB462', '#F7C948'] },
+    B: { particles: ['#8B5CF6', '#A78BFA', '#C084FC', '#8B5CF6', '#A78BFA'] },
+    C: { particles: ['#38BDF8', '#67E8F9', '#FFFFFF', '#38BDF8', '#67E8F9'] },
+    default: { particles: ['#4CC97A', '#34D399', '#F7C948', '#4CC97A', '#34D399'] }
+};
+
+function getGroep() {
+    return document.body.getAttribute('data-groep') || localStorage.getItem('groep') || null;
+}
+
+function getParticleKleuren() {
+    const g = getGroep();
+    return (GROEP_CONFIG[g] || GROEP_CONFIG.default).particles;
+}
+
+/* ════════════════════════════════════════
+   GROEPKIEZER
+   ════════════════════════════════════════ */
+function initGroepkiezer() {
+    const kiezer = document.getElementById('groepkiezer');
+    const wisselLink = document.getElementById('wisselGroepLink');
+    if (!kiezer) return;
+
+    // Verberg als groep al bekend
+    const bestaandeGroep = getGroep();
+    if (bestaandeGroep) {
+        kiezer.classList.add('verborgen');
     }
-  });
+
+    // Klik handler voor groepkaarten
+    kiezer.addEventListener('click', (e) => {
+        const kaart = e.target.closest('[data-kies-groep]');
+        if (!kaart) return;
+        const groep = kaart.dataset.kiesGroep;
+        localStorage.setItem('groep', groep);
+        document.body.setAttribute('data-groep', groep);
+        kiezer.classList.add('verborgen');
+
+        // Confetti burst
+        confettiBurst(kaart, groep);
+
+        // Herlaad particle kleuren
+        setTimeout(() => bouwParticles(), 300);
+    });
+
+    // Wissel van groep link in footer
+    if (wisselLink) {
+        wisselLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('groep');
+            document.body.removeAttribute('data-groep');
+            kiezer.classList.remove('verborgen');
+            kiezer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            bouwParticles();
+        });
+    }
+}
+
+/* ════════════════════════════════════════
+   CONFETTI BURST (lightweight, inline)
+   ════════════════════════════════════════ */
+function confettiBurst(element, groep) {
+    const kleuren = {
+        A: ['#F28C38', '#F7C948', '#FDB462'],
+        B: ['#8B5CF6', '#A78BFA', '#C084FC'],
+        C: ['#38BDF8', '#67E8F9', '#22D3EE']
+    };
+    const palet = kleuren[groep] || kleuren.B;
+    const rect = element.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    const deeltjes = Array.from({ length: 25 }, () => ({
+        x: cx, y: cy,
+        vx: (Math.random() - 0.5) * 12,
+        vy: (Math.random() - 0.5) * 12 - 4,
+        r: 3 + Math.random() * 4,
+        kleur: palet[Math.floor(Math.random() * palet.length)],
+        leven: 1
+    }));
+
+    let frame;
+    function teken() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let actief = false;
+        for (const d of deeltjes) {
+            d.x += d.vx; d.y += d.vy;
+            d.vy += 0.3;
+            d.leven -= 0.018;
+            if (d.leven <= 0) continue;
+            actief = true;
+            ctx.globalAlpha = d.leven;
+            ctx.fillStyle = d.kleur;
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        if (actief) { frame = requestAnimationFrame(teken); }
+        else { cancelAnimationFrame(frame); canvas.remove(); }
+    }
+    frame = requestAnimationFrame(teken);
+}
+
+/* ════════════════════════════════════════
+   SCROLL-ENTRANCE + STAGGER
+   ════════════════════════════════════════ */
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+        }
+    });
 }, { threshold: 0.1 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-    laadWinnaars();
-    initParticleCanvas();
-    initScrollStroke();
-});
+/* ════════════════════════════════════════
+   ORB PARALLAX
+   ════════════════════════════════════════ */
+function initOrbParallax() {
+    const bgCanvas = document.getElementById('bgCanvas');
+    if (!bgCanvas) return;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(() => {
+                const y = window.scrollY;
+                bgCanvas.style.transform = `translateY(${y * 0.03}px)`;
+                ticking = false;
+            });
+        }
+    }, { passive: true });
+}
 
 /* ════════════════════════════════════════
    PARTICLE CANVAS — "WoordSpeler" titel
    ════════════════════════════════════════ */
-function initParticleCanvas() {
-    const canvas = document.getElementById('particleCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+let particles = [];
+let particleCtx, particleCanvas;
 
-    let particles = [];
+function initParticleCanvas() {
+    particleCanvas = document.getElementById('particleCanvas');
+    if (!particleCanvas) return;
+    particleCtx = particleCanvas.getContext('2d', { willReadFrequently: true });
+
     let mouseX = -9999, mouseY = -9999;
-    let rafId;
     const TEKST = 'WoordSpeler';
 
     class Deeltje {
@@ -424,14 +555,14 @@ function initParticleCanvas() {
             this.y = y + (Math.random() - 0.5) * 8;
             this.vx = (Math.random() - 0.5) * 3;
             this.vy = (Math.random() - 0.5) * 3;
-            this.grootte = 1.4 + Math.random() * 0.8;
+            this.grootte = 1.6 + Math.random() * 1.0;
             this.kleur = kleur;
         }
         update() {
             const dx = mouseX - this.x;
             const dy = mouseY - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const radius = 100;
+            const radius = 120;
             if (dist < radius && mouseX !== -9999) {
                 const kracht = (radius - dist) / radius;
                 this.vx -= (dx / dist) * kracht * 14;
@@ -452,19 +583,20 @@ function initParticleCanvas() {
         }
     }
 
-    function bouwParticles() {
-        const dpr = window.devicePixelRatio || 1;
-        const W = canvas.offsetWidth;
-        const H = canvas.offsetHeight;
-        canvas.width = W * dpr;
-        canvas.height = H * dpr;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.scale(dpr, dpr);
+    window._DeeltjeClass = Deeltje;
+    window._mouseState = { x: mouseX, y: mouseY };
 
-        // Teken tekst op tijdelijk canvas voor pixel sampling
+    function bouwParticlesIntern() {
+        const dpr = window.devicePixelRatio || 1;
+        const W = particleCanvas.offsetWidth;
+        const H = particleCanvas.offsetHeight;
+        particleCanvas.width = W * dpr;
+        particleCanvas.height = H * dpr;
+        particleCtx.setTransform(1, 0, 0, 1, 0, 0);
+        particleCtx.scale(dpr, dpr);
+
         const tmp = document.createElement('canvas');
-        tmp.width = W * dpr;
-        tmp.height = H * dpr;
+        tmp.width = W * dpr; tmp.height = H * dpr;
         const tc = tmp.getContext('2d');
         tc.scale(dpr, dpr);
 
@@ -478,8 +610,8 @@ function initParticleCanvas() {
         const data = tc.getImageData(0, 0, tmp.width, tmp.height);
         particles = [];
         const stap = Math.max(3, Math.round(dpr * 3));
+        const kleuren = getParticleKleuren();
 
-        const kleuren = ['#4CC97A', '#34D399', '#F7C948', '#4CC97A', '#34D399'];
         for (let y = 0; y < tmp.height; y += stap) {
             for (let x = 0; x < tmp.width; x += stap) {
                 const i = (y * tmp.width + x) * 4;
@@ -491,37 +623,40 @@ function initParticleCanvas() {
         }
     }
 
+    // Make bouwParticles accessible globally for groepkiezer
+    window.bouwParticles = bouwParticlesIntern;
+
     function animeer() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (const p of particles) { p.update(); p.teken(ctx); }
-        rafId = requestAnimationFrame(animeer);
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        for (const p of particles) { p.update(); p.teken(particleCtx); }
+        requestAnimationFrame(animeer);
     }
 
     function muisBewegen(e) {
-        const rect = canvas.getBoundingClientRect();
+        const rect = particleCanvas.getBoundingClientRect();
         mouseX = e.clientX - rect.left;
         mouseY = e.clientY - rect.top;
     }
     function muisWeg() { mouseX = -9999; mouseY = -9999; }
     function aanraken(e) {
-        const rect = canvas.getBoundingClientRect();
+        const rect = particleCanvas.getBoundingClientRect();
         mouseX = e.touches[0].clientX - rect.left;
         mouseY = e.touches[0].clientY - rect.top;
     }
 
-    canvas.addEventListener('mousemove', muisBewegen);
-    canvas.addEventListener('mouseleave', muisWeg);
-    canvas.addEventListener('touchmove', aanraken, { passive: true });
-    canvas.addEventListener('touchend', muisWeg);
+    particleCanvas.addEventListener('mousemove', muisBewegen);
+    particleCanvas.addEventListener('mouseleave', muisWeg);
+    particleCanvas.addEventListener('touchmove', aanraken, { passive: true });
+    particleCanvas.addEventListener('touchend', muisWeg);
 
-    const ro = new ResizeObserver(() => { bouwParticles(); });
-    ro.observe(canvas.parentElement);
+    const ro = new ResizeObserver(() => { bouwParticlesIntern(); });
+    ro.observe(particleCanvas.parentElement);
 
-    setTimeout(() => { bouwParticles(); animeer(); }, 80);
+    setTimeout(() => { bouwParticlesIntern(); animeer(); }, 80);
 }
 
 /* ════════════════════════════════════════
-   STROKE SVG — volgt scroll voortgang
+   STROKE SVG
    ════════════════════════════════════════ */
 function initScrollStroke() {
     const pad = document.getElementById('strokePath');
@@ -540,19 +675,26 @@ function initScrollStroke() {
 }
 
 /* ════════════════════════════════════════
-   WINNAARS LADEN
+   WINNAARS + TELLER
    ════════════════════════════════════════ */
 async function laadWinnaars() {
     const container = document.getElementById('winnaarsList');
+    const teller = document.getElementById('verhaalTeller');
     try {
         const r2 = await fetch('/api/verhaal');
         const verhaal = await r2.json();
-        const hoofdstukken = (verhaal.hoofdstukken || []).slice(-3).reverse();
-        if (hoofdstukken.length === 0) {
-            container.innerHTML = '<div style="text-align:center;padding:16px 0;color:rgba(167,196,181,0.5);font-size:0.88rem;">Nog geen winnaars. Doe mee en win!</div>';
+        const hoofdstukken = verhaal.hoofdstukken || [];
+
+        if (teller && hoofdstukken.length > 0) {
+            teller.textContent = `📚 Al ${hoofdstukken.length} hoofdstuk${hoofdstukken.length === 1 ? '' : 'ken'} geschreven!`;
+        }
+
+        const laatste = hoofdstukken.slice(-3).reverse();
+        if (laatste.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--landing-tekst-zacht);font-size:0.88rem;">Nog geen winnaars. Doe mee en win!</div>';
             return;
         }
-        container.innerHTML = hoofdstukken.map((h, i) => `
+        container.innerHTML = laatste.map((h, i) => `
             <div class="winnaar-kaart">
                 <span class="winnaar-kroon">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
                 <div>
@@ -563,69 +705,36 @@ async function laadWinnaars() {
             </div>
         `).join('');
     } catch(e) {
-        container.innerHTML = '<div style="text-align:center;padding:16px 0;color:rgba(167,196,181,0.4);font-size:0.88rem;">Kon winnaars niet laden.</div>';
+        container.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--landing-tekst-zacht);font-size:0.88rem;">Kon winnaars niet laden.</div>';
     }
 }
 
-/* ════════════════════════════════════════
-   IDEE INSTUREN
-   ════════════════════════════════════════ */
-async function verstuurIdee() {
-    const naam = document.getElementById('ideeNaam').value.trim();
-    const tekst = document.getElementById('ideeTekst').value.trim();
-    const knop = document.getElementById('ideeKnop');
-    const succes = document.getElementById('ideeSucces');
-    const fout = document.getElementById('ideeFout');
-    succes.style.display = 'none'; fout.style.display = 'none';
-    if (!naam || !tekst) { fout.textContent = '❌ Vul naam en idee in.'; fout.style.display = 'block'; return; }
-    knop.disabled = true; knop.textContent = '⏳ Versturen...';
-    try {
-        const r = await fetch('/api/idee', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ naam, tekst })
-        });
-        const data = await r.json();
-        if (data.succes) {
-            succes.style.display = 'block';
-            document.getElementById('ideeNaam').value = '';
-            document.getElementById('ideeTekst').value = '';
-        } else {
-            fout.textContent = '❌ ' + (data.bericht || 'Fout');
-            fout.style.display = 'block';
-        }
-    } catch(e) { fout.textContent = '❌ Geen verbinding.'; fout.style.display = 'block'; }
-    knop.disabled = false; knop.textContent = '🚀 Verstuur!';
-}
-
-function escapeHTML(t) {
-    if (!t) return '';
+function escapeHTML(str) {
     const d = document.createElement('div');
-    d.appendChild(document.createTextNode(t));
+    d.textContent = str;
     return d.innerHTML;
 }
+
+/* ════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    initGroepkiezer();
+    laadWinnaars();
+    initParticleCanvas();
+    initScrollStroke();
+    initOrbParallax();
+});
 </script>
 
 <script>
 /* Groep-detectie: stel data-groep in op body voor kleuradaptatie */
 (function() {
-  const groep = localStorage.getItem('groep') || null;
-  if (groep) {
-    document.body.setAttribute('data-groep', groep);
-    /* Licht de bento-cel van de eigen groep op */
-    const map = { A: '.gm-oranje', B: '.gm-paars2', C: '.gm-groen2' };
-    const sel = map[groep];
-    if (sel) {
-      document.querySelectorAll(sel).forEach(el => {
-        el.style.fontWeight = '900';
-        el.style.boxShadow = groep === 'A'
-          ? '0 0 12px rgba(242,140,56,0.35)'
-          : groep === 'B'
-          ? '0 0 12px rgba(139,92,246,0.35)'
-          : '0 0 12px rgba(76,201,122,0.3)';
-      });
+    const groep = localStorage.getItem('groep') || null;
+    if (groep) {
+        document.body.setAttribute('data-groep', groep);
     }
-  }
 })();
 </script>
 <script src="knop.js"></script>
