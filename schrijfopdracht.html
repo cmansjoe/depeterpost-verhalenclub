@@ -224,7 +224,7 @@
 <div class="container">
 
     <!-- Groep selector -->
-    <div class="groep-balk">
+    <div class="groep-balk glass fade-in">
         <span>Mijn leeftijdsgroep:</span>
         <button class="groep-keuze" onclick="wisselGroep('A', this)">🦊 Jonge Vos (6–8)</button>
         <button class="groep-keuze actief-B" onclick="wisselGroep('B', this)">🦉 Slimme Uil (9–11)</button>
@@ -232,7 +232,7 @@
     </div>
 
     <!-- Opdracht container -->
-    <div id="opdrachtContainer">
+    <div id="opdrachtContainer" class="fade-in">
         <div class="geen-opdracht">
             <span class="groot-emoji">⏳</span>
             <h3>Opdracht laden...</h3>
@@ -240,7 +240,7 @@
     </div>
 
     <!-- Schrijf sectie -->
-    <div class="schrijf-sectie" id="schrijfSectie" style="display:none;">
+    <div class="schrijf-sectie glass fade-in" id="schrijfSectie" style="display:none;">
         <h2>✏️ Schrijf Jouw Verhaaltje</h2>
         <p>Gebruik het personage, de omgeving en de gebeurtenis van vandaag. Succes!</p>
 
@@ -282,7 +282,7 @@
     </div>
 
     <!-- AI Feedback scherm -->
-    <div id="feedbackScherm">
+    <div id="feedbackScherm" class="glass fade-in">
         <div class="feedback-titel">🤖 Feedback van de AI</div>
         <div class="feedback-subtitel">Hier is wat de AI van jouw verhaal vindt!</div>
 
@@ -330,7 +330,7 @@
     </div>
 
     <!-- Succes scherm -->
-    <div class="succes-scherm" id="succesScherm">
+    <div class="succes-scherm fade-in" id="succesScherm">
         <div class="succes-emoji">🎉</div>
         <div class="succes-titel">Joepie! Ingestuurd!</div>
         <p class="succes-sub">Je verhaaltje is ontvangen en wordt beoordeeld. Morgen zie je wie gewonnen heeft!</p>
@@ -355,6 +355,16 @@
 <script>
 AUTH.initNav();
 
+// Scroll-entrance animaties
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
 let huidigeOpdracht = null;
 let huidigGroep = 'B';
 let huidigeTekst = '';
@@ -364,6 +374,7 @@ let feedbackData = null;
 
 // ── Initialisatie ──
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
         const u = JSON.parse(userInfo);
