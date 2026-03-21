@@ -65,12 +65,8 @@
         .stroke-svgwrapper svg { width: 100%; height: 100%; overflow: visible; }
 
         /* ── BENTO GRID ── */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 16px;
-            margin-bottom: 16px;
-        }
+        /* .bento-grid basis staat in style.css; alleen de override hier */
+        .bento-grid { margin-bottom: 16px; }
 
         .bento-cel {
             border-radius: 36px;
@@ -348,7 +344,7 @@
     <div class="bento-grid">
 
         <!-- ① Het Woordduel (groot, 2 kolommen x 2 rijen) -->
-        <div class="bento-cel bento-groen span-2 rij-2">
+        <div class="bento-cel bento-groen span-2 rij-2 glass fade-in">
             <div class="bento-illus">
                 <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="90" cy="75" r="65" fill="rgba(76,201,122,0.07)"/>
@@ -385,7 +381,7 @@
         </div>
 
         <!-- ② Mijn Woordenschat (normaal, 2 kolommen) -->
-        <div class="bento-cel bento-geel span-2">
+        <div class="bento-cel bento-geel span-2 glass fade-in">
             <div class="bento-illus" style="min-height:60px;">
                 <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="90" cy="75" r="65" fill="rgba(247,201,72,0.06)"/>
@@ -405,7 +401,7 @@
         </div>
 
         <!-- ③ De Woordenstorm (groot, 2 kolommen x 2 rijen) -->
-        <div class="bento-cel bento-paars span-2 rij-2">
+        <div class="bento-cel bento-paars span-2 rij-2 glass fade-in">
             <div class="bento-illus">
                 <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="90" cy="75" r="65" fill="rgba(124,58,237,0.07)"/>
@@ -437,7 +433,7 @@
         </div>
 
         <!-- ④ Idee insturen (normaal, 2 kolommen) -->
-        <div class="bento-cel bento-donker span-2">
+        <div class="bento-cel bento-donker span-2 glass fade-in">
             <span class="bento-tag tag-donker">💡 Jouw idee</span>
             <div class="bento-naam" style="color:rgba(167,196,181,0.9);">Stuur een Idee In!</div>
             <p class="bento-tekst" style="margin-bottom:10px;">Heb je een cool idee voor een verhaal? Deel het!</p>
@@ -455,7 +451,7 @@
     <div class="bento-grid">
 
         <!-- ⑤ Laatste Winnaars (breed, 3 kolommen) -->
-        <div class="bento-cel bento-donker span-3">
+        <div class="bento-cel bento-donker span-3 glass fade-in">
             <span class="bento-tag tag-geel">🏆 Winnaars</span>
             <div class="bento-naam" style="color:#F7C948; margin-bottom:12px;">Laatste Winnaars</div>
             <div id="winnaarsList">
@@ -464,7 +460,7 @@
         </div>
 
         <!-- ⑥ Over WoordSpeler (breed, 3 kolommen) -->
-        <div class="bento-cel bento-donker span-3">
+        <div class="bento-cel bento-donker span-3 glass fade-in">
             <span class="bento-tag tag-donker">📚 Over ons</span>
             <div class="bento-naam" style="color:white; margin-bottom:10px;">Over WoordSpeler</div>
             <p style="color:rgba(255,255,255,0.5); line-height:1.8; font-size:0.9rem;">
@@ -490,6 +486,16 @@
 <script src="auth.js"></script>
 <script>
 AUTH.initNav();
+
+// Scroll-entrance animaties
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
 document.addEventListener('DOMContentLoaded', () => {
     laadWinnaars();
