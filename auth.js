@@ -83,6 +83,11 @@ const AUTH = (() => {
         const u = getUserInfo();
         if (!u) return;
 
+        // Zet leeftijdsgroep-thema op <body>
+        if (u.leeftijdsgroep) {
+            document.body.setAttribute('data-groep', u.leeftijdsgroep);
+        }
+
         const ll = document.getElementById('navLoginLink');
         if (ll) {
             const badge = document.createElement('span');
