@@ -6,310 +6,232 @@
     <title>WoordSpeler — Jouw woorden. Jouw spel.</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body { overflow-x: hidden; }
+body { overflow-x: hidden; }
 
-        /* ── ACHTERGROND ORBS ── */
-        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-        .bg-orb {
-            position: absolute; border-radius: 50%; filter: blur(80px);
-            animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
-        }
-        @keyframes orbDrift {
-            from { transform: translate(0,0) scale(1); }
-            to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
-        }
+/* ── ACHTERGROND ORBS ── */
+.bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.bg-orb {
+    position: absolute; border-radius: 50%; filter: blur(80px);
+    animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
+    will-change: transform;
+}
+@keyframes orbDrift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
+}
 
-        main { position: relative; z-index: 1; padding: 0 0 60px; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+main { position: relative; z-index: 1; padding: 0 0 60px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
-        /* ── PARTICLE HEADER ── */
-        .particle-header {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 0 0;
-            overflow: visible;
-            z-index: 2;
-        }
-        #particleCanvas {
-            display: block;
-            width: 100%;
-            max-width: 700px;
-            height: 130px;
-            cursor: none;
-            touch-action: none;
-        }
-        .particle-subtitle {
-            color: rgba(167,196,181,0.6);
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-top: -8px;
-            margin-bottom: 6px;
-        }
+/* ── PARTICLE HEADER ── */
+.particle-header {
+    position: relative; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8px 0 0; overflow: visible; z-index: 2;
+}
+#particleCanvas {
+    display: block; width: 100%; max-width: 700px;
+    height: 130px; cursor: none; touch-action: none;
+}
+.particle-subtitle {
+    color: var(--landing-tekst-zacht);
+    font-size: 0.85rem; letter-spacing: 2px;
+    text-transform: uppercase; margin-top: -8px; margin-bottom: 6px;
+}
 
-        /* ── STROKE SVG ── */
-        .stroke-svgwrapper {
-            position: fixed;
-            right: -60px;
-            top: 0;
-            width: 340px;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.22;
-            overflow: visible;
-        }
-        .stroke-svgwrapper svg { width: 100%; height: 100%; overflow: visible; }
+/* ── STROKE SVG ── */
+.stroke-svgwrapper {
+    position: fixed; right: -60px; top: 0; width: 340px;
+    height: 100vh; pointer-events: none; z-index: 0; opacity: 0.22; overflow: visible;
+}
+.stroke-svgwrapper svg { width: 100%; height: 100%; overflow: visible; }
 
-        /* ── BENTO GRID ── */
-        /* .bento-grid basis staat in style.css; alleen de override hier */
-        .bento-grid { margin-bottom: 16px; }
+/* ── GROEPKIEZER ── */
+.groepkiezer { display: flex; gap: 16px; justify-content: center; margin: 24px 0 16px; flex-wrap: wrap; }
+.groepkiezer-kaart {
+    flex: 0 1 160px; padding: 20px 16px; border-radius: 24px;
+    text-align: center; text-decoration: none; cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    perspective: 600px;
+    animation: ademKaart 3s ease-in-out infinite;
+}
+@keyframes ademKaart {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+.groepkiezer-kaart:hover {
+    transform: rotateY(8deg) scale(1.06);
+    animation: none;
+}
+.groepkiezer-kaart .groep-emoji { font-size: 2rem; margin-bottom: 8px; display: block; }
+.groepkiezer-kaart .groep-label { font-weight: 800; font-size: 0.85rem; display: block; }
+.groepkiezer-kaart .groep-leeftijd { font-size: 0.72rem; opacity: 0.6; display: block; margin-top: 2px; }
+.gk-oranje { background: rgba(242,140,56,0.15); border: 2px solid rgba(242,140,56,0.35); }
+.gk-oranje .groep-label { color: #F28C38; }
+.gk-oranje:hover { box-shadow: 0 12px 40px rgba(242,140,56,0.3); border-color: rgba(242,140,56,0.6); }
+.gk-paars { background: rgba(139,92,246,0.15); border: 2px solid rgba(139,92,246,0.35); }
+.gk-paars .groep-label { color: #8B5CF6; }
+.gk-paars:hover { box-shadow: 0 12px 40px rgba(139,92,246,0.3); border-color: rgba(139,92,246,0.6); }
+.gk-blauw { background: rgba(56,189,248,0.12); border: 2px solid rgba(56,189,248,0.3); }
+.gk-blauw .groep-label { color: #38BDF8; }
+.gk-blauw:hover { box-shadow: 0 12px 40px rgba(56,189,248,0.25); border-color: rgba(56,189,248,0.5); }
+.groepkiezer.verborgen { display: none; }
 
-        .bento-cel {
-            border-radius: 36px;
-            padding: 28px 24px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-        }
-        .bento-cel:hover { transform: translateY(-4px); }
+/* ── HERO ── */
+.hero-cel {
+    border-radius: 24px; padding: 40px 32px;
+    text-align: center; margin-bottom: 48px;
+    position: relative; overflow: hidden;
+}
+.hero-titel {
+    font-family: 'Baloo 2', cursive; font-size: 2.2rem; font-weight: 900;
+    color: var(--landing-tekst); margin-bottom: 12px; line-height: 1.2;
+}
+.hero-tekst {
+    color: var(--landing-tekst-zacht); font-size: 1rem;
+    line-height: 1.8; max-width: 600px; margin: 0 auto 20px;
+}
+.hero-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 1rem;
+    padding: 14px 32px; border-radius: 50px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--landing-accent), var(--landing-accent));
+    color: var(--landing-bg); text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px var(--landing-accent-licht);
+}
+.hero-cta:active { transform: scale(0.96); }
+.hero-cta .cta-pijl {
+    display: inline-block; transition: transform 0.2s ease;
+}
+.hero-cta:hover .cta-pijl { transform: translateX(4px); }
 
-        /* Shine shimmer */
-        .bento-cel::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 40%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: skewX(-18deg);
-            pointer-events: none;
-            transition: left 0s;
-        }
-        .bento-cel:hover::after {
-            animation: bentoGlans 0.55s ease forwards;
-        }
-        @keyframes bentoGlans {
-            from { left: -100%; }
-            to   { left: 160%; }
-        }
+/* ── SECTIE LABELS ── */
+.sectie-label {
+    color: var(--landing-tekst-zacht); font-size: 0.75rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+}
+.sectie-label::after { content: ''; flex: 1; height: 1px; background: var(--landing-accent-licht); }
 
-        /* Cel kleuren */
-        .bento-groen {
-            background: linear-gradient(145deg, rgba(13,43,26,0.92), rgba(76,201,122,0.13));
-            border-color: rgba(76,201,122,0.35);
-            min-height: 200px;
-        }
-        .bento-groen:hover { box-shadow: 0 20px 60px rgba(76,201,122,0.22); border-color: rgba(76,201,122,0.6); }
+/* ── SPELMODUS KAARTEN ── */
+.modus-cel {
+    border-radius: 24px; padding: 28px 24px;
+    position: relative; overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    display: flex; flex-direction: column; min-height: 280px;
+}
+.modus-cel:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 
-        .bento-geel {
-            background: linear-gradient(145deg, rgba(13,43,26,0.92), rgba(247,201,72,0.12));
-            border-color: rgba(247,201,72,0.35);
-            min-height: 200px;
-        }
-        .bento-geel:hover { box-shadow: 0 20px 60px rgba(247,201,72,0.18); border-color: rgba(247,201,72,0.6); }
+/* Shine shimmer */
+.modus-cel::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transform: skewX(-18deg); pointer-events: none; transition: left 0s;
+}
+.modus-cel:hover::after { animation: bentoGlans 0.55s ease forwards; }
+@keyframes bentoGlans { from { left: -100%; } to { left: 160%; } }
 
-        .bento-paars {
-            background: linear-gradient(145deg, rgba(13,43,26,0.92), rgba(124,58,237,0.18));
-            border-color: rgba(124,58,237,0.38);
-            min-height: 200px;
-        }
-        .bento-paars:hover { box-shadow: 0 20px 60px rgba(124,58,237,0.25); border-color: rgba(124,58,237,0.6); }
+/* Glow achter kaart bij hover */
+.modus-cel::before {
+    content: ''; position: absolute; inset: -2px; border-radius: 26px;
+    background: var(--landing-accent); opacity: 0; filter: blur(20px);
+    transition: opacity 0.3s ease; z-index: -1; pointer-events: none;
+}
+.modus-cel:hover::before { opacity: 0.08; }
 
-        .bento-donker {
-            background: rgba(13,43,26,0.7);
-            border-color: rgba(76,201,122,0.2);
-            min-height: 200px;
-        }
-        .bento-donker:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.3); border-color: rgba(76,201,122,0.4); }
+.modus-tag {
+    display: inline-block; font-size: 0.72rem; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 50px; margin-bottom: 12px;
+    align-self: flex-start;
+    background: var(--landing-accent-licht); color: var(--landing-accent);
+    border: 1px solid var(--landing-accent-rand);
+}
+.bento-naam {
+    font-family: 'Grandstander', cursive; font-size: 1.3rem;
+    color: var(--landing-accent); margin-bottom: 8px; line-height: 1.2;
+}
+.bento-tekst {
+    color: var(--landing-tekst-zacht); font-size: 0.88rem;
+    line-height: 1.7; flex: 1;
+}
+.modus-knop {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 0.88rem;
+    padding: 10px 20px; border-radius: 50px;
+    transition: transform 0.2s ease, background 0.2s ease;
+    text-decoration: none; align-self: flex-start; margin-top: auto;
+    background: var(--landing-accent-licht); color: var(--landing-accent);
+    border: 1px solid var(--landing-accent-rand);
+}
+.modus-cel:hover .modus-knop { filter: brightness(1.2); transform: translateX(5px); }
+.modus-knop .cta-pijl { display: inline-block; transition: transform 0.2s ease; }
+.modus-cel:hover .modus-knop .cta-pijl { transform: translateX(4px); }
 
-        /* Grid spans */
-        .span-2   { grid-column: span 2; }
-        .span-3   { grid-column: span 3; }
-        .span-4   { grid-column: span 4; }
-        .rij-2    { grid-row: span 2; }
+/* Modus illustraties */
+.modus-illus {
+    flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+    min-height: 80px; margin-bottom: 8px;
+    animation: illusFloat 4s ease-in-out infinite;
+}
+@keyframes illusFloat {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+.modus-illus svg { width: 100px; height: 80px; }
 
-        @media (max-width: 900px) {
-            .bento-grid { grid-template-columns: 1fr 1fr; }
-            .span-2, .span-3, .span-4 { grid-column: span 2; }
-            .rij-2 { grid-row: span 1; }
-        }
-        @media (max-width: 560px) {
-            .bento-grid { grid-template-columns: 1fr; }
-            .span-2, .span-3, .span-4 { grid-column: span 1; }
-        }
+/* ── SOCIAL PROOF ── */
+.social-proof {
+    border-radius: 24px; padding: 28px 24px;
+    margin-top: 48px; margin-bottom: 16px;
+}
+.winnaar-kaart {
+    background: rgba(0,0,0,0.15); border: 1px solid var(--landing-accent-rand);
+    border-radius: 16px; padding: 14px; margin-bottom: 10px;
+    display: flex; gap: 12px; align-items: flex-start;
+}
+.winnaar-kroon { font-size: 1.6rem; flex-shrink: 0; }
+.winnaar-naam { color: var(--landing-accent); font-weight: 800; font-size: 0.88rem; margin-bottom: 3px; }
+.winnaar-datum { color: var(--landing-tekst-zacht); font-size: 0.73rem; margin-bottom: 5px; opacity: 0.6; }
+.winnaar-tekst { color: var(--landing-tekst-zacht); font-size: 0.83rem; line-height: 1.5; }
 
-        /* ── CEL INHOUD ── */
-        .bento-tag {
-            display: inline-block; font-size: 0.72rem; font-weight: 800;
-            letter-spacing: 1px; text-transform: uppercase;
-            padding: 4px 14px; border-radius: 50px; margin-bottom: 12px;
-            align-self: flex-start;
-        }
-        .tag-groen  { background: rgba(76,201,122,0.15);  color: #4CC97A;  border: 1px solid rgba(76,201,122,0.3); }
-        .tag-geel   { background: rgba(247,201,72,0.12);  color: #F7C948;  border: 1px solid rgba(247,201,72,0.3); }
-        .tag-paars  { background: rgba(124,58,237,0.15);  color: #c4b5fd;  border: 1px solid rgba(124,58,237,0.3); }
-        .tag-donker { background: rgba(76,201,122,0.08);  color: rgba(167,196,181,0.8); border: 1px solid rgba(76,201,122,0.15); }
+/* ── STAGGER FADE-IN ── */
+.fade-in:nth-child(1) { transition-delay: 0ms; }
+.fade-in:nth-child(2) { transition-delay: 100ms; }
+.fade-in:nth-child(3) { transition-delay: 200ms; }
+.fade-in.hero-fade { transition: opacity 0.6s ease, transform 0.6s ease; transform: translateY(20px) scale(0.95); }
+.fade-in.hero-fade.visible { transform: translateY(0) scale(1); }
 
-        .bento-naam {
-            font-family: 'Grandstander', cursive; font-size: 1.3rem;
-            color: white; margin-bottom: 8px; line-height: 1.2;
-        }
-        .bento-naam-groen  { color: #4CC97A; }
-        .bento-naam-geel   { color: #F7C948; }
-        .bento-naam-paars  { color: #c4b5fd; }
-
-        .bento-tekst {
-            color: rgba(167,196,181,0.75); font-size: 0.88rem;
-            line-height: 1.7; flex: 1;
-        }
-
-        .bento-stappen { list-style: none; padding: 0; margin: 8px 0 16px; display: flex; flex-direction: column; gap: 7px; }
-        .bento-stap {
-            display: flex; align-items: flex-start; gap: 9px;
-            font-size: 0.82rem; color: rgba(167,196,181,0.8);
-        }
-        .bento-stap-nr {
-            flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 0.72rem;
-        }
-        .nr-groen  { background: rgba(76,201,122,0.2);  color: #4CC97A;  border: 1px solid rgba(76,201,122,0.4); }
-        .nr-geel   { background: rgba(247,201,72,0.15); color: #F7C948;  border: 1px solid rgba(247,201,72,0.35); }
-        .nr-paars  { background: rgba(124,58,237,0.2);  color: #c4b5fd;  border: 1px solid rgba(124,58,237,0.4); }
-
-        .bento-knop {
-            display: inline-flex; align-items: center; gap: 8px;
-            font-family: 'Baloo 2', sans-serif; font-weight: 900; font-size: 0.88rem;
-            padding: 10px 20px; border-radius: 50px;
-            transition: transform 0.2s ease, background 0.2s ease;
-            text-decoration: none; align-self: flex-start; margin-top: auto;
-        }
-        .bento-cel:hover .bento-knop { transform: translateX(5px); }
-        .knop-groen  { background: rgba(76,201,122,0.2);  color: #4CC97A;  border: 1px solid rgba(76,201,122,0.45); }
-        .knop-geel   { background: rgba(247,201,72,0.15); color: #F7C948;  border: 1px solid rgba(247,201,72,0.4); }
-        .knop-paars  { background: rgba(124,58,237,0.2);  color: #c4b5fd;  border: 1px solid rgba(124,58,237,0.45); }
-        .bento-cel:hover .knop-groen  { background: rgba(76,201,122,0.32); }
-        .bento-cel:hover .knop-geel   { background: rgba(247,201,72,0.28); }
-        .bento-cel:hover .knop-paars  { background: rgba(124,58,237,0.35); }
-
-        /* Groep-mini-knoppen in bento */
-        .groep-mini { display: flex; gap: 7px; flex-wrap: wrap; margin: 10px 0; }
-        .groep-mini a {
-            flex: 1; min-width: 60px; text-align: center;
-            padding: 9px 5px; border-radius: 20px; text-decoration: none;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .groep-mini a:hover { transform: translateY(-3px); }
-        .gm-oranje { background: rgba(242,140,56,0.18); border: 1px solid rgba(242,140,56,0.4); }
-        .gm-oranje:hover { background: rgba(242,140,56,0.32) !important; }
-        .gm-paars2 { background: rgba(139,92,246,0.18); border: 1px solid rgba(139,92,246,0.4); }
-        .gm-paars2:hover { background: rgba(139,92,246,0.32) !important; }
-        .gm-groen2 { background: rgba(76,201,122,0.18); border: 1px solid rgba(76,201,122,0.4); }
-        .gm-groen2:hover { background: rgba(76,201,122,0.32) !important; }
-
-        /* Illustraties in bento */
-        .bento-illus {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            min-height: 80px;
-            animation: illusFloat 4s ease-in-out infinite;
-        }
-        @keyframes illusFloat {
-            0%, 100% { transform: translateY(0); }
-            50%       { transform: translateY(-8px); }
-        }
-        .bento-illus svg { width: 120px; height: 100px; }
-
-        /* ── WINNAARS ── */
-        .winnaar-kaart {
-            background: rgba(13,43,26,0.4); border: 1px solid rgba(247,201,72,0.2);
-            border-radius: 20px; padding: 14px; margin-bottom: 10px;
-            display: flex; gap: 12px; align-items: flex-start;
-        }
-        .winnaar-kroon { font-size: 1.6rem; flex-shrink: 0; }
-        .winnaar-naam { color: #F7C948; font-weight: 800; font-size: 0.88rem; margin-bottom: 3px; }
-        .winnaar-datum { color: rgba(167,196,181,0.45); font-size: 0.73rem; margin-bottom: 5px; }
-        .winnaar-tekst { color: rgba(167,196,181,0.7); font-size: 0.83rem; line-height: 1.5; }
-
-        /* ── IDEE FORMULIER ── */
-        .idee-input, .idee-textarea {
-            width: 100%; padding: 11px 14px;
-            background: rgba(13,43,26,0.6); border: 2px solid rgba(76,201,122,0.2);
-            border-radius: 20px; color: white;
-            font-family: 'Baloo 2', sans-serif; font-size: 0.92rem;
-            outline: none; margin-bottom: 9px; transition: border-color 0.2s;
-        }
-        .idee-input:focus, .idee-textarea:focus { border-color: #4CC97A; }
-        .idee-input::placeholder, .idee-textarea::placeholder { color: rgba(167,196,181,0.4); }
-        .idee-textarea { min-height: 80px; resize: vertical; }
-        .idee-knop {
-            width: 100%; padding: 12px;
-            background: linear-gradient(135deg, #4CC97A, #34D399);
-            border: none; border-radius: 50px; color: #0D2B1A;
-            font-family: 'Baloo 2', sans-serif; font-weight: 900;
-            font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
-        }
-        .idee-knop:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(76,201,122,0.4); }
-        .melding-badge {
-            background: rgba(247,201,72,0.1); border: 1px dashed rgba(247,201,72,0.3);
-            color: rgba(247,201,72,0.85); font-size: 0.8rem;
-            padding: 8px 12px; border-radius: 50px; margin-top: 7px;
-            display: block;
-        }
-        .melding-succes-donker {
-            background: rgba(76,201,122,0.1); border: 1px solid rgba(76,201,122,0.25);
-            color: #4CC97A; border-radius: 14px; padding: 10px 14px;
-            font-size: 0.88rem; font-weight: 700; display: none; margin-top: 8px;
-        }
-        .melding-fout-donker {
-            background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25);
-            color: #F87171; border-radius: 14px; padding: 10px 14px;
-            font-size: 0.88rem; font-weight: 700; display: none; margin-top: 8px;
-        }
-
-        /* ── SECTIE LABELS ── */
-        .sectie-label {
-            color: rgba(167,196,181,0.5); font-size: 0.75rem; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .sectie-label::after { content: ''; flex: 1; height: 1px; background: rgba(76,201,122,0.1); }
-        .bento-sectie-label { margin-top: 28px; }
-
-        /* Over de club links */
-        .over-links { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 16px; }
-        .over-links a {
-            padding: 9px 18px; border-radius: 20px;
-            text-decoration: none; font-weight: 800; font-size: 0.87rem;
-            transition: transform 0.2s;
-        }
-        .over-links a:hover { transform: translateY(-2px); }
-        .ol-mint  { background: rgba(78,205,196,0.2); border: 1px solid rgba(78,205,196,0.3); color: #4ECDC4; }
-        .ol-paars { background: rgba(155,89,182,0.2); border: 1px solid rgba(155,89,182,0.3); color: #C39BD3; }
-        .ol-roze  { background: rgba(255,107,157,0.2); border: 1px solid rgba(255,107,157,0.3); color: #FF6B9D; }
-
-        /* nav-stijlen staan in style.css */
+@media (max-width: 560px) {
+    .hero-cel { padding: 28px 20px; }
+    .hero-titel { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+    .modus-cel { min-height: 220px; }
+    .groepkiezer { gap: 10px; }
+    .groepkiezer-kaart { flex: 0 1 120px; padding: 14px 10px; }
+}
     </style>
 </head>
 <body data-pagina="landing">
 
 <!-- Achtergrond orbs -->
-<div class="bg-canvas">
-    <div class="bg-orb" style="width:400px;height:400px;background:rgba(76,201,122,0.12);top:-100px;left:-100px;--d:14s;--tx:50px;--ty:40px;"></div>
-    <div class="bg-orb" style="width:350px;height:350px;background:rgba(247,201,72,0.08);bottom:-80px;right:-80px;--d:11s;--tx:-40px;--ty:-50px;"></div>
-    <div class="bg-orb" style="width:300px;height:300px;background:rgba(52,211,153,0.06);top:40%;left:60%;--d:9s;--tx:60px;--ty:-30px;"></div>
+<div class="bg-canvas" id="bgCanvas">
+    <div class="bg-orb" style="width:300px;height:300px;background:var(--landing-orb-1);top:-80px;left:-60px;--d:16s;--tx:50px;--ty:40px;"></div>
+    <div class="bg-orb" style="width:250px;height:250px;background:var(--landing-orb-2);bottom:-60px;right:-50px;--d:13s;--tx:-40px;--ty:-50px;"></div>
+    <div class="bg-orb" style="width:200px;height:200px;background:var(--landing-orb-1);top:35%;left:55%;--d:11s;--tx:60px;--ty:-30px;"></div>
+    <div class="bg-orb" style="width:180px;height:180px;background:var(--landing-orb-2);top:60%;left:10%;--d:14s;--tx:-30px;--ty:50px;"></div>
+    <div class="bg-orb" style="width:150px;height:150px;background:var(--landing-orb-1);top:20%;right:15%;--d:10s;--tx:40px;--ty:20px;"></div>
 </div>
 
-<!-- SVG SCROLL STROKE (decoratief) -->
+<!-- SVG SCROLL STROKE -->
 <div class="stroke-svgwrapper" aria-hidden="true">
     <svg viewBox="0 0 340 900" fill="none" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
         <path id="strokePath"
             d="M280 20 C260 80 180 60 200 140 C220 220 320 200 290 290 C260 380 140 350 170 450 C200 550 310 520 270 620 C230 720 100 700 140 800 C160 860 220 880 260 880"
-            stroke="#4CC97A"
+            stroke="var(--landing-stroke, #4CC97A)"
             stroke-width="3"
             stroke-linecap="round"
             fill="none"
@@ -325,6 +247,25 @@
     </div>
 </header>
 
+<!-- GROEPKIEZER (zichtbaar als geen groep bekend) -->
+<div class="groepkiezer" id="groepkiezer">
+    <div class="groepkiezer-kaart gk-oranje" data-kies-groep="A">
+        <span class="groep-emoji">🦊</span>
+        <span class="groep-label">Jonge Vos</span>
+        <span class="groep-leeftijd">6–8 jaar</span>
+    </div>
+    <div class="groepkiezer-kaart gk-paars" data-kies-groep="B">
+        <span class="groep-emoji">🦉</span>
+        <span class="groep-label">Slimme Uil</span>
+        <span class="groep-leeftijd">9–11 jaar</span>
+    </div>
+    <div class="groepkiezer-kaart gk-blauw" data-kies-groep="C">
+        <span class="groep-emoji">🐉</span>
+        <span class="groep-label">Wijze Draak</span>
+        <span class="groep-leeftijd">12+ jaar</span>
+    </div>
+</div>
+
 <!-- NAV -->
 <nav id="hoofdNav">
     <a href="index.html">🏠 Home</a>
@@ -339,141 +280,91 @@
 <main>
 <div class="container">
 
-    <!-- ── BENTO GRID ROW 1: 3 SPELSMODI ── -->
-    <div class="sectie-label bento-sectie-label">📂 Kies jouw missie</div>
-    <div class="bento-grid">
+    <!-- ── HERO ── -->
+    <div class="hero-cel glass fade-in hero-fade">
+        <h1 class="hero-titel">Elke dag een nieuw avontuur in woorden</h1>
+        <p class="hero-tekst">Bij WoordSpeler schrijf jij mee aan grote verhalen. De AI kiest de beste inzending — en die wordt onderdeel van het echte verhaal. Ben jij de volgende winnaar?</p>
+        <a href="verhaal.html" class="hero-cta">Begin je avontuur <span class="cta-pijl">→</span></a>
+    </div>
 
-        <!-- ① Het Woordduel (groot, 2 kolommen x 2 rijen) -->
-        <div class="bento-cel bento-groen span-2 rij-2 glass fade-in">
-            <div class="bento-illus">
+    <!-- ── SPELMODI ── -->
+    <div class="sectie-label">📂 Kies jouw missie</div>
+    <div class="homepage-grid">
+
+        <!-- ① Het Woordduel -->
+        <div class="modus-cel glass fade-in">
+            <div class="modus-illus">
                 <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="90" cy="75" r="65" fill="rgba(76,201,122,0.07)"/>
-                    <rect x="38" y="30" width="72" height="92" rx="8" fill="rgba(76,201,122,0.12)" stroke="rgba(76,201,122,0.45)" stroke-width="2"/>
-                    <rect x="38" y="30" width="13" height="92" rx="6" fill="rgba(76,201,122,0.25)" stroke="rgba(76,201,122,0.5)" stroke-width="1.5"/>
-                    <line x1="60" y1="56" x2="98" y2="56" stroke="rgba(76,201,122,0.5)" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="60" y1="68" x2="98" y2="68" stroke="rgba(76,201,122,0.4)" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="60" y1="80" x2="85" y2="80" stroke="rgba(76,201,122,0.3)" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="38" y="30" width="72" height="92" rx="8" fill="rgba(76,201,122,0.12)" stroke="var(--landing-accent)" stroke-opacity="0.45" stroke-width="2"/>
+                    <rect x="38" y="30" width="13" height="92" rx="6" fill="rgba(76,201,122,0.25)" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="1.5"/>
+                    <line x1="60" y1="56" x2="98" y2="56" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="60" y1="68" x2="98" y2="68" stroke="var(--landing-accent)" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="60" y1="80" x2="85" y2="80" stroke="var(--landing-accent)" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
                     <path d="M122 28 L130 48 L152 48 L135 60 L142 80 L122 68 L102 80 L109 60 L92 48 L114 48 Z" fill="none" stroke="rgba(247,201,72,0.7)" stroke-width="1.8" stroke-linejoin="round"/>
-                    <circle cx="108" cy="109" r="4" fill="rgba(247,201,72,0.7)"/>
                 </svg>
             </div>
-            <span class="bento-tag tag-groen">📖 Elke dag een nieuwe opdracht</span>
-            <div class="bento-naam bento-naam-groen">Het Woordduel</div>
-            <p class="bento-tekst">Het grote avontuur waar iedereen aan meewerkt. Elke dag een geheime schrijfopdracht — jij schrijft jouw versie, de AI beoordeelt, en de winnaar ziet zijn woorden in het echte verhaal.</p>
-            <div class="groep-mini">
-                <a href="verhaal.html?groep=A" class="gm-oranje">
-                    <div style="font-size:1.2rem;">🦊</div>
-                    <div style="color:#F28C38; font-weight:800; font-size:0.75rem;">Jonge Vos</div>
-                    <div style="color:rgba(242,140,56,0.6); font-size:0.68rem;">6–8 jaar</div>
-                </a>
-                <a href="verhaal.html?groep=B" class="gm-paars2">
-                    <div style="font-size:1.2rem;">🦉</div>
-                    <div style="color:#8B5CF6; font-weight:800; font-size:0.75rem;">Slimme Uil</div>
-                    <div style="color:rgba(139,92,246,0.6); font-size:0.68rem;">9–11 jaar</div>
-                </a>
-                <a href="verhaal.html?groep=C" class="gm-groen2">
-                    <div style="font-size:1.2rem;">🐉</div>
-                    <div style="color:#4CC97A; font-weight:800; font-size:0.75rem;">Wijze Draak</div>
-                    <div style="color:rgba(76,201,122,0.6); font-size:0.68rem;">12+ jaar</div>
-                </a>
-            </div>
-            <a href="verhaal.html#verhaal" class="bento-knop knop-groen">📖 Lees het grote verhaal →</a>
+            <span class="modus-tag">📖 Elke dag nieuw</span>
+            <div class="bento-naam">Het Woordduel</div>
+            <p class="bento-tekst">Schrijf elke dag mee aan het grote verhaal. De AI beoordeelt en de winnaar ziet zijn woorden in het echte boek!</p>
+            <a href="verhaal.html" class="modus-knop">📖 Doe mee <span class="cta-pijl">→</span></a>
         </div>
 
-        <!-- ② Mijn Woordenschat (normaal, 2 kolommen) -->
-        <div class="bento-cel bento-geel span-2 glass fade-in">
-            <div class="bento-illus" style="min-height:60px;">
+        <!-- ② Mijn Woordenschat -->
+        <div class="modus-cel glass fade-in">
+            <div class="modus-illus">
                 <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="90" cy="75" r="65" fill="rgba(247,201,72,0.06)"/>
-                    <rect x="35" y="50" width="85" height="72" rx="8" fill="rgba(247,201,72,0.1)" stroke="rgba(247,201,72,0.4)" stroke-width="2"/>
-                    <path d="M35 65 L35 58 Q35 50 43 50 L80 50 L88 58 L120 58 Q120 50 120 50 L35 50" fill="rgba(247,201,72,0.2)" stroke="rgba(247,201,72,0.45)" stroke-width="1.5"/>
+                    <rect x="35" y="50" width="85" height="72" rx="8" fill="rgba(247,201,72,0.1)" stroke="var(--landing-accent)" stroke-opacity="0.4" stroke-width="2"/>
                     <rect x="48" y="70" width="60" height="8" rx="4" fill="rgba(247,201,72,0.25)"/>
                     <rect x="48" y="84" width="44" height="8" rx="4" fill="rgba(247,201,72,0.18)"/>
-                    <circle cx="138" cy="58" r="18" fill="rgba(13,43,26,0.8)" stroke="rgba(247,201,72,0.5)" stroke-width="2"/>
-                    <rect x="129" y="58" width="18" height="12" rx="3" fill="rgba(247,201,72,0.3)" stroke="rgba(247,201,72,0.6)" stroke-width="1.5"/>
+                    <circle cx="138" cy="58" r="18" fill="rgba(13,43,26,0.8)" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="2"/>
                     <circle cx="138" cy="64" r="2" fill="rgba(247,201,72,0.9)"/>
                 </svg>
             </div>
-            <span class="bento-tag tag-geel">🗂️ Persoonlijk &amp; privé</span>
-            <div class="bento-naam bento-naam-geel">Mijn Woordenschat</div>
+            <span class="modus-tag">🗂️ Persoonlijk</span>
+            <div class="bento-naam">Mijn Woordenschat</div>
             <p class="bento-tekst">Jouw eigen geheime map vol verhalen. Schrijf wanneer je wil en leer van je taalfouten.</p>
-            <a href="mijn-dossier.html" class="bento-knop knop-geel" id="modusDoossierKnop">🗂️ Open mijn dossier →</a>
+            <a href="mijn-dossier.html" class="modus-knop">🗂️ Open dossier <span class="cta-pijl">→</span></a>
         </div>
 
-        <!-- ③ De Woordenstorm (groot, 2 kolommen x 2 rijen) -->
-        <div class="bento-cel bento-paars span-2 rij-2 glass fade-in">
-            <div class="bento-illus">
+        <!-- ③ De Woordenstorm -->
+        <div class="modus-cel glass fade-in">
+            <div class="modus-illus">
                 <svg viewBox="0 0 180 150" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="90" cy="75" r="65" fill="rgba(124,58,237,0.07)"/>
-                    <circle cx="50" cy="60" r="18" fill="rgba(124,58,237,0.2)" stroke="rgba(124,58,237,0.5)" stroke-width="2"/>
+                    <circle cx="50" cy="60" r="18" fill="rgba(124,58,237,0.2)" stroke="var(--landing-accent)" stroke-opacity="0.5" stroke-width="2"/>
                     <circle cx="50" cy="53" r="7" fill="rgba(124,58,237,0.4)"/>
-                    <path d="M36 74 Q36 66 50 66 Q64 66 64 74" fill="rgba(124,58,237,0.25)" stroke="rgba(124,58,237,0.45)" stroke-width="1.5"/>
-                    <circle cx="130" cy="60" r="18" fill="rgba(232,25,125,0.15)" stroke="rgba(232,25,125,0.45)" stroke-width="2"/>
+                    <circle cx="130" cy="60" r="18" fill="rgba(232,25,125,0.15)" stroke="var(--landing-accent)" stroke-opacity="0.45" stroke-width="2"/>
                     <circle cx="130" cy="53" r="7" fill="rgba(232,25,125,0.35)"/>
-                    <path d="M116 74 Q116 66 130 66 Q144 66 144 74" fill="rgba(232,25,125,0.2)" stroke="rgba(232,25,125,0.4)" stroke-width="1.5"/>
-                    <circle cx="90" cy="95" r="18" fill="rgba(124,58,237,0.25)" stroke="rgba(124,58,237,0.55)" stroke-width="2"/>
+                    <circle cx="90" cy="95" r="18" fill="rgba(124,58,237,0.25)" stroke="var(--landing-accent)" stroke-opacity="0.55" stroke-width="2"/>
                     <circle cx="90" cy="88" r="7" fill="rgba(124,58,237,0.45)"/>
-                    <path d="M76 109 Q76 101 90 101 Q104 101 104 109" fill="rgba(124,58,237,0.3)" stroke="rgba(124,58,237,0.5)" stroke-width="1.5"/>
-                    <circle cx="71" cy="74" r="3" fill="rgba(247,201,72,0.6)"/>
-                    <circle cx="108" cy="74" r="3" fill="rgba(247,201,72,0.6)"/>
                 </svg>
             </div>
-            <span class="bento-tag tag-paars">⚡ Met je klas of vrienden</span>
-            <div class="bento-naam bento-naam-paars">De Woordenstorm</div>
-            <p class="bento-tekst">Start een geheime missie met je klas of vrienden. Iedereen schrijft stilletjes zijn hoofdstuk — de AI weeft alles samen tot één groot avontuur.</p>
-            <ul class="bento-stappen">
-                <li class="bento-stap"><span class="bento-stap-nr nr-paars">1</span><span>Start een missie en deel de geheime code</span></li>
-                <li class="bento-stap"><span class="bento-stap-nr nr-paars">2</span><span>Iedereen schrijft stilletjes zijn hoofdstuk</span></li>
-                <li class="bento-stap"><span class="bento-stap-nr nr-paars">3</span><span>De AI weeft alles samen tot één verhaal!</span></li>
-            </ul>
+            <span class="modus-tag">⚡ Samen schrijven</span>
+            <div class="bento-naam">De Woordenstorm</div>
+            <p class="bento-tekst">Start een geheime missie met je klas of vrienden. De AI weeft alles samen tot één verhaal!</p>
             <div style="display:flex; gap:9px; flex-wrap:wrap; margin-top:auto;">
-                <a href="sessie-host.html" class="bento-knop knop-paars">🏫 Missie starten →</a>
-                <a href="sessie-join.html" style="display:inline-flex; align-items:center; gap:6px; padding:10px 18px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.3); border-radius:50px; color:rgba(196,181,253,0.7); font-family:'Baloo 2',sans-serif; font-weight:900; font-size:0.88rem; text-decoration:none; transition:background 0.2s;" onmouseover="this.style.background='rgba(124,58,237,0.22)'" onmouseout="this.style.background='rgba(124,58,237,0.1)'">🙋 Meedoen</a>
+                <a href="sessie-host.html" class="modus-knop">🏫 Start missie <span class="cta-pijl">→</span></a>
+                <a href="sessie-join.html" class="modus-knop" style="opacity:0.7;">🙋 Meedoen</a>
             </div>
         </div>
 
-        <!-- ④ Idee insturen (normaal, 2 kolommen) -->
-        <div class="bento-cel bento-donker span-2 glass fade-in">
-            <span class="bento-tag tag-donker">💡 Jouw idee</span>
-            <div class="bento-naam" style="color:rgba(167,196,181,0.9);">Stuur een Idee In!</div>
-            <p class="bento-tekst" style="margin-bottom:10px;">Heb je een cool idee voor een verhaal? Deel het!</p>
-            <input class="idee-input" id="ideeNaam" placeholder="👤 Jouw naam..." maxlength="50">
-            <textarea class="idee-textarea" id="ideeTekst" placeholder="✏️ Jouw verhaalidee..." maxlength="1000" style="min-height:60px;"></textarea>
-            <button class="idee-knop" onclick="verstuurIdee()" id="ideeKnop">🚀 Verstuur!</button>
-            <span class="melding-badge">🔍 Wordt eerst gecontroleerd.</span>
-            <div class="melding-succes-donker" id="ideeSucces">🎉 Super! Je idee is ontvangen. Bedankt!</div>
-            <div class="melding-fout-donker" id="ideeFout">😕 Er ging iets mis. Probeer opnieuw!</div>
-        </div>
+    </div><!-- /homepage-grid -->
 
-    </div><!-- /bento-grid row 1 -->
-
-    <!-- ── BENTO GRID ROW 2: WINNAARS + OVER ── -->
-    <div class="bento-grid">
-
-        <!-- ⑤ Laatste Winnaars (breed, 3 kolommen) -->
-        <div class="bento-cel bento-donker span-3 glass fade-in">
-            <span class="bento-tag tag-geel">🏆 Winnaars</span>
-            <div class="bento-naam" style="color:#F7C948; margin-bottom:12px;">Laatste Winnaars</div>
-            <div id="winnaarsList">
-                <div style="text-align:center; padding:20px 0; color:rgba(167,196,181,0.5); font-size:0.9rem;">⏳ Laden...</div>
+    <!-- ── SOCIAL PROOF ── -->
+    <div class="social-proof glass fade-in">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+            <div>
+                <span class="modus-tag">🏆 Winnaars</span>
+                <div class="bento-naam" style="margin-top:8px;">Laatste Winnaars</div>
             </div>
+            <div id="verhaalTeller" style="color:var(--landing-accent); font-weight:800; font-size:0.9rem;"></div>
         </div>
-
-        <!-- ⑥ Over WoordSpeler (breed, 3 kolommen) -->
-        <div class="bento-cel bento-donker span-3 glass fade-in">
-            <span class="bento-tag tag-donker">📚 Over ons</span>
-            <div class="bento-naam" style="color:white; margin-bottom:10px;">Over WoordSpeler</div>
-            <p style="color:rgba(255,255,255,0.5); line-height:1.8; font-size:0.9rem;">
-                Welkom bij <strong style="color:white;">WoordSpeler</strong>! Elke dag schrijven kinderen een stukje van een groot doorlopend verhaal. De beste inzending wordt toegevoegd aan het echte verhaal.
-            </p>
-            <div class="over-links">
-                <a href="verhalen.html" class="ol-mint">📖 Bekijk Verhalen</a>
-                <a href="verhaal.html#verhaal" class="ol-paars">📚 Ons Grote Verhaal</a>
-                <a href="videos.html" class="ol-roze">🎬 Video's</a>
-            </div>
+        <div id="winnaarsList">
+            <div style="text-align:center; padding:20px 0; color:var(--landing-tekst-zacht); font-size:0.9rem;">⏳ Laden...</div>
         </div>
-
-    </div><!-- /bento-grid row 2 -->
+    </div>
 
 </div>
 </main>
@@ -481,6 +372,15 @@
 <footer>
     <div class="quote">"Woorden zijn je speelgoed."</div>
     <div class="quote-auteur">— WoordSpeler</div>
+    <div style="margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="verhalen.html" style="color:var(--landing-tekst-zacht, rgba(167,196,181,0.6)); text-decoration:none; font-size:0.85rem;">📖 Verhalen</a>
+        <a href="videos.html" style="color:var(--landing-tekst-zacht, rgba(167,196,181,0.6)); text-decoration:none; font-size:0.85rem;">🎬 Video's</a>
+        <span style="color:var(--landing-tekst-zacht, rgba(167,196,181,0.4)); font-size:0.85rem;">|</span>
+        <a href="#" id="wisselGroepLink" style="color:var(--landing-accent, #4CC97A); text-decoration:none; font-size:0.85rem; font-weight:700;">🔄 Wissel van groep</a>
+    </div>
+    <p style="margin-top:12px; color:var(--landing-tekst-zacht, rgba(167,196,181,0.4)); font-size:0.78rem; max-width:500px; margin-left:auto; margin-right:auto;">
+        WoordSpeler is een creatieve schrijfclub voor kinderen. Elke dag schrijven kinderen een stukje van een groot doorlopend verhaal.
+    </p>
 </footer>
 
 <script src="auth.js"></script>
