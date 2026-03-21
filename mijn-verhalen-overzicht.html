@@ -6,28 +6,42 @@
     <title>Mijn Verhalen — WoordSpeler</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        main { padding: 36px 0 60px; }
+        body { overflow-x: hidden; }
+        main { position: relative; z-index: 1; padding: 36px 0 60px; }
+
+        /* Achtergrond orbs */
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px);
+            animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
+        }
+        @keyframes orbDrift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
+        }
+
         .pagina-header { text-align:center; padding: 8px 0 28px; }
-        .pagina-header h1 { font-family:'Fredoka One',cursive; font-size:clamp(1.8rem,5vw,2.6rem); color:#5B21B6; margin-bottom:8px; }
+        .pagina-header h1 { font-size:clamp(1.8rem,5vw,2.6rem); color:var(--geel); margin-bottom:8px; }
         .pagina-header p { color:var(--tekst-zacht); font-size:1rem; }
 
         .verhaal-grid { display:flex; flex-direction:column; gap:16px; }
 
         .pv-kaart {
-            background: #fff;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: var(--radius);
             padding: 22px 24px;
-            box-shadow: var(--schaduw);
-            border: 2px solid var(--rand-licht);
-            border-left: 5px solid var(--paars);
-            transition: box-shadow 0.2s, transform 0.2s;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-left: 4px solid var(--paars);
+            transition: background 0.3s, border-color 0.3s, transform 0.3s;
         }
-        .pv-kaart:hover { box-shadow:var(--schaduw-hover); transform:translateY(-2px); }
+        .pv-kaart:hover { background:rgba(255,255,255,0.09); border-color:rgba(255,255,255,0.2); transform:translateY(-2px); }
         .pv-kaart:nth-child(2n)   { border-left-color: var(--roze); }
         .pv-kaart:nth-child(3n+1) { border-left-color: var(--oranje); }
 
         .kaart-kop { display:flex; align-items:flex-start; gap:14px; margin-bottom:12px; flex-wrap:wrap; }
-        .kaart-titel { font-family:'Fredoka One',cursive; font-size:1.35rem; color:var(--tekst); flex:1; min-width:0; }
+        .kaart-titel { font-size:1.35rem; color:var(--tekst); flex:1; min-width:0; font-weight:800; }
         .status-badge {
             padding: 4px 14px;
             border-radius: 20px;
@@ -35,20 +49,20 @@
             font-weight: 800;
             white-space: nowrap;
         }
-        .status-bezig { background:#FFF7ED; border:2px solid #FED7AA; color:#9A3412; }
-        .status-klaar { background:var(--groen-licht); border:2px solid #86EFAC; color:#14532D; }
+        .status-bezig { background:rgba(242,140,56,0.15); border:2px solid rgba(242,140,56,0.4); color:var(--oranje); }
+        .status-klaar { background:rgba(76,201,122,0.15); border:2px solid rgba(76,201,122,0.4); color:var(--groen); }
 
         .kaart-meta { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
         .meta-pill {
-            background: var(--paars-licht);
-            border: 1.5px solid #C4B5FD;
+            background: rgba(139,92,246,0.12);
+            border: 1.5px solid rgba(139,92,246,0.3);
             border-radius: 12px;
             padding: 3px 12px;
             font-size: 0.82rem;
             font-weight: 700;
-            color: #5B21B6;
+            color: #C4B5FD;
         }
-        .meta-pill.groen { background:var(--groen-licht); border-color:#86EFAC; color:#14532D; }
+        .meta-pill.groen { background:rgba(76,201,122,0.12); border-color:rgba(76,201,122,0.3); color:var(--groen); }
 
         .kaart-tekst-preview {
             font-size: 0.9rem;
@@ -70,65 +84,67 @@
             padding: 60px 20px;
         }
         .leeg-melding .groot { font-size: 4rem; margin-bottom: 16px; }
-        .leeg-melding h3 { font-family:'Fredoka One',cursive; font-size:1.6rem; color:#5B21B6; margin-bottom:10px; }
+        .leeg-melding h3 { font-size:1.6rem; color:var(--geel); margin-bottom:10px; }
         .leeg-melding p { color:var(--tekst-zacht); margin-bottom:24px; }
 
         /* Deel-modal */
         .modal-overlay {
             display: none;
             position: fixed; inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             z-index: 200;
             align-items: center;
             justify-content: center;
         }
         .modal-overlay.zichtbaar { display: flex; }
         .modal-doos {
-            background: #fff;
+            background: linear-gradient(145deg, #0E3520, #0A2416);
+            border: 1px solid rgba(76,201,122,0.3);
             border-radius: var(--radius);
             padding: 28px;
             max-width: 440px;
             width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-        .modal-doos h3 { font-family:'Fredoka One',cursive; font-size:1.4rem; color:#5B21B6; margin-bottom:8px; }
+        .modal-doos h3 { font-size:1.4rem; color:var(--geel); margin-bottom:8px; }
         .modal-doos p { color:var(--tekst-zacht); font-size:0.9rem; margin-bottom:18px; }
         .modal-link-balk {
-            background: var(--paars-licht);
-            border: 2px solid #C4B5FD;
+            background: rgba(76,201,122,0.1);
+            border: 2px solid rgba(76,201,122,0.3);
             border-radius: 12px;
             padding: 10px 14px;
             font-size: 0.85rem;
             font-weight: 700;
-            color: #5B21B6;
+            color: var(--groen);
             word-break: break-all;
             margin-bottom: 16px;
         }
         .modal-acties { display:flex; gap:10px; flex-wrap:wrap; }
-        .modal-sluiten { background:none; border:2px solid #C4B5FD; color:#5B21B6; padding:8px 18px; border-radius:var(--radius-btn); font-family:'Nunito',sans-serif; font-weight:800; cursor:pointer; font-size:0.9rem; }
-        .modal-sluiten:hover { background:var(--paars-licht); }
+        .modal-sluiten { background:none; border:2px solid rgba(76,201,122,0.3); color:var(--groen); padding:8px 18px; border-radius:var(--radius-btn); font-weight:800; cursor:pointer; font-size:0.9rem; transition:background 0.2s; }
+        .modal-sluiten:hover { background:rgba(76,201,122,0.1); }
 
         /* Bevestig verwijder */
         .bevestig-overlay {
             display: none;
             position: fixed; inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             z-index: 200;
             align-items: center;
             justify-content: center;
         }
         .bevestig-overlay.zichtbaar { display: flex; }
         .bevestig-doos {
-            background: #fff;
+            background: linear-gradient(145deg, #0E3520, #0A2416);
+            border: 1px solid rgba(248,113,113,0.3);
             border-radius: var(--radius);
             padding: 28px;
             max-width: 380px;
             width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             text-align: center;
         }
         .bevestig-doos .groot { font-size:3rem; margin-bottom:12px; }
-        .bevestig-doos h3 { font-family:'Fredoka One',cursive; font-size:1.3rem; color:#7F1D1D; margin-bottom:8px; }
+        .bevestig-doos h3 { font-size:1.3rem; color:var(--rood); margin-bottom:8px; }
         .bevestig-doos p { color:var(--tekst-zacht); font-size:0.9rem; margin-bottom:20px; }
         .bevestig-acties { display:flex; gap:10px; justify-content:center; }
 
@@ -136,6 +152,13 @@
     </style>
 </head>
 <body data-pagina="galerij">
+
+<!-- Achtergrond orbs -->
+<div class="bg-canvas" aria-hidden="true">
+    <div class="bg-orb" style="width:340px;height:340px;top:-5%;left:-8%;background:rgba(76,201,122,0.10);--d:14s;--tx:50px;--ty:30px"></div>
+    <div class="bg-orb" style="width:280px;height:280px;bottom:10%;right:-6%;background:rgba(247,201,72,0.08);--d:18s;--tx:-40px;--ty:-20px"></div>
+    <div class="bg-orb" style="width:200px;height:200px;top:40%;left:50%;background:rgba(139,92,246,0.06);--d:16s;--tx:30px;--ty:40px"></div>
+</div>
 
 <header>
     <h1 class="site-title">🎲 WoordSpeler</h1>

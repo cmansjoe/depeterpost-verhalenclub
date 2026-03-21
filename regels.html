@@ -37,9 +37,30 @@
         .sectie:last-of-type {
             border-left: none;
         }
+
+        body { overflow-x: hidden; }
+        main { position: relative; z-index: 1; }
+
+        /* Achtergrond orbs */
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px);
+            animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
+        }
+        @keyframes orbDrift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
+        }
     </style>
 </head>
 <body data-pagina="landing">
+
+<!-- Achtergrond orbs -->
+<div class="bg-canvas" aria-hidden="true">
+    <div class="bg-orb" style="width:300px;height:300px;top:-5%;left:-10%;background:rgba(76,201,122,0.08);--d:14s;--tx:40px;--ty:30px"></div>
+    <div class="bg-orb" style="width:250px;height:250px;bottom:15%;right:-8%;background:rgba(247,201,72,0.06);--d:18s;--tx:-35px;--ty:-25px"></div>
+    <div class="bg-orb" style="width:200px;height:200px;top:50%;left:55%;background:rgba(139,92,246,0.05);--d:16s;--tx:25px;--ty:35px"></div>
+</div>
 
 <header>
     <h1 class="site-title">🎲 WoordSpeler</h1>

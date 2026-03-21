@@ -6,7 +6,19 @@
     <title>Mijn Verhaal — WoordSpeler</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        main { padding: 36px 0 60px; }
+        body { overflow-x: hidden; }
+        main { position: relative; z-index: 1; padding: 36px 0 60px; }
+
+        /* Achtergrond orbs */
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px);
+            animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
+        }
+        @keyframes orbDrift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
+        }
 
         /* ── SETUP FASE ── */
         .keuze-groep { display:flex; gap:12px; flex-wrap:wrap; margin-top:6px; }
@@ -221,9 +233,7 @@
         .compleet-deel-tekst { font-family:'Lora',serif; color:var(--tekst); line-height:1.85; white-space:pre-wrap; }
         .share-knoppen-voltooiing { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
 
-        /* ── FADE IN ── */
-        .fade-in { animation: fadeInNew 0.6s ease both; }
-        @keyframes fadeInNew { 0%{opacity:0;transform:translateY(16px)} 100%{opacity:1;transform:translateY(0)} }
+        /* fade-in via style.css (.fade-in + .visible) */
 
         .knop-sm { padding: 8px 18px; font-size: 0.85rem; }
     </style>
@@ -324,6 +334,12 @@
     </style>
 </head>
 <body data-pagina="schrijf">
+
+<!-- Achtergrond orbs -->
+<div class="bg-canvas" aria-hidden="true">
+    <div class="bg-orb" style="width:320px;height:320px;top:-5%;left:-10%;background:rgba(76,201,122,0.08);--d:14s;--tx:40px;--ty:30px"></div>
+    <div class="bg-orb" style="width:260px;height:260px;bottom:10%;right:-8%;background:rgba(247,201,72,0.06);--d:18s;--tx:-35px;--ty:-25px"></div>
+</div>
 
 <header>
     <h1 class="site-title">🎲 WoordSpeler</h1>

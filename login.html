@@ -4,28 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inloggen — WoordSpeler</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-@import url('https://fonts.googleapis.com/css2?family=Grandstander:wght@700;900&family=Baloo+2:wght@400;700;800&family=Lora:ital,wght@0,400;1,400&display=swap');
-
-:root {
-  --groen:       #4CC97A;
-  --groen-donker:#1B4D2E;
-  --geel:        #F7C948;
-  --oranje:      #F28C38;
-  --paars:       #8B5CF6;
-  --roze:        #F472B6;
-  --mint:        #34D399;
-  --rood:        #F87171;
-  --tekst:       #F0FDF4;
-  --tekst-zacht: #A7C4B5;
-  --radius-btn:  50px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
-            font-family: 'Baloo 2', sans-serif;
-            color: var(--tekst);
             min-height: 100vh;
             min-height: -webkit-fill-available;
             display: flex;
@@ -33,32 +14,31 @@
             align-items: center;
             justify-content: flex-start;
             padding: 40px 20px;
-            background: #1B4D2E;
-            position: relative;
             overflow-y: auto;
         }
-
         html { height: -webkit-fill-available; }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse at 5% 10%, rgba(76,201,122,0.18) 0%, transparent 40%),
-                radial-gradient(ellipse at 95% 90%, rgba(247,201,72,0.10) 0%, transparent 40%);
-            pointer-events: none;
-            z-index: 0;
+        /* Achtergrond orbs */
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px);
+            animation: orbDrift var(--d,12s) ease-in-out infinite alternate;
+        }
+        @keyframes orbDrift {
+            from { transform: translate(0,0) scale(1); }
+            to   { transform: translate(var(--tx,40px), var(--ty,-30px)) scale(1.15); }
         }
 
         .login-kaart {
-            background: linear-gradient(145deg, #0E3520, #0A2416);
+            background: linear-gradient(145deg, rgba(13,27,62,0.9), rgba(6,14,36,0.95));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 28px;
             padding: 40px 36px;
             width: 100%;
             max-width: 460px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(76,201,122,0.3);
-            border: 2px solid rgba(76,201,122,0.4);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.3);
+            border: 2px solid rgba(99,102,241,0.35);
             position: relative;
             z-index: 1;
         }
@@ -72,7 +52,7 @@
         .login-logo h1 {
             font-family: 'Grandstander', cursive;
             font-size: 1.6rem;
-            background: linear-gradient(135deg, #4CC97A, #34D399);
+            background: linear-gradient(135deg, #818CF8, #A78BFA);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -87,9 +67,9 @@
             font-size:0.9rem; cursor:pointer; color:var(--tekst-zacht); transition:all 0.2s ease;
         }
         .tab.actief {
-            background: linear-gradient(135deg, var(--groen), #34D399);
-            color: #0D2B1A;
-            box-shadow: 0 2px 12px rgba(76,201,122,0.3);
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(99,102,241,0.3);
         }
 
         .login-form { display:none; }
@@ -99,36 +79,36 @@
         .veld label { font-weight: 700; font-size: 0.88rem; color: var(--tekst); display: block; margin-bottom: 5px; }
         .veld input {
             width: 100%; padding: 12px 16px;
-            border: 2px solid rgba(76,201,122,0.25);
+            border: 2px solid rgba(99,102,241,0.25);
             border-radius: 14px;
             font-family: 'Baloo 2', cursive; font-size: 0.95rem;
-            color: var(--tekst); background: rgba(13,43,26,0.6); outline: none;
+            color: #E0E7FF; background: rgba(6,14,36,0.7); outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .veld input:focus {
-            border-color: var(--groen);
-            box-shadow: 0 0 0 3px rgba(76,201,122,0.2);
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
         }
-        .veld input::placeholder { color: rgba(167,196,181,0.5); }
+        .veld input::placeholder { color: rgba(167,196,181,0.4); }
 
         .avatar-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-top:6px; }
         .avatar-optie {
             font-size:1.5rem; padding:8px 4px; text-align:center; border-radius:10px;
-            cursor:pointer; border:2px solid transparent; background:rgba(76,201,122,0.08);
+            cursor:pointer; border:2px solid transparent; background:rgba(99,102,241,0.08);
             transition:all 0.15s ease; line-height:1;
         }
-        .avatar-optie:hover { background:rgba(76,201,122,0.2); transform:scale(1.15); }
+        .avatar-optie:hover { background:rgba(99,102,241,0.2); transform:scale(1.15); }
         .avatar-optie.gekozen {
-            border-color: var(--groen);
-            background: rgba(76,201,122,0.2);
-            box-shadow: 0 0 0 2px rgba(76,201,122,0.3);
+            border-color: #6366F1;
+            background: rgba(99,102,241,0.2);
+            box-shadow: 0 0 0 2px rgba(99,102,241,0.3);
         }
 
         .groep-knoppen { display:flex; gap:8px; margin-top:6px; }
         .groep-knop {
             flex:1; padding:10px 8px;
             border: 2px solid rgba(255,255,255,0.1);
-            border-radius:14px; background:rgba(13,43,26,0.6); cursor:pointer;
+            border-radius:14px; background:rgba(6,14,36,0.6); cursor:pointer;
             text-align:center; transition:all 0.2s ease; font-family:'Baloo 2',cursive;
             color: var(--tekst);
         }
@@ -140,21 +120,21 @@
         .groep-knop.gekozen-C { border-color: var(--groen); background: rgba(76,201,122,0.15); }
 
         .regels-vak {
-            background: rgba(76,201,122,0.08);
-            border: 2px solid rgba(76,201,122,0.2);
+            background: rgba(99,102,241,0.08);
+            border: 2px solid rgba(99,102,241,0.2);
             border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
             display: flex; align-items: flex-start; gap: 10px;
         }
         .regels-vak input[type="checkbox"] {
             width: 20px; height: 20px; margin-top: 2px;
-            cursor: pointer; accent-color: var(--groen); flex-shrink: 0;
+            cursor: pointer; accent-color: #6366F1; flex-shrink: 0;
         }
         .regels-vak label { font-size:0.85rem; color:var(--tekst); font-weight:600; cursor:pointer; margin:0; }
-        .regels-vak a { color: var(--groen); font-weight: 700; }
+        .regels-vak a { color: #818CF8; font-weight: 700; }
 
         .vergeten-link { text-align:right; margin-top:-8px; margin-bottom:14px; }
         .vergeten-link button {
-            background: none; border: none; color: var(--groen);
+            background: none; border: none; color: #818CF8;
             font-family: 'Baloo 2', cursive; font-size: 0.82rem; font-weight: 700; cursor: pointer; padding: 0;
         }
         .vergeten-link button:hover { text-decoration: underline; }
@@ -172,14 +152,14 @@
         .code-vakjes { display:flex; gap:8px; justify-content:center; margin:20px 0; }
         .code-vakjes input {
             width: 48px; height: 56px;
-            border: 2px solid rgba(76,201,122,0.3);
+            border: 2px solid rgba(99,102,241,0.3);
             border-radius: 12px;
-            font-size: 1.4rem; font-weight: 900; text-align: center; color: var(--groen);
-            background: rgba(13,43,26,0.7); outline: none; transition: border-color 0.2s;
+            font-size: 1.4rem; font-weight: 900; text-align: center; color: #818CF8;
+            background: rgba(6,14,36,0.7); outline: none; transition: border-color 0.2s;
         }
         .code-vakjes input:focus {
-            border-color: var(--groen);
-            box-shadow: 0 0 0 3px rgba(76,201,122,0.2);
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
         }
 
         .reset-scherm { display:none; }
@@ -190,16 +170,16 @@
 
         .knop-vol {
             width: 100%; padding: 14px; border-radius: 50px;
-            background: linear-gradient(135deg, var(--groen), #34D399);
-            color: #0D2B1A; font-family: 'Baloo 2', cursive; font-weight: 800;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: #fff; font-family: 'Baloo 2', cursive; font-weight: 800;
             font-size: 1rem; border: none; cursor: pointer; transition: all 0.2s ease;
             position: relative; overflow: hidden;
         }
-        .knop-vol:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(76,201,122,0.4); }
+        .knop-vol:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(99,102,241,0.4); }
         .knop-vol:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
         .link-knop {
-            background: none; border: none; color: var(--groen);
+            background: none; border: none; color: #818CF8;
             font-family: 'Baloo 2', cursive; font-weight: 700; cursor: pointer; font-size: 0.85rem;
         }
         .link-knop:hover { text-decoration: underline; }
@@ -208,21 +188,16 @@
             .login-kaart { padding:28px 20px; }
             .avatar-grid { grid-template-columns:repeat(5,1fr); }
         }
-
-        /* Scroll-entrance */
-        .fade-in {
-            opacity: 0; transform: translateY(24px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .fade-in.visible {
-            opacity: 1; transform: translateY(0);
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .fade-in { opacity: 1; transform: none; transition: none; }
-        }
     </style>
 </head>
 <body data-pagina="login">
+
+<!-- Achtergrond orbs -->
+<div class="bg-canvas" aria-hidden="true">
+    <div class="bg-orb" style="width:380px;height:380px;top:-10%;left:-12%;background:rgba(99,102,241,0.10);--d:14s;--tx:50px;--ty:30px"></div>
+    <div class="bg-orb" style="width:300px;height:300px;bottom:5%;right:-8%;background:rgba(139,92,246,0.08);--d:18s;--tx:-40px;--ty:-20px"></div>
+    <div class="bg-orb" style="width:220px;height:220px;top:50%;left:60%;background:rgba(56,189,248,0.05);--d:20s;--tx:30px;--ty:40px"></div>
+</div>
 
 <!-- NAV -->
 <nav id="hoofdNav">
@@ -338,7 +313,7 @@
     <!-- ══ WACHT OP TOESTEMMING ══ -->
     <div class="verificatie-scherm" id="verificatieScherm">
         <div style="font-size:2.5rem;margin-bottom:12px;" id="wachtEmoji">🏫</div>
-        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;" id="wachtTitel">Account aangemaakt!</h2>
+        <h2 style="font-family:'Grandstander',cursive;color:#818CF8;margin-bottom:8px;" id="wachtTitel">Account aangemaakt!</h2>
         <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;" id="wachtTekst">Je account wacht op activatie.</p>
     </div>
 
@@ -346,7 +321,7 @@
     <div class="reset-scherm" id="vergetenScherm">
         <button class="link-knop" onclick="toonTab('inloggen')" style="margin-bottom:16px;display:block;">← Terug naar inloggen</button>
         <div style="font-size:2rem;margin-bottom:8px;">🔑</div>
-        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;">Wachtwoord vergeten?</h2>
+        <h2 style="font-family:'Grandstander',cursive;color:#818CF8;margin-bottom:8px;">Wachtwoord vergeten?</h2>
         <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;">Vul je e-mailadres in. We sturen een link om een nieuw wachtwoord in te stellen.</p>
         <div id="vergetenMelding" class="melding"></div>
         <div class="veld">
@@ -359,7 +334,7 @@
     <!-- ══ NIEUW WACHTWOORD ══ -->
     <div class="reset-scherm" id="nieuwWwScherm">
         <div style="font-size:2rem;margin-bottom:8px;">🔓</div>
-        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin-bottom:8px;">Nieuw wachtwoord</h2>
+        <h2 style="font-family:'Grandstander',cursive;color:#818CF8;margin-bottom:8px;">Nieuw wachtwoord</h2>
         <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;">Kies een nieuw wachtwoord van minstens 6 tekens.</p>
         <div id="nieuwWwMelding" class="melding"></div>
         <div class="veld">
@@ -376,7 +351,7 @@
     <!-- ══ SUCCES ══ -->
     <div class="succes-scherm" id="succesScherm">
         <span class="groot-emoji" id="succesEmoji">🎉</span>
-        <h2 style="font-family:'Grandstander',cursive;color:var(--groen);margin:12px 0 8px;" id="succesTitel">Welkom!</h2>
+        <h2 style="font-family:'Grandstander',cursive;color:#818CF8;margin:12px 0 8px;" id="succesTitel">Welkom!</h2>
         <p style="color:var(--tekst-zacht);font-size:0.9rem;margin-bottom:20px;" id="succesTekst">Je bent ingelogd!</p>
         <a href="index.html" class="knop-vol" style="display:block;text-decoration:none;text-align:center;">🏠 Naar de club!</a>
     </div>
