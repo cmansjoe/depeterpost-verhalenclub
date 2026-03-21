@@ -213,9 +213,28 @@ main { position: relative; z-index: 1; padding: 0 0 60px; }
     .groepkiezer { gap: 10px; }
     .groepkiezer-kaart { flex: 0 1 120px; padding: 14px 10px; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .bg-orb { animation: none !important; }
+    .groepkiezer-kaart { animation: none; }
+    .groepkiezer-kaart:hover { transform: none; }
+    .modus-illus { animation: none; }
+    .modus-cel:hover { transform: none; }
+    .modus-cel::after { animation: none !important; }
+    .hero-cta:hover { transform: none; }
+    .fade-in { opacity: 1; transform: none; transition: none; }
+    .fade-in.hero-fade { transform: none; }
+}
     </style>
 </head>
 <body data-pagina="landing">
+<script>
+/* Groep-detectie: vroeg laden om flash te voorkomen */
+(function() {
+    var g = localStorage.getItem('groep');
+    if (g) document.body.setAttribute('data-groep', g);
+})();
+</script>
 
 <!-- Achtergrond orbs -->
 <div class="bg-canvas" id="bgCanvas">
@@ -728,15 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<script>
-/* Groep-detectie: stel data-groep in op body voor kleuradaptatie */
-(function() {
-    const groep = localStorage.getItem('groep') || null;
-    if (groep) {
-        document.body.setAttribute('data-groep', groep);
-    }
-})();
-</script>
 <script src="knop.js"></script>
 </body>
 </html>
